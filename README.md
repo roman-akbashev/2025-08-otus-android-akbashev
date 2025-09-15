@@ -1,4 +1,4 @@
-# 2025-11-otus-android-akbashev
+# 2025-08-otus-android-akbashev
 
 Курс OTUS "Android Developer. Professional"
 
