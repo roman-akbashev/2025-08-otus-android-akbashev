@@ -1,0 +1,3 @@
+include ':flowcats'
+include ':operators'
+rootProject.name = "Flow"
