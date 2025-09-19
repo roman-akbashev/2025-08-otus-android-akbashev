@@ -34,24 +34,14 @@ class CatsViewModel(
                 catsService.getCatFact()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .map { fact -> Success(fact) as Result }
-                    .onErrorResumeNext { error: Throwable ->
-                        // При ошибке сети используем локальный генератор
+                    .onErrorResumeNext {
                         localCatFactsGenerator.generateCatFact()
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .map { fact -> Success(fact) as Result }
-                            .onErrorReturnItem(
-                                Error(
-                                    error.message ?: context.getString(R.string.default_error_text)
-                                )
-                            )
                     }
             }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ result ->
-                _catsLiveData.value = result
+            .subscribe({ fact ->
+                _catsLiveData.value = Success(fact) as Result
             }, { error ->
                 _catsLiveData.value = Error(
                     error.message ?: context.getString(R.string.default_error_text)
