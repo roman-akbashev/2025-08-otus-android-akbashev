@@ -11,6 +11,7 @@
 группа: OTUS Android-prof-2025-08
 
 # Содержание
-|HW|DESCRIPTION|
-| ------ | ------ |
+|HW| DESCRIPTION          |
+| ------ |----------------------|
 | hw-01-rxJava | ДЗ к уроку 1. RxJava |
+| hw-02-coroutines | ДЗ к уроку 2. Kotlin coroutines |
