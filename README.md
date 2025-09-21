@@ -2,7 +2,7 @@
 
 Курс OTUS "Android Developer. Professional"
 
-[https://otus.ru/lessons/javaspring](https://otus.ru/lessons/android-professional/)
+[https://otus.ru/lessons/android-professional](https://otus.ru/lessons/android-professional/)
 
 ФИО: Роман Акбашев
 
