@@ -1,6 +1,7 @@
 package otus.homework.coroutines
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.async
@@ -30,16 +31,22 @@ class CatsViewModel(
         _catState.value = Result.Error(errorMessage)
     }
 
-    init {
-        getCatData()
-    }
-
-    fun getCatData() {
+    fun onInitComplete() {
         viewModelScope.launch(exceptionHandler) {
             val factDeferred = async { catsService.getCatFact() }
             val imageDeferred = async { catsService.getCatImage() }
             val catData = CatData(factDeferred.await().fact, imageDeferred.await().first().url)
             _catState.value = Result.Success(catData)
+        }
+    }
+
+    class CatsViewModelFactory(
+        private val catsService: CatsService,
+    ) : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            require(modelClass.isAssignableFrom(CatsViewModel::class.java))
+            return CatsViewModel(catsService) as T
         }
     }
 
