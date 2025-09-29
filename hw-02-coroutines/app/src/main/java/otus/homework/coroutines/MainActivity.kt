@@ -1,13 +1,21 @@
 package otus.homework.coroutines
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
+    private val diContainer = DiContainer()
 
     lateinit var catsPresenter: CatsPresenter
 
-    private val diContainer = DiContainer()
+    private val catsViewModel: CatsViewModel by viewModels {
+        CatsViewModel.CatsViewModelFactory(diContainer.catsService)
+    }
+
+    private val isPresenter = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -15,14 +23,29 @@ class MainActivity : AppCompatActivity() {
         val view = layoutInflater.inflate(R.layout.activity_main, null) as CatsView
         setContentView(view)
 
-        catsPresenter = CatsPresenter(diContainer.service)
-        view.presenter = catsPresenter
-        catsPresenter.attachView(view)
-        catsPresenter.onInitComplete()
+        if (isPresenter) {
+            catsPresenter = CatsPresenter(diContainer.catsService)
+            catsPresenter.attachView(view)
+            view.setOnButtonClickAction {
+                catsPresenter.onInitComplete()
+            }
+        } else {
+            view.setOnButtonClickAction {
+                catsViewModel.onInitComplete()
+                lifecycleScope.launch {
+                    catsViewModel.catState.collect { state ->
+                        when (state) {
+                            is Result.Success<*> -> view.populate(state.data as CatData)
+                            is Result.Error -> view.showToast(state.message)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     override fun onStop() {
-        if (isFinishing) {
+        if (isFinishing && isPresenter) {
             catsPresenter.detachView()
         }
         super.onStop()
