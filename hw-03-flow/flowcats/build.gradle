@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 35
     buildToolsVersion "30.0.3"
 
     namespace = "otus.homework.flowcats"
@@ -12,7 +12,7 @@ android {
     defaultConfig {
         applicationId "otus.homework.flowcats"
         minSdkVersion 23
-        targetSdkVersion 30
+        targetSdkVersion 33
         versionCode 1
         versionName "1.0"
 
@@ -47,5 +47,6 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.3'
     implementation 'androidx.activity:activity-ktx:1.2.3'
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.4.3'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2'
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
 }
