@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
 class CatsViewModel(
@@ -19,8 +18,7 @@ class CatsViewModel(
     init {
         viewModelScope.launch {
             catsRepository.listenForCatFacts()
-                .catch { _catState.value = Result.Error(it.message.toString()) }
-                .collect { _catState.value = Result.Success(it) }
+                .collect { _catState.value = it }
         }
     }
 }

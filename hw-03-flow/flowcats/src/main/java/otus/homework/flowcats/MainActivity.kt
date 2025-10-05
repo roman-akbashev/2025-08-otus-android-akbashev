@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 catsViewModel.catState.collect { state ->
                     when (state) {
-                        is Result.Loading -> view.populate("Loading ...")
+                        is Result.Loading -> view.populate(getString(R.string.loading))
                         is Result.Success -> view.populate(state.data)
                         is Result.Error -> view.showToast(state.message)
                     }

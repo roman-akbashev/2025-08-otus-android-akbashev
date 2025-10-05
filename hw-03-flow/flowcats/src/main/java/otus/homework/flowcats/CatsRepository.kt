@@ -12,7 +12,11 @@ class CatsRepository(
 
     fun listenForCatFacts() = flow {
         while (true) {
-            val fact = catsService.getCatFact()
+            val fact = try {
+                Result.Success(catsService.getCatFact())
+            } catch (e: Exception) {
+                Result.Error(e.message ?: "Unknown error")
+            }
             emit(fact)
             delay(refreshIntervalMs)
         }
