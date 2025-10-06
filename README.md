@@ -11,9 +11,10 @@
 группа: OTUS Android-prof-2025-08
 
 # Содержание
-| HW               | DESCRIPTION                     |
-|------------------|---------------------------------|
-| hw-01-rxJava     | ДЗ к уроку 1. RxJava            |
-| hw-02-coroutines | ДЗ к уроку 2. Kotlin coroutines |
-| hw-03-flow       | ДЗ к уроку 3. Flow              |
-| hw-04-canvas     | ДЗ к уроку 4. Canvas            |
+| HW                 | DESCRIPTION                     |
+|--------------------|---------------------------------|
+| hw-01-rxJava       | ДЗ к уроку 1. RxJava            |
+| hw-02-coroutines   | ДЗ к уроку 2. Kotlin coroutines |
+| hw-03-flow         | ДЗ к уроку 3. Flow              |
+| hw-04-canvas       | ДЗ к уроку 4. Canvas            |
+| hw-05-recyclerView | ДЗ к уроку 5. RecyclerView      |
