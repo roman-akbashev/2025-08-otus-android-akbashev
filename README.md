@@ -16,3 +16,4 @@
 | hw-01-rxJava     | ДЗ к уроку 1. RxJava            |
 | hw-02-coroutines | ДЗ к уроку 2. Kotlin coroutines |
 | hw-03-flow       | ДЗ к уроку 3. Flow              |
+| hw-04-canvas     | ДЗ к уроку 4. Canvas            |
