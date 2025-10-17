@@ -62,27 +62,10 @@ class PieChartView @JvmOverloads constructor(
     private val minSize = 300.dpToPx()
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        val desiredWidth = minSize
-        val desiredHeight = minSize
-
-        val widthMode = MeasureSpec.getMode(widthMeasureSpec)
-        val widthSize = MeasureSpec.getSize(widthMeasureSpec)
-        val heightMode = MeasureSpec.getMode(heightMeasureSpec)
-        val heightSize = MeasureSpec.getSize(heightMeasureSpec)
-
-        val width = when (widthMode) {
-            MeasureSpec.EXACTLY -> widthSize
-            MeasureSpec.AT_MOST -> minOf(desiredWidth, widthSize)
-            else -> desiredWidth
-        }
-
-        val height = when (heightMode) {
-            MeasureSpec.EXACTLY -> heightSize
-            MeasureSpec.AT_MOST -> minOf(desiredHeight, heightSize)
-            else -> desiredHeight
-        }
-
-        setMeasuredDimension(width, height)
+        setMeasuredDimension(
+            resolveSize(minSize, widthMeasureSpec),
+            resolveSize(minSize, heightMeasureSpec)
+        )
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -192,7 +175,6 @@ class PieChartView @JvmOverloads constructor(
             val textRadius = radius
             val labelX = width / 2f + textRadius * cos(angleRad)
             val labelY = height / 2f + textRadius * sin(angleRad) + textPaint.textSize / 2.6f
-
             if (slice.sweepAngle >= 15f) {
                 canvas.drawText(slice.percentLabel, labelX, labelY, textPaint)
             }
