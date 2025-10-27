@@ -61,6 +61,25 @@ class PieChartView @JvmOverloads constructor(
 
     private val minSize = 300.dpToPx()
 
+    private var minDim: Int = 0
+
+    private var radius: Float = 0f
+
+    private var centerX: Float = 0f
+
+    private var centerY: Float = 0f
+
+    private var innerRadius: Float = 0f
+
+    private var outerRadius: Float = 0f
+
+    private var onClickListener: ((String) -> Unit)? = null
+
+
+    fun setOnClickListener(listener: (String) -> Unit) {
+        onClickListener = listener
+    }
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         setMeasuredDimension(
             resolveSize(minSize, widthMeasureSpec),
@@ -68,43 +87,43 @@ class PieChartView @JvmOverloads constructor(
         )
     }
 
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+
+        minDim = w.coerceAtMost(h)
+        radius = minDim * 0.39f
+        ringWidth = minDim * 0.18f
+        centerX = w / 2f
+        centerY = h / 2f
+        innerRadius = radius - ringWidth / 2
+        outerRadius = radius + ringWidth / 2
+
+        rectangle.set(
+            centerX - radius,
+            centerY - radius,
+            centerX + radius,
+            centerY + radius
+        )
+
+        piePaint.strokeWidth = ringWidth
+    }
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         if (pieSlices.isEmpty()) return
 
-        val minDim = width.coerceAtMost(height)
-        val radius = minDim * 0.39f
-        ringWidth = minDim * 0.18f
-        piePaint.strokeWidth = ringWidth
-
-        rectangle.set(
-            width / 2f - radius,
-            height / 2f - radius,
-            width / 2f + radius,
-            height / 2f + radius
-        )
-
         drawSlices(canvas)
-        drawPercent(radius, canvas)
+        drawPercent(canvas)
         drawText(canvas)
     }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         if (event.action == MotionEvent.ACTION_DOWN) {
-            val centerX = width / 2f
-            val centerY = height / 2f
-
             val dx = event.x - centerX
             val dy = event.y - centerY
 
             val dist = sqrt(dx * dx + dy * dy)
-
-            val minDim = width.coerceAtMost(height)
-            val radius = minDim * 0.39f
-
-            val innerRadius = radius - ringWidth / 2
-            val outerRadius = radius + ringWidth / 2
 
             if (dist in innerRadius..outerRadius) {
                 var touchAngle = Math.toDegrees(atan2(dy.toDouble(), dx.toDouble())).toFloat()
@@ -121,6 +140,7 @@ class PieChartView @JvmOverloads constructor(
                 }
                 slice?.let {
                     selectedCategory = it.category
+                    onClickListener?.invoke(it.category)
                     invalidate()
                 }
             }
@@ -165,16 +185,15 @@ class PieChartView @JvmOverloads constructor(
 
     private fun drawText(canvas: Canvas) {
         selectedCategory?.let {
-            canvas.drawText(it, width / 2f, height / 2f - 10f, textPaint)
+            canvas.drawText(it, centerX, centerY - 10f, textPaint)
         }
     }
 
-    private fun drawPercent(radius: Float, canvas: Canvas) {
+    private fun drawPercent(canvas: Canvas) {
         for (slice in pieSlices) {
             val angleRad = (slice.startAngle + slice.sweepAngle / 2) * (PI.toFloat() / 180f)
-            val textRadius = radius
-            val labelX = width / 2f + textRadius * cos(angleRad)
-            val labelY = height / 2f + textRadius * sin(angleRad) + textPaint.textSize / 2.6f
+            val labelX = centerX + radius * cos(angleRad)
+            val labelY = centerY + radius * sin(angleRad) + textPaint.textSize / 2.6f
             if (slice.sweepAngle >= 15f) {
                 canvas.drawText(slice.percentLabel, labelX, labelY, textPaint)
             }
