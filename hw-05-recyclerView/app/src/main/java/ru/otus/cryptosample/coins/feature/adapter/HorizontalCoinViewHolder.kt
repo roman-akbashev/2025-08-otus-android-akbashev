@@ -6,10 +6,10 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import ru.otus.cryptosample.R
 import ru.otus.cryptosample.coins.feature.CoinState
-import ru.otus.cryptosample.databinding.ItemCoinBinding
+import ru.otus.cryptosample.databinding.ItemCoinHorizontalBinding
 
-class CoinViewHolder(
-    private val binding: ItemCoinBinding
+class HorizontalCoinViewHolder(
+    private val binding: ItemCoinHorizontalBinding
 ) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(coin: CoinState) {
