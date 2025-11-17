@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_fragment_navigation"
+    app:startDestination="@+id/products_fragment">
+
+    <fragment
+        android:id="@+id/products_fragment"
+        android:name="ru.otus.marketsample.products.feature.ProductListFragment"
+        android:label="@string/title_products"
+        tools:layout="@layout/fragment_product_list" />
+
+    <fragment
+        android:id="@+id/promo_fragment"
+        android:name="ru.otus.marketsample.promo.feature.PromoListFragment"
+        android:label="@string/title_promo"
+        tools:layout="@layout/fragment_promo_list" />
+
+</navigation>
