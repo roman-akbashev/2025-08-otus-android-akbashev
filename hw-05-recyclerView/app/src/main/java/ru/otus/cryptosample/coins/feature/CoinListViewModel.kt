@@ -58,7 +58,12 @@ class CoinListViewModel(
             fullCategories
         } else {
             fullCategories.map { category ->
-                category.copy(coins = category.coins.take(4))
+                if (category.coins.size > 10) {
+                    // Для категорий с горизонтальным списком показываем только первые 10
+                    category.copy(coins = category.coins.take(10))
+                } else {
+                    category.copy(coins = category.coins.take(4))
+                }
             }
         }
 

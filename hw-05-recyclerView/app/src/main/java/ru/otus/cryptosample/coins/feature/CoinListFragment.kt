@@ -11,9 +11,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
 import ru.otus.cryptosample.CoinsSampleApp
 import ru.otus.cryptosample.coins.feature.adapter.CoinsAdapter
+import ru.otus.cryptosample.coins.feature.animation.SlideItemAnimator
 import ru.otus.cryptosample.coins.feature.di.DaggerCoinListComponent
 import ru.otus.cryptosample.databinding.FragmentCoinListBinding
 import javax.inject.Inject
@@ -29,6 +31,7 @@ class CoinListFragment : Fragment() {
     private val viewModel: CoinListViewModel by viewModels { factory }
 
     private lateinit var coinsAdapter: CoinsAdapter
+    private val sharedViewPool = RecyclerView.RecycledViewPool()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -39,7 +42,6 @@ class CoinListFragment : Fragment() {
             .create(appComponent)
             .inject(this)
     }
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -59,14 +61,14 @@ class CoinListFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        coinsAdapter = CoinsAdapter()
+        coinsAdapter = CoinsAdapter(sharedViewPool)
 
         val gridLayoutManager = GridLayoutManager(requireContext(), 2)
         gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
                 return when (coinsAdapter.getItemViewType(position)) {
-                    0 -> 2 // Category header spans full width
-                    1 -> 1 // Coin item spans half width
+                    0, 2 -> 2 // Category headers and horizontal categories span full width
+                    1 -> 1 // Coin items span half width
                     else -> 1
                 }
             }
@@ -75,6 +77,7 @@ class CoinListFragment : Fragment() {
         binding.recyclerView.apply {
             layoutManager = gridLayoutManager
             adapter = coinsAdapter
+            itemAnimator = SlideItemAnimator()
         }
     }
 
