@@ -81,7 +81,10 @@ fun ProductListItem(
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
                     modifier = Modifier
-                        .background(color = Colors.PRICE_BACKGROUND.color, shape = RoundedCornerShape(4.dp))
+                        .background(
+                            color = Colors.PRICE_BACKGROUND.color,
+                            shape = RoundedCornerShape(4.dp)
+                        )
                         .padding(vertical = 8.dp, horizontal = 12.dp)
 
                 )
@@ -127,15 +130,15 @@ fun Discount(
 @Composable
 @Preview
 private fun ProductListItemPreview() {
-        ProductListItem(
-            productState = ProductState(
-                id = "0",
-                name = "Product Name",
-                image = "",
-                price = "2000 руб",
-                hasDiscount = true,
-                discount = "-20%"
-            ),
-            onItemClick = {}
-        )
+    ProductListItem(
+        productState = ProductState(
+            id = "0",
+            name = "Product Name",
+            image = "",
+            price = "2000 руб",
+            hasDiscount = true,
+            discount = "-20%"
+        ),
+        onItemClick = {}
+    )
 }

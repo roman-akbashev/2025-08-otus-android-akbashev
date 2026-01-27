@@ -50,22 +50,22 @@ fun ProductListScreen(
 @Preview
 @Composable
 private fun ProductListScreenPreview() {
-        ProductListScreen(
-            state = ProductsScreenState(
-                isLoading = false,
-                productListState = List(10) {
-                    ProductState(
-                        id = it.toString(),
-                        name = "Product Name $it",
-                        image = "",
-                        price = "2000 руб",
-                        hasDiscount = true,
-                        discount = "-20%"
-                    )
-                },
-                hasError = false,
-                errorProvider = { "" }
-            ),
-            errorHasShown = {}
-        )
+    ProductListScreen(
+        state = ProductsScreenState(
+            isLoading = false,
+            productListState = List(10) {
+                ProductState(
+                    id = it.toString(),
+                    name = "Product Name $it",
+                    image = "",
+                    price = "2000 руб",
+                    hasDiscount = true,
+                    discount = "-20%"
+                )
+            },
+            hasError = false,
+            errorProvider = { "" }
+        ),
+        errorHasShown = {}
+    )
 }
