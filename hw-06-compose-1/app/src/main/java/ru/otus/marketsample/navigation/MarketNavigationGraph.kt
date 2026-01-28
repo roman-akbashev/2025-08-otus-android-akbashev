@@ -9,6 +9,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import androidx.navigation.toRoute
 import ru.otus.marketsample.details.feature.DetailsViewModel
 import ru.otus.marketsample.details.feature.compose.DetailsScreen
 import ru.otus.marketsample.details.feature.di.DaggerDetailsComponent
@@ -54,10 +55,11 @@ fun MarketNavigationGraph(
                 )
             }
             composable<ProductsRoute.Details> {
+                val detailsRoute = it.toRoute<ProductsRoute.Details>()
                 val component = getApplicationComponent()
                 val productListComponent = remember {
                     DaggerDetailsComponent.factory()
-                        .create(component, it.id)
+                        .create(component, detailsRoute.id)
                 }
 
                 val viewModel = viewModel(
