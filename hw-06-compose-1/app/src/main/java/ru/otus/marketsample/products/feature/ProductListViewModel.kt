@@ -2,6 +2,7 @@ package ru.otus.marketsample.products.feature
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import ru.otus.marketsample.products.domain.ConsumeProductsUseCase
 import ru.otus.marketsample.R
 
@@ -39,6 +41,7 @@ class ProductListViewModel(
                     screenState.copy(
                         isLoading = false,
                         productListState = productListState,
+                        isRefreshing = false
                     )
                 }
             }
@@ -54,7 +57,11 @@ class ProductListViewModel(
     }
 
     fun refresh() {
-        requestProducts()
+        viewModelScope.launch {
+            _state.update { it.copy(isRefreshing = true) }
+            delay(1000)
+            requestProducts()
+        }
     }
 
     fun errorHasShown() {
