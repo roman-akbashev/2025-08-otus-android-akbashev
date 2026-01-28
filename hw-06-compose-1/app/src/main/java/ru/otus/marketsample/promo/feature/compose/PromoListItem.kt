@@ -84,7 +84,7 @@ fun PromoListItem(
 }
 
 @Composable
-@Preview
+@Preview(showBackground = true)
 private fun PromoListItemPreview() {
     PromoListItem(
         promoState = PromoState(
