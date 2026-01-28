@@ -73,10 +73,12 @@ private fun Content(state: DetailsScreenState) {
             Spacer(modifier = Modifier.weight(1f))
         }
 
-        Discount(
-            state.detailsState.discount,
-            modifier = Modifier
-        )
+        if (state.detailsState.discount.isNotBlank()) {
+            Discount(
+                state.detailsState.discount,
+                modifier = Modifier
+            )
+        }
 
         Text(
             text = state.detailsState.price,
