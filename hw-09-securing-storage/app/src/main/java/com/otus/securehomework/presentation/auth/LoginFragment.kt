@@ -18,6 +18,7 @@ import com.otus.securehomework.presentation.visible
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+@Suppress("DEPRECATION")
 @AndroidEntryPoint
 class LoginFragment : Fragment(R.layout.fragment_login) {
 
