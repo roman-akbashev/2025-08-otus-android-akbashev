@@ -1,26 +1,29 @@
 package ru.otus.marketsample
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
+import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import ru.otus.marketsample.databinding.ActivityMainBinding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.ui.Modifier
+import ru.otus.marketsample.navigation.BottomBar
+import ru.otus.marketsample.navigation.MarketNavigationGraph
+import ru.otus.marketsample.navigation.rememberNavigationState
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
-
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        
-        ViewCompat.setOnApplyWindowInsetsListener(binding.container) { view, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+        setContent {
+            val navigationState = rememberNavigationState()
+
+            Scaffold(
+                bottomBar = {
+                    BottomBar(navigationState)
+                }
+            ) {
+                MarketNavigationGraph(navigationState, Modifier.padding(it))
+            }
         }
     }
 }
