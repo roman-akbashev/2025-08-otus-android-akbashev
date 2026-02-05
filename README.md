@@ -23,3 +23,4 @@
 | hw-07-compose-2        | ДЗ к уроку 14. Compose. 4 часть |
 | hw-09-securing-storage | ДЗ к уроку 18. Securing storage |
 | hw-10-mvi              | ДЗ к уроку 21. MVI              |
+| hw-11-hilt             | ДЗ к уроку 24. Hilt             |

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Products</string>
+    <string name="products_title">Products</string>
+    <string name="favorites_title">Favorites</string>
+    <string name="error_loading">Error loading data</string>
+    <string name="empty_favorites">No favorites yet</string>
+    <string name="add_favorite_desc">Add to favorites</string>
+    <string name="remove_favorite_desc">Remove from favorites</string>
+</resources>
