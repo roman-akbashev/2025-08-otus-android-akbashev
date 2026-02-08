@@ -13,6 +13,8 @@ import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.constrainHeight
+import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
 
 /**
@@ -30,6 +32,9 @@ fun CustomLayoutHW(
         content = content,
         modifier = modifier
     ) { measurables, constraints ->
+        check(constraints.hasBoundedWidth) {
+            "CustomLayoutHW requires bounded width."
+        }
         val itemWidth = constraints.maxWidth / columns
 
         val itemConstraints = constraints.copy(
@@ -55,9 +60,9 @@ fun CustomLayoutHW(
             currentY += rowHeight
         }
 
-        val layoutHeight = currentY.coerceIn(constraints.minHeight, constraints.maxHeight)
-
-        layout(constraints.maxWidth, layoutHeight) {
+        val layoutWidth = constraints.constrainWidth(constraints.maxWidth)
+        val layoutHeight = constraints.constrainHeight(currentY)
+        layout(layoutWidth, layoutHeight) {
             positions.forEach { (placeable, position) ->
                 placeable.placeRelative(position.x, position.y)
             }
@@ -79,52 +84,82 @@ fun CustomLayoutHWPreview() {
             Image(
                 painter = painterResource(id = R.drawable.catanddot),
                 contentDescription = null,
-                Modifier.size(100.dp).padding(4.dp).border(2.dp, color = Color.Black)
+                Modifier
+                    .size(100.dp)
+                    .padding(4.dp)
+                    .border(2.dp, color = Color.Black)
             )
             Image(
                 painter = painterResource(id = R.drawable.catanddot),
                 contentDescription = null,
-                Modifier.size(110.dp).padding(4.dp).border(2.dp, color = Color.Black)
+                Modifier
+                    .size(110.dp)
+                    .padding(4.dp)
+                    .border(2.dp, color = Color.Black)
             )
             Image(
                 painter = painterResource(id = R.drawable.catanddot),
                 contentDescription = null,
-                Modifier.size(90.dp).padding(4.dp).border(2.dp, color = Color.Black)
+                Modifier
+                    .size(90.dp)
+                    .padding(4.dp)
+                    .border(2.dp, color = Color.Black)
             )
             Image(
                 painter = painterResource(id = R.drawable.catanddot),
                 contentDescription = null,
-                Modifier.size(120.dp).padding(4.dp).border(2.dp, color = Color.Black)
+                Modifier
+                    .size(120.dp)
+                    .padding(4.dp)
+                    .border(2.dp, color = Color.Black)
             )
             Image(
                 painter = painterResource(id = R.drawable.catanddot),
                 contentDescription = null,
-                Modifier.size(100.dp).padding(4.dp).border(2.dp, color = Color.Black)
+                Modifier
+                    .size(100.dp)
+                    .padding(4.dp)
+                    .border(2.dp, color = Color.Black)
             )
             Image(
                 painter = painterResource(id = R.drawable.catanddot),
                 contentDescription = null,
-                Modifier.size(80.dp).padding(4.dp).border(2.dp, color = Color.Black)
+                Modifier
+                    .size(80.dp)
+                    .padding(4.dp)
+                    .border(2.dp, color = Color.Black)
             )
             Image(
                 painter = painterResource(id = R.drawable.catanddot),
                 contentDescription = null,
-                Modifier.size(100.dp).padding(4.dp).border(2.dp, color = Color.Black)
+                Modifier
+                    .size(100.dp)
+                    .padding(4.dp)
+                    .border(2.dp, color = Color.Black)
             )
             Image(
                 painter = painterResource(id = R.drawable.catanddot),
                 contentDescription = null,
-                Modifier.size(120.dp).padding(4.dp).border(2.dp, color = Color.Black)
+                Modifier
+                    .size(120.dp)
+                    .padding(4.dp)
+                    .border(2.dp, color = Color.Black)
             )
             Image(
                 painter = painterResource(id = R.drawable.catanddot),
                 contentDescription = null,
-                Modifier.size(100.dp).padding(4.dp).border(2.dp, color = Color.Black)
+                Modifier
+                    .size(100.dp)
+                    .padding(4.dp)
+                    .border(2.dp, color = Color.Black)
             )
             Image(
                 painter = painterResource(id = R.drawable.catanddot),
                 contentDescription = null,
-                Modifier.size(90.dp).padding(4.dp).border(2.dp, color = Color.Black)
+                Modifier
+                    .size(90.dp)
+                    .padding(4.dp)
+                    .border(2.dp, color = Color.Black)
             )
         }
     }
