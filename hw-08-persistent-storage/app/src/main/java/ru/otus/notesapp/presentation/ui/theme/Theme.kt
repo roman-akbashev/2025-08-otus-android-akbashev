@@ -1,6 +1,5 @@
-package ru.otus.roomapp.ui.theme
+package ru.otus.notesapp.presentation.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

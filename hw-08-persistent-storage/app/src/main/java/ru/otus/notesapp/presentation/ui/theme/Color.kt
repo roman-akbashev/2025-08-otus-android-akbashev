@@ -1,4 +1,4 @@
-package ru.otus.roomapp.ui.theme
+package ru.otus.notesapp.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
