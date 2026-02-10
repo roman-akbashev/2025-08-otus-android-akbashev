@@ -15,6 +15,7 @@ dependencies {
     testImplementation(libs.detekt.test)
     testImplementation(libs.kotest)
     testImplementation(libs.jupiter)
+    testImplementation("org.assertj:assertj-core:3.27.7")
 }
 
 java {
