@@ -77,7 +77,6 @@ class FavoriteViewModel @Inject constructor(
                 unsetFavouriteCoinUseCase(coinId)
             }.fold(
                 onSuccess = {
-                    // Удаляем монету из списка
                     val updatedFavorites = state.favoriteCoins.filter { it.id != coinId }
                     reduce { state.copy(favoriteCoins = updatedFavorites) }
                     postSideEffect(SideEffect.RemoveFavouriteSuccess)
@@ -92,6 +91,4 @@ class FavoriteViewModel @Inject constructor(
             )
         }
     }
-
-    fun refresh() = loadFavorites()
 }

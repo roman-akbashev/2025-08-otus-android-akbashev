@@ -88,12 +88,8 @@ fun CoinListScreenContent() {
     val dependencies = LocalContext.current.findDependencies<CoinListDependencies>()
     val component = DaggerCoinListComponent.factory().create(dependencies)
     val viewModel: CoinListViewModel = viewModel(factory = component.viewModelFactory())
-    val state by viewModel.state.collectAsState()
-    CoinListScreen(
-        state = state,
-        onHighlightMoversToggled = viewModel::onHighlightMoversToggled,
-        onToggleFavourite = viewModel::onToggleFavourite
-    )
+
+    CoinListScreen(viewModel = viewModel)
 }
 
 @Composable
@@ -101,10 +97,6 @@ fun FavoriteCoinsScreenContent() {
     val dependencies = LocalContext.current.findDependencies<FavouritesDependencies>()
     val component = DaggerFavouritesComponent.factory().create(dependencies)
     val viewModel: FavoriteViewModel = viewModel(factory = component.viewModelFactory())
-    val state by viewModel.state.collectAsState()
 
-    FavoriteCoinsScreen(
-        favoriteCoins = state.favoriteCoins,
-        onToggleFavourite = viewModel::removeFavourite
-    )
+    FavoriteCoinsScreen(viewModel = viewModel)
 }

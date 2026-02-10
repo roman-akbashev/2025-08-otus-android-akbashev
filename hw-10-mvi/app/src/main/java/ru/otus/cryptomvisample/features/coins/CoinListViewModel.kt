@@ -83,7 +83,6 @@ class CoinListViewModel @Inject constructor(
     fun toggleHighlightMovers(isChecked: Boolean) = intent {
         reduce { state.copy(highlightMovers = isChecked) }
 
-        // Обновляем состояния монет с учетом новой настройки
         val processedCategories = state.categories.map { category ->
             category.copy(coins = category.coins.map { coin ->
                 coin.copy(highlight = isChecked && coin.isHotMover)
@@ -107,7 +106,6 @@ class CoinListViewModel @Inject constructor(
                 }
             }.fold(
                 onSuccess = {
-                    // Обновляем состояние UI после успешного изменения
                     val updatedCategories = state.categories.map { category ->
                         category.copy(coins = category.coins.map { coin ->
                             if (coin.id == coinId) {
@@ -131,6 +129,4 @@ class CoinListViewModel @Inject constructor(
             )
         }
     }
-
-    fun refresh() = loadCoins()
 }
