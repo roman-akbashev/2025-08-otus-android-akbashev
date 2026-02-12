@@ -25,4 +25,5 @@
 | hw-09-securing-storage   | ДЗ к уроку 18. Securing storage                          |
 | hw-10-mvi                | ДЗ к уроку 21. MVI                                       |
 | hw-11-hilt               | ДЗ к уроку 24. Hilt                                      |
+| hw-12-kmp                | ДЗ к уроку 28. Мультиплатформенная бизнес-логика         |
 | hw-15-detekt             | ДЗ к уроку 39. Статический анализ: Android Lint и Detekt |
