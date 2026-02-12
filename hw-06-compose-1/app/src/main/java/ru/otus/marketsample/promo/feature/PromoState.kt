@@ -9,6 +9,7 @@ data class PromoScreenState(
     val promoListState: List<PromoState> = emptyList(),
     val hasError: Boolean = false,
     val errorProvider: ErrorProvider = { "" },
+    val isRefreshing: Boolean = false,
 )
 
 data class PromoState(

@@ -1,0 +1,232 @@
+unstable class MainActivity {
+  <runtime stability> = Unstable
+}
+unstable class MainFragment {
+  unstable var _binding: FragmentMainBinding?
+  <runtime stability> = Unstable
+}
+unstable class MarketSampleApp {
+  runtime val appComponent: AppComponent
+  <runtime stability> = Unstable
+}
+unstable class ConsumeProductDetailsUseCase {
+  unstable val productRepository: ProductRepository
+  stable val productDetailsDomainMapper: ProductDetailsDomainMapper
+  <runtime stability> = Unstable
+}
+stable class ProductDetails {
+  stable val id: String
+  stable val name: String
+  stable val image: String
+  stable val price: Double
+  <runtime stability> = Stable
+}
+stable class ProductDetailsDomainMapper {
+  <runtime stability> = Stable
+}
+unstable class DetailsFragment {
+  unstable var _binding: FragmentDetailsBinding?
+  unstable var factory: DetailsViewModelFactory
+  unstable val viewModel$delegate: Lazy<DetailsViewModel>
+  unstable val productId$delegate: Lazy<String>
+  <runtime stability> = Unstable
+}
+stable class DetailsScreenState {
+  stable val isLoading: Boolean
+  stable val detailsState: DetailsState
+  stable val hasError: Boolean
+  stable val errorProvider: Function1<Context, String>
+  <runtime stability> = Stable
+}
+stable class DetailsState {
+  stable val id: String
+  stable val name: String
+  stable val image: String
+  stable val price: String
+  stable val hasDiscount: Boolean
+  stable val discount: String
+  <runtime stability> = Stable
+}
+unstable class DetailsStateFactory {
+  unstable val priceFormatter: PriceFormatter
+  <runtime stability> = Unstable
+}
+unstable class DetailsViewModel {
+  unstable val consumeProductDetailsUseCase: ConsumeProductDetailsUseCase
+  unstable val detailsStateFactory: DetailsStateFactory
+  stable val productId: String
+  unstable val _state: MutableStateFlow<DetailsScreenState>
+  unstable val state: StateFlow<DetailsScreenState>
+  <runtime stability> = Unstable
+}
+unstable class DetailsViewModelFactory {
+  unstable val consumeProductDetailsUseCase: ConsumeProductDetailsUseCase
+  unstable val detailsStateFactory: DetailsStateFactory
+  stable val productId: String
+  <runtime stability> = Unstable
+}
+unstable class DataModule {
+  unstable val appDataStore$delegate: ReadOnlyProperty<Context, DataStore<Preferences>>
+  <runtime stability> = Unstable
+}
+stable class NetworkModule {
+  <runtime stability> = Stable
+}
+unstable class NavigationState {
+  unstable val navHostController: NavHostController
+  <runtime stability> = Unstable
+}
+unstable class Products {
+  unstable val $cachedSerializer$delegate: Lazy<KSerializer<Any>>
+  <runtime stability> = Unstable
+}
+unstable class Promo {
+  unstable val $cachedSerializer$delegate: Lazy<KSerializer<Any>>
+  <runtime stability> = Unstable
+}
+unstable class List {
+  unstable val $cachedSerializer$delegate: Lazy<KSerializer<Any>>
+  <runtime stability> = Unstable
+}
+unstable class $serializer {
+  unstable val descriptor: SerialDescriptor
+  <runtime stability> = Unstable
+}
+stable class Details {
+  stable val id: String
+  <runtime stability> = Stable
+}
+unstable class ConsumeProductsUseCase {
+  unstable val productRepository: ProductRepository
+  unstable val promoRepository: PromoRepository
+  stable val productDomainMapper: ProductDomainMapper
+  <runtime stability> = Unstable
+}
+stable class Product {
+  stable val id: String
+  stable val name: String
+  stable val image: String
+  stable val price: Double
+  stable val hasDiscount: Boolean
+  stable val discount: Double?
+  <runtime stability> = Stable
+}
+stable class ProductDomainMapper {
+  <runtime stability> = Stable
+}
+unstable class ProductListFragment {
+  unstable var _binding: FragmentProductListBinding?
+  unstable var factory: ProductListViewModelFactory
+  unstable val viewModel$delegate: Lazy<ProductListViewModel>
+  <runtime stability> = Unstable
+}
+unstable class ProductListViewModel {
+  unstable val consumeProductsUseCase: ConsumeProductsUseCase
+  unstable val productStateFactory: ProductStateFactory
+  unstable val _state: MutableStateFlow<ProductsScreenState>
+  unstable val state: StateFlow<ProductsScreenState>
+  <runtime stability> = Unstable
+}
+unstable class ProductListViewModelFactory {
+  unstable val consumeProductsUseCase: ConsumeProductsUseCase
+  unstable val productStateFactory: ProductStateFactory
+  <runtime stability> = Unstable
+}
+unstable class ProductsScreenState {
+  stable val isLoading: Boolean
+  unstable val productListState: List<ProductState>
+  stable val hasError: Boolean
+  stable val errorProvider: Function1<Context, String>
+  stable val isRefreshing: Boolean
+  <runtime stability> = Unstable
+}
+stable class ProductState {
+  stable val id: String
+  stable val name: String
+  stable val image: String
+  stable val price: String
+  stable val hasDiscount: Boolean
+  stable val discount: String
+  <runtime stability> = Stable
+}
+unstable class ProductStateFactory {
+  unstable val discountFormatter: DiscountFormatter
+  unstable val priceFormatter: PriceFormatter
+  <runtime stability> = Unstable
+}
+unstable class ProductHolder {
+  unstable val binding: ItemProductBinding
+  stable val onItemClicked: Function1<String, Unit>
+  <runtime stability> = Unstable
+}
+unstable class ProductsAdapter {
+  stable val onItemClicked: Function1<String, Unit>
+  <runtime stability> = Unstable
+}
+unstable class ConsumePromosUseCase {
+  unstable val promoRepository: PromoRepository
+  stable val promoDomainMapper: PromoDomainMapper
+  <runtime stability> = Unstable
+}
+unstable class PromoForProducts {
+  unstable val products: List<String>
+  <runtime stability> = Unstable
+}
+stable class PromoForPrice {
+  <runtime stability> = Stable
+}
+stable class Promo {
+  stable val id: String
+  stable val name: String
+  stable val image: String
+  stable val description: String
+  stable val discount: Double
+  <runtime stability> = Stable
+}
+stable class PromoDomainMapper {
+  <runtime stability> = Stable
+}
+unstable class PromoListFragment {
+  unstable var _binding: FragmentPromoListBinding?
+  unstable var adapter: PromoAdapter
+  unstable var factory: PromoListViewModelFactory
+  unstable val viewModel$delegate: Lazy<PromoListViewModel>
+  <runtime stability> = Unstable
+}
+unstable class PromoListViewModel {
+  stable val promoStateFactory: PromoStateFactory
+  unstable val consumePromosUseCase: ConsumePromosUseCase
+  unstable val _state: MutableStateFlow<PromoScreenState>
+  unstable val state: StateFlow<PromoScreenState>
+  <runtime stability> = Unstable
+}
+unstable class PromoListViewModelFactory {
+  stable val promoStateFactory: PromoStateFactory
+  unstable val consumePromosUseCase: ConsumePromosUseCase
+  <runtime stability> = Unstable
+}
+unstable class PromoScreenState {
+  stable val isLoading: Boolean
+  unstable val promoListState: List<PromoState>
+  stable val hasError: Boolean
+  stable val errorProvider: Function1<Context, String>
+  stable val isRefreshing: Boolean
+  <runtime stability> = Unstable
+}
+stable class PromoState {
+  stable val id: String
+  stable val name: String
+  stable val description: String
+  stable val image: String
+  <runtime stability> = Stable
+}
+stable class PromoStateFactory {
+  <runtime stability> = Stable
+}
+unstable class PromoAdapter {
+  <runtime stability> = Unstable
+}
+unstable class PromoHolder {
+  unstable val binding: ItemPromoBinding
+  <runtime stability> = Unstable
+}
