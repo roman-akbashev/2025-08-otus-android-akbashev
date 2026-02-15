@@ -21,11 +21,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.otuskmp.AndroidContext
 import com.example.otuskmp.StopwatchViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Initialize Android context for clipboard
+        AndroidContext.init(applicationContext)
+
         setContent {
             MyApplicationTheme {
                 Surface(
@@ -70,6 +75,11 @@ fun StopWatchContent(modifier: Modifier = Modifier) {
                 onClick = viewModel::onStopClicked
             ) {
                 Text("Stop")
+            }
+            TextButton(
+                onClick = viewModel::onCopyClicked
+            ) {
+                Text("Copy")
             }
         }
     }
