@@ -14,22 +14,86 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import ru.otus.cryptomvisample.features.coins.CoinsScreenState
+import ru.otus.cryptomvisample.features.coins.CoinListViewModel
 import ru.otus.cryptomvisample.ui.theme.TextPrimary
 
 @Composable
-fun CoinListScreen(
-    state: CoinsScreenState,
+fun CoinListScreen(viewModel: CoinListViewModel) {
+    val state = viewModel.container.stateFlow.collectAsState().value
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(viewModel) {
+        viewModel.container.sideEffectFlow.collect { sideEffect ->
+            when (sideEffect) {
+                is CoinListViewModel.SideEffect.ShowError -> {
+                    snackbarHostState.showSnackbar(
+                        message = sideEffect.message,
+                        duration = SnackbarDuration.Long
+                    )
+                }
+
+                is CoinListViewModel.SideEffect.ToggleFavouriteError -> {
+                    snackbarHostState.showSnackbar(
+                        message = sideEffect.message,
+                        duration = SnackbarDuration.Short
+                    )
+                }
+
+                CoinListViewModel.SideEffect.ToggleFavouriteSuccess -> {
+                    snackbarHostState.showSnackbar(
+                        message = "Favorites updated",
+                        duration = SnackbarDuration.Short
+                    )
+                }
+            }
+        }
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { innerPadding ->
+        if (state.isLoading) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else {
+            CoinListContent(
+                state = state,
+                onHighlightMoversToggled = viewModel::toggleHighlightMovers,
+                onToggleFavourite = viewModel::toggleFavourite,
+                modifier = Modifier.padding(innerPadding)
+            )
+        }
+    }
+}
+
+@Composable
+private fun CoinListContent(
+    state: CoinListViewModel.State,
     onHighlightMoversToggled: (Boolean) -> Unit,
     onToggleFavourite: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -104,8 +168,8 @@ fun CoinListScreen(
                 } else {
                     itemsIndexed(
                         items = category.coins,
-                        span = { index, coin -> GridItemSpan(1) },
-                        key = { index, coin -> coin.id }
+                        span = { _, _ -> GridItemSpan(1) },
+                        key = { _, coin -> coin.id }
                     ) { index, coin ->
                         val (start, end) = if (index % 2 == 0) {
                             16.dp to 0.dp
