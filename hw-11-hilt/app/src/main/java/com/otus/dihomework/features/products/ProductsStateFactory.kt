@@ -1,10 +1,12 @@
 package com.otus.dihomework.features.products
 
-import com.otus.dihomework.ServiceLocator
 import com.otus.dihomework.common.domain_api.ProductWithFavorite
+import com.otus.dihomework.common.util.PriceFormatter
+import javax.inject.Inject
 
-class ProductsStateFactory() {
-    private val priceFormatter = ServiceLocator.getPriceFormatter()
+class ProductsStateFactory @Inject constructor(
+    private val priceFormatter: PriceFormatter
+) {
 
     fun create(products: List<ProductWithFavorite>): List<ProductState> {
         return products
