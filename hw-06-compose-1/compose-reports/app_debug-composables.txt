@@ -1,0 +1,77 @@
+fun getApplicationComponent()
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun Content(
+  stable state: DetailsScreenState
+  stable modifier: Modifier? = @static Companion
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun ContentPreview()
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun DetailsScreen(
+  stable state: DetailsScreenState
+  stable errorHasShown: Function0<Unit>
+  stable modifier: Modifier? = @static Companion
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun DetailsScreenLoadingPreview()
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun DetailsScreenErrorPreview()
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun DetailsScreenSuccessWithDiscountPreview()
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun DetailsScreenSuccessWithoutDiscountPreview()
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun DetailsScreenEmptyPreview()
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun BottomBar(
+  unstable navigationState: NavigationState
+  stable modifier: Modifier? = @static Companion
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun MarketNavigationGraph(
+  unstable navigationState: NavigationState
+  stable modifier: Modifier? = @static Companion
+)
+fun rememberNavigationState(
+  unstable controller: NavHostController? = @dynamic rememberNavController(
+  $composer   =   $composer  , 
+  $changed   =   0
+)
+): NavigationState
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun ProductListItem(
+  stable productState: ProductState
+  stable onItemClick: Function1<@[ParameterName(name = 'id')] String, Unit>
+  stable modifier: Modifier? = @static Companion
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun Discount(
+  stable discount: String
+  stable modifier: Modifier? = @static Companion
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun ProductListItemPreview()
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun ProductListScreen(
+  unstable state: ProductsScreenState
+  stable errorHasShown: Function0<Unit>
+  stable isRefreshing: Boolean
+  stable onRefresh: Function0<Unit>
+  stable onItemClick: Function1<@[ParameterName(name = 'id')] String, Unit>
+  stable modifier: Modifier? = @static Companion
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun ProductListScreen_LoadingPreview()
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun ProductListScreen_NormalPreview()
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun ProductListScreen_EmptyPreview()
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun ProductListScreen_ErrorPreview()
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun ProductListScreen_RefreshingPreview()
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun ProductListScreen_SingleItemPreview()
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun ProductListScreen_ManyItemsPreview()
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun ProductListScreen_LoadingWithErrorPreview()
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun PromoListItem(
+  stable promoState: PromoState
+  stable modifier: Modifier? = @static Companion
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun PromoListItemPreview()
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun PromoListScreen(
+  unstable state: PromoScreenState
+  stable errorHasShown: Function0<Unit>
+  stable isRefreshing: Boolean
+  stable onRefresh: Function0<Unit>
+  stable modifier: Modifier? = @static Companion
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun PromoListScreenLoadingPreview()
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun PromoListScreenWithDataPreview()
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun PromoListScreenWithFewItemsPreview()
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun PromoListScreenWithSingleItemPreview()
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun PromoListScreenEmptyPreview()
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun PromoListScreenErrorPreview()
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun PromoListScreenRefreshingPreview()
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun PromoListScreenErrorWithDataPreview()
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun PromoListScreenLongTextPreview()

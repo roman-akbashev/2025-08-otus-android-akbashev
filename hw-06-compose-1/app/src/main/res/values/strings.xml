@@ -3,7 +3,7 @@
     <string name="title_products">Products</string>
     <string name="title_main">Main</string>
     <string name="price_with_arg">%1$s руб</string>
-    <string name="error_wile_loading_data">Error wile loading data</string>
+    <string name="error_while_loading_data">Error while loading data</string>
     <string name="title_promo">Promo</string>
     <string name="title_details">Details</string>
 </resources>

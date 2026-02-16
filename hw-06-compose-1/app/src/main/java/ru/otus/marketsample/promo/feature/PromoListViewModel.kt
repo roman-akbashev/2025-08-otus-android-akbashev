@@ -2,6 +2,7 @@ package ru.otus.marketsample.promo.feature
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,8 +12,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
-import ru.otus.marketsample.promo.domain.ConsumePromosUseCase
+import kotlinx.coroutines.launch
 import ru.otus.marketsample.R
+import ru.otus.marketsample.promo.domain.ConsumePromosUseCase
 
 class PromoListViewModel(
     private val promoStateFactory: PromoStateFactory,
@@ -39,6 +41,7 @@ class PromoListViewModel(
                     screenState.copy(
                         isLoading = false,
                         promoListState = promoListState,
+                        isRefreshing = false
                     )
                 }
             }
@@ -46,7 +49,7 @@ class PromoListViewModel(
                 _state.update { screenState ->
                     screenState.copy(
                         hasError = true,
-                        errorProvider = { context -> context.getString(R.string.error_wile_loading_data) }
+                        errorProvider = { context -> context.getString(R.string.error_while_loading_data) }
                     )
                 }
             }
@@ -54,7 +57,11 @@ class PromoListViewModel(
     }
 
     fun refresh() {
-        requestPromos()
+        viewModelScope.launch {
+            _state.update { it.copy(isRefreshing = true) }
+            delay(1000)
+            requestPromos()
+        }
     }
 
     fun errorHasShown() {
