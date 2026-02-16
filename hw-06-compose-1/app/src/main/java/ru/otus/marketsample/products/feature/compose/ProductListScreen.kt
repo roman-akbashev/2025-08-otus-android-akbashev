@@ -19,7 +19,6 @@ import ru.otus.marketsample.products.feature.ProductsScreenState
 fun ProductListScreen(
     state: ProductsScreenState,
     errorHasShown: () -> Unit,
-    isRefreshing: Boolean,
     onRefresh: () -> Unit,
     onItemClick: (id: String) -> Unit,
     modifier: Modifier = Modifier,
@@ -42,7 +41,7 @@ fun ProductListScreen(
 
             else -> {
                 PullToRefreshBox(
-                    isRefreshing = isRefreshing,
+                    isRefreshing = state.isRefreshing,
                     onRefresh = onRefresh,
                 ) {
                     LazyColumn {
@@ -70,7 +69,6 @@ private fun ProductListScreen_LoadingPreview() {
             errorProvider = { "" }
         ),
         errorHasShown = {},
-        isRefreshing = false,
         onRefresh = { },
         onItemClick = { },
     )
@@ -96,7 +94,6 @@ private fun ProductListScreen_NormalPreview() {
             errorProvider = { "" }
         ),
         errorHasShown = {},
-        isRefreshing = false,
         onRefresh = { },
         onItemClick = { },
     )
@@ -113,7 +110,6 @@ private fun ProductListScreen_EmptyPreview() {
             errorProvider = { "" }
         ),
         errorHasShown = {},
-        isRefreshing = false,
         onRefresh = { },
         onItemClick = { },
     )
@@ -130,7 +126,6 @@ private fun ProductListScreen_ErrorPreview() {
             errorProvider = { "Произошла ошибка при загрузке данных" }
         ),
         errorHasShown = {},
-        isRefreshing = false,
         onRefresh = { },
         onItemClick = { },
     )
@@ -156,7 +151,6 @@ private fun ProductListScreen_RefreshingPreview() {
             errorProvider = { "" }
         ),
         errorHasShown = {},
-        isRefreshing = true,
         onRefresh = { },
         onItemClick = { },
     )
@@ -182,7 +176,6 @@ private fun ProductListScreen_SingleItemPreview() {
             errorProvider = { "" }
         ),
         errorHasShown = {},
-        isRefreshing = false,
         onRefresh = { },
         onItemClick = { },
     )
@@ -208,7 +201,6 @@ private fun ProductListScreen_ManyItemsPreview() {
             errorProvider = { "" }
         ),
         errorHasShown = {},
-        isRefreshing = false,
         onRefresh = { },
         onItemClick = { },
     )
@@ -225,7 +217,6 @@ private fun ProductListScreen_LoadingWithErrorPreview() {
             errorProvider = { "Network error occurred" }
         ),
         errorHasShown = {},
-        isRefreshing = false,
         onRefresh = { },
         onItemClick = { },
     )

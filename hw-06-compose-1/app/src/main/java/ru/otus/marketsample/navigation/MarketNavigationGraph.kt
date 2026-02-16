@@ -49,7 +49,6 @@ fun MarketNavigationGraph(
                 ProductListScreen(
                     state = state,
                     errorHasShown = { viewModel.errorHasShown() },
-                    isRefreshing = state.isRefreshing,
                     onItemClick = { id -> navigationState.navigateToProductDetails(id) },
                     onRefresh = viewModel::refresh
                 )

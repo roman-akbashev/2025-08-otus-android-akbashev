@@ -22,7 +22,7 @@ import ru.otus.marketsample.details.feature.DetailsState
 import ru.otus.marketsample.products.feature.compose.Discount
 
 @Composable
-fun Content(
+fun DetailsContent(
     state: DetailsScreenState,
     modifier: Modifier = Modifier
 ) {
@@ -71,8 +71,8 @@ fun Content(
 
 @Composable
 @Preview(showBackground = true)
-private fun ContentPreview() {
-    Content(
+private fun DetailsContentPreview() {
+    DetailsContent(
         state = DetailsScreenState(
             isLoading = false,
             hasError = false,

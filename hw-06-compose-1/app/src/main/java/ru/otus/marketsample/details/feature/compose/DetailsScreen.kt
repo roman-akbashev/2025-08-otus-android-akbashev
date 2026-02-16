@@ -37,7 +37,7 @@ fun DetailsScreen(
             }
 
             else -> {
-                Content(
+                DetailsContent(
                     state = state,
                     modifier = Modifier
                         .fillMaxSize()

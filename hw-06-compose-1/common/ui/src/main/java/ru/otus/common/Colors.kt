@@ -8,7 +8,7 @@ enum class Colors(val color: Color) {
     PURPLE_700(Color(0xFF3700B3)),
     TEAL_200(Color(0xFF03DAC5)),
     TEAL_700(Color(0xFF018786)),
-    BLACK(Color(0x00000000)),
+    BLACK(Color(0xFF000000)),
     WHITE(Color(0xFFFFFFFF)),
     PRICE_BACKGROUND(Color(0xFFFFF3E0))
 }
