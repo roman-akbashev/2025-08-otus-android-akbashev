@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.update
 class StopwatchViewModel {
     private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private var job: Job? = null
+    private val clipboardManager = ClipboardManager()
 
     private val _uiState = MutableStateFlow(
         StopwatchUiState(
@@ -31,6 +32,11 @@ class StopwatchViewModel {
 
     fun onStopClicked() {
         job?.cancel()
+    }
+
+    fun onCopyClicked() {
+        val formattedTime = _uiState.value.formattedTime
+        clipboardManager.copyText(formattedTime)
     }
 
     fun onDestroy() {
