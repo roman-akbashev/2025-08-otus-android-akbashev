@@ -16,20 +16,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.otus.dihomework.R
 import com.otus.dihomework.features.favorites.FavoritesScreenState
 import com.otus.dihomework.features.favorites.FavoritesViewModel
-import com.otus.dihomework.features.favorites.FavoritesViewModelFactory
 
 @Composable
 fun FavoritesScreenContent(
+    viewModel: FavoritesViewModel,
     modifier: Modifier = Modifier
 ) {
-    val viewModel: FavoritesViewModel = viewModel(
-        factory = FavoritesViewModelFactory()
-    )
-
     val state by viewModel.state.collectAsState()
 
     FavoritesScreen(
