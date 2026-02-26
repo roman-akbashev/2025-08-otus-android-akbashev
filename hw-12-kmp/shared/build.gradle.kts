@@ -10,10 +10,15 @@ kotlin {
         compilations.all {
             compileTaskProvider.configure {
                 compilerOptions {
-                    jvmTarget.set(JvmTarget.JVM_1_8)
+                    jvmTarget.set(JvmTarget.JVM_21)
                 }
             }
         }
+    }
+
+    js(IR) {
+        browser()
+        binaries.executable()
     }
 
     listOf(
@@ -40,12 +45,12 @@ kotlin {
 
 android {
     namespace = "com.example.otuskmp"
-    compileSdk = 35
+    compileSdk = 36
     defaultConfig {
         minSdk = 24
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 }

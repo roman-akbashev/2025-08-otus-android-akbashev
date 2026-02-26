@@ -16,6 +16,9 @@ struct ContentView: View {
                 Button(action: viewModel.onStopClicked, label: {
                     Text("Stop")
                 })
+                Button(action: viewModel.onCopyClicked, label: {
+                    Text("Copy")
+                })
             }
         }
     }
@@ -24,23 +27,27 @@ struct ContentView: View {
 class StopwatchViewModelWrapper: ObservableObject {
     private let viewModel = StopwatchViewModel()
     private var observer: Cancellable?
-    
+
     @Published var uiState: StopwatchUiState = StopwatchUiState(currentTimeMillis: 0, initialTimeMillis: 0)
-    
+
     func onStartClicked() {
         viewModel.onStartClicked()
     }
-    
+
     func onStopClicked() {
         viewModel.onStopClicked()
     }
-    
+
+    func onCopyClicked() {
+        viewModel.onCopyClicked()
+    }
+
     init() {
         observer = viewModel.uiState.collect {
             [weak self] value in self?.uiState = value
         }
     }
-    
+
     deinit {
         observer?.cancel()
         viewModel.onDestroy()
