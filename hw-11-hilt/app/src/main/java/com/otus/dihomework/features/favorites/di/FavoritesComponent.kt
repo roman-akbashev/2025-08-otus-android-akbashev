@@ -5,7 +5,7 @@ import com.otus.dihomework.features.favorites.FavoritesViewModelFactory
 import dagger.Subcomponent
 
 @FeatureScope
-@Subcomponent(modules = [FavoritesModule::class])
+@Subcomponent
 interface FavoritesComponent {
 
     fun viewModelFactory(): FavoritesViewModelFactory

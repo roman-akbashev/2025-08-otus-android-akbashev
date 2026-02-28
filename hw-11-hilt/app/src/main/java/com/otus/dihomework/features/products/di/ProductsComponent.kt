@@ -5,7 +5,7 @@ import com.otus.dihomework.features.products.ProductsViewModelFactory
 import dagger.Component
 
 @FeatureScope
-@Component(dependencies = [ProductsDependencies::class], modules = [ProductsModule::class])
+@Component(dependencies = [ProductsDependencies::class])
 interface ProductsComponent {
 
     fun viewModelFactory(): ProductsViewModelFactory

@@ -5,35 +5,21 @@ import com.otus.dihomework.common.domain_api.ConsumeProductsUseCase
 import com.otus.dihomework.common.domain_api.ToggleFavoriteUseCase
 import com.otus.dihomework.common.domain_impl.ConsumeFavoritesUseCaseImpl
 import com.otus.dihomework.common.domain_impl.ConsumeProductsUseCaseImpl
-import com.otus.dihomework.common.domain_impl.FavoritesRepository
-import com.otus.dihomework.common.domain_impl.ProductRepository
 import com.otus.dihomework.common.domain_impl.ToggleFavoriteUseCaseImpl
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
 
 @Module
-object UseCaseModule {
+interface UseCaseModule {
 
-    @Provides
-    fun provideConsumeProductsUseCase(
-        productRepository: ProductRepository,
-        favoritesRepository: FavoritesRepository
-    ): ConsumeProductsUseCase {
-        return ConsumeProductsUseCaseImpl(productRepository, favoritesRepository)
-    }
+    @Binds
+    fun consumeProductsUseCase(impl: ConsumeProductsUseCaseImpl): ConsumeProductsUseCase
 
-    @Provides
-    fun provideConsumeFavoritesUseCase(
-        productRepository: ProductRepository,
-        favoritesRepository: FavoritesRepository
-    ): ConsumeFavoritesUseCase {
-        return ConsumeFavoritesUseCaseImpl(productRepository, favoritesRepository)
-    }
+    @Binds
+    fun consumeFavoritesUseCase(impl: ConsumeFavoritesUseCaseImpl): ConsumeFavoritesUseCase
 
-    @Provides
-    fun provideToggleFavoriteUseCase(
-        favoritesRepository: FavoritesRepository
-    ): ToggleFavoriteUseCase {
-        return ToggleFavoriteUseCaseImpl(favoritesRepository)
-    }
+    @Binds
+    fun toggleFavoriteUseCase(impl: ToggleFavoriteUseCaseImpl): ToggleFavoriteUseCase
+
+
 }
