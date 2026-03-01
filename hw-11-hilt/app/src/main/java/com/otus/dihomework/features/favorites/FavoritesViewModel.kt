@@ -2,7 +2,8 @@ package com.otus.dihomework.features.favorites
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.otus.dihomework.ServiceLocator
+import com.otus.dihomework.common.domain_api.ConsumeFavoritesUseCase
+import com.otus.dihomework.common.domain_api.ToggleFavoriteUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,12 +13,13 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class FavoritesViewModel() : ViewModel() {
-
-    private val consumeFavoritesUseCase = ServiceLocator.getConsumeFavoritesUseCase()
-    private val toggleFavoriteUseCase = ServiceLocator.getToggleFavoriteUseCase()
-    private val favoritesStateFactory = ServiceLocator.getFavoritesStateFactory()
+class FavoritesViewModel @Inject constructor(
+    private val consumeFavoritesUseCase: ConsumeFavoritesUseCase,
+    private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
+    private val favoritesStateFactory: FavoritesStateFactory
+) : ViewModel() {
 
     private val _state = MutableStateFlow(FavoritesScreenState())
     val state: StateFlow<FavoritesScreenState> = _state.asStateFlow()
