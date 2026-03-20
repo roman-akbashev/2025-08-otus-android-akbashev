@@ -19,4 +19,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "LinguaCards"
 include(":core:model")
+include(":core:domain")
  
