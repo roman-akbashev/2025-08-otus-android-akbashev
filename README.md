@@ -26,4 +26,8 @@
 | hw-10-mvi                | ДЗ к уроку 21. MVI                                       |
 | hw-11-hilt               | ДЗ к уроку 24. Hilt                                      |
 | hw-12-kmp                | ДЗ к уроку 28. Мультиплатформенная бизнес-логика         |
+| hw-13-testing            | ДЗ к уроку 31. Testing. 1 часть                          |
+| hw-14-gradle             | ДЗ к уроку 37. Gradle                                    |
 | hw-15-detekt             | ДЗ к уроку 39. Статический анализ: Android Lint и Detekt |
+| hw-16-jenkins            | ДЗ к уроку 41. Jenkins                                   |
+| hw-17-lingua-cards       | ДЗ к уроку 44. Проектная работа                          |
