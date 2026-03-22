@@ -1,0 +1,104 @@
+[
+  {
+    "word": "family",
+    "phonetic": "/ˈfɛm(ɘ)li/",
+    "phonetics": [
+      {
+        "text": "/ˈfɛm(ɘ)li/",
+        "audio": ""
+      },
+      {
+        "text": "/ˈfæm(ɪ)li/",
+        "audio": "https://api.dictionaryapi.dev/media/pronunciations/en/family-uk.mp3",
+        "sourceUrl": "https://commons.wikimedia.org/w/index.php?curid=9014428",
+        "license": {
+          "name": "BY 3.0 US",
+          "url": "https://creativecommons.org/licenses/by/3.0/us"
+        }
+      },
+      {
+        "text": "/ˈfæm(ə)li/",
+        "audio": "https://api.dictionaryapi.dev/media/pronunciations/en/family-us.mp3",
+        "sourceUrl": "https://commons.wikimedia.org/w/index.php?curid=857026",
+        "license": {
+          "name": "BY-SA 3.0",
+          "url": "https://creativecommons.org/licenses/by-sa/3.0"
+        }
+      }
+    ],
+    "meanings": [
+      {
+        "partOfSpeech": "noun",
+        "definitions": [
+          {
+            "definition": "A group of people who are closely related to one another (by blood, marriage or adoption); kin; for example, a set of parents and their children; an immediate family.",
+            "synonyms": [],
+            "antonyms": [],
+            "example": "Our family lives in town."
+          },
+          {
+            "definition": "An extended family; a group of people who are related to one another by blood or marriage.",
+            "synonyms": [],
+            "antonyms": [],
+            "example": "1915, William T. Groves, A History and Genealogy of the Groves Family in America"
+          }
+        ],
+        "synonyms": [
+          "flesh and blood",
+          "kin",
+          "kinfolk"
+        ],
+        "antonyms": []
+      },
+      {
+        "partOfSpeech": "adjective",
+        "definitions": [
+          {
+            "definition": "Suitable for children and adults.",
+            "synonyms": [],
+            "antonyms": [],
+            "example": "It's not good for a date, it's a family restaurant."
+          },
+          {
+            "definition": "Conservative, traditional.",
+            "synonyms": [],
+            "antonyms": [],
+            "example": "The cultural struggle is for the survival of family values against all manner of atheistic amorality."
+          },
+          {
+            "definition": "Homosexual.",
+            "synonyms": [],
+            "antonyms": [],
+            "example": "I knew he was family when I first met him."
+          }
+        ],
+        "synonyms": [],
+        "antonyms": []
+      },
+      {
+        "partOfSpeech": "noun",
+        "definitions": [
+          {
+            "definition": "A person belonging to a particular family; a close relative or relation.",
+            "synonyms": [],
+            "antonyms": []
+          }
+        ],
+        "synonyms": [
+          "family",
+          "family",
+          "member"
+        ],
+        "antonyms": []
+      }
+    ],
+    "license": {
+      "name": "CC BY-SA 3.0",
+      "url": "https://creativecommons.org/licenses/by-sa/3.0"
+    },
+    "sourceUrls": [
+      "https://en.wiktionary.org/wiki/family",
+      "https://en.wiktionary.org/wiki/family%20member"
+    ]
+  }
+]
