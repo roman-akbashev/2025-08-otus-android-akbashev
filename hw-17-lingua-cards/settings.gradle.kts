@@ -23,4 +23,4 @@ include(":core:domain")
 include(":core:database")
 include(":core:network")
 include(":core:data")
- 
+include(":features:decklist")
