@@ -1,0 +1,464 @@
+package com.linguacards.features.cardedit.presentation
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.Translate
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@Composable
+fun CardEditScreen(
+    onSave: () -> Unit,
+    onCancel: () -> Unit,
+    viewModel: CardEditViewModel = hiltViewModel()
+) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val scrollState = rememberScrollState()
+
+    LaunchedEffect(state) {
+        if (state is CardEditState.Saved) {
+            onSave()
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        if ((state as? CardEditState.Content)?.isEditing == true)
+                            "Edit Card" else "New Card"
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onCancel) {
+                        Icon(Icons.Default.Close, contentDescription = "Cancel")
+                    }
+                },
+                actions = {
+                    IconButton(
+                        onClick = {
+                            if (viewModel.onSaveClick()) {
+                                keyboardController?.hide()
+                            }
+                        },
+                        modifier = Modifier.testTag("save_card_button")
+                    ) {
+                        Icon(Icons.Default.Check, contentDescription = "Save")
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            when (val currentState = state) {
+                is CardEditState.Loading -> {
+                    LoadingContent()
+                }
+
+                is CardEditState.Content -> {
+                    CardEditForm(
+                        state = currentState,
+                        onWordChanged = viewModel::onWordChanged,
+                        onTranslationChanged = viewModel::onTranslationChanged,
+                        onExampleChanged = viewModel::onExampleChanged,
+                        onTranscriptionChanged = viewModel::onTranscriptionChanged,
+                        onWordFocusLost = viewModel::onWordFocusLost,
+                        focusManager = focusManager,
+                        viewModel = viewModel,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(scrollState)
+                    )
+                }
+
+                is CardEditState.Error -> {
+                    ErrorContent(
+                        message = currentState.message,
+                        onDismiss = onCancel,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+
+                is CardEditState.Saved -> {
+                    // Не отображаем, просто триггерим onSave
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CardEditForm(
+    state: CardEditState.Content,
+    onWordChanged: (String) -> Unit,
+    onTranslationChanged: (String) -> Unit,
+    onExampleChanged: (String) -> Unit,
+    onTranscriptionChanged: (String) -> Unit,
+    onWordFocusLost: () -> Unit,
+    focusManager: FocusManager,
+    viewModel: CardEditViewModel,
+    modifier: Modifier = Modifier
+) {
+    var wordFocused by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // Информационная карточка для существующих карточек
+        if (state.isEditing && state.originalCard != null) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = "SM-2 Statistics",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        StatChip(
+                            label = "Repetitions",
+                            value = state.originalCard.repetitions.toString()
+                        )
+                        StatChip(
+                            label = "Interval",
+                            value = "${state.originalCard.interval} days"
+                        )
+                        StatChip(
+                            label = "EF",
+                            value = "%.2f".format(state.originalCard.easinessFactor)
+                        )
+                    }
+                }
+            }
+        }
+
+        // Поле для слова
+        OutlinedTextField(
+            value = state.word,
+            onValueChange = onWordChanged,
+            label = { Text("Word *") },
+            placeholder = { Text("Enter the word or phrase") },
+            isError = state.errors.containsKey("word"),
+            supportingText = {
+                if (state.errors.containsKey("word")) {
+                    Text(
+                        text = state.errors["word"] ?: "",
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+            leadingIcon = {
+                Icon(Icons.Default.Translate, contentDescription = null)
+            },
+            trailingIcon = {
+                if (state.isFetchingDetails) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp
+                    )
+                }
+            },
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.Sentences,
+                imeAction = ImeAction.Next
+            ),
+            keyboardActions = KeyboardActions(
+                onNext = { focusManager.moveFocus(FocusDirection.Down) }
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("word_input")
+                .onFocusChanged { focusState ->
+                    if (!focusState.isFocused && wordFocused) {
+                        // Потеря фокуса
+                        onWordFocusLost()
+                    }
+                    wordFocused = focusState.isFocused
+                },
+            singleLine = true
+        )
+
+        // Поле для перевода
+        OutlinedTextField(
+            value = state.translation,
+            onValueChange = onTranslationChanged,
+            label = { Text("Translation *") },
+            placeholder = { Text("Enter the translation") },
+            isError = state.errors.containsKey("translation"),
+            supportingText = {
+                if (state.errors.containsKey("translation")) {
+                    Text(
+                        text = state.errors["translation"] ?: "",
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+            leadingIcon = {
+                Icon(Icons.Default.Language, contentDescription = null)
+            },
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.Sentences,
+                imeAction = ImeAction.Next
+            ),
+            keyboardActions = KeyboardActions(
+                onNext = { focusManager.moveFocus(FocusDirection.Down) }
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("translation_input"),
+            singleLine = true
+        )
+
+        // Поле для транскрипции
+        OutlinedTextField(
+            value = state.transcription,
+            onValueChange = onTranscriptionChanged,
+            label = { Text("Transcription (optional)") },
+            placeholder = { Text("e.g., /həˈləʊ/") },
+            leadingIcon = {
+                Icon(Icons.Default.Mic, contentDescription = null)
+            },
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Next
+            ),
+            keyboardActions = KeyboardActions(
+                onNext = { focusManager.moveFocus(FocusDirection.Down) }
+            ),
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
+        )
+
+        // Поле для примера
+        OutlinedTextField(
+            value = state.example,
+            onValueChange = onExampleChanged,
+            label = { Text("Example (optional)") },
+            placeholder = { Text("Enter an example sentence") },
+            leadingIcon = {
+                Icon(Icons.Default.Info, contentDescription = null)
+            },
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.Sentences,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = { focusManager.clearFocus() }
+            ),
+            modifier = Modifier.fillMaxWidth(),
+            minLines = 2,
+            maxLines = 4
+        )
+
+        // Подсказка об авто-заполнении
+        if (!state.isEditing && state.word.isNotBlank() && !state.isFetchingDetails) {
+            AssistChip(
+                onClick = { /* Показать больше информации */ },
+                label = { Text("Auto-fill available from dictionary") },
+                leadingIcon = {
+                    Icon(Icons.Default.AutoAwesome, contentDescription = null)
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        // Кнопки действий
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            OutlinedButton(
+                onClick = {
+                    if (state.isEditing) {
+                        viewModel.resetState()
+                    } else {
+//                        onCancel()
+                    }
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(if (state.isEditing) "Reset" else "Cancel")
+            }
+
+            Button(
+                onClick = {
+                    if (viewModel.onSaveClick()) {
+                        focusManager.clearFocus()
+                    }
+                },
+                modifier = Modifier.weight(1f),
+                enabled = !state.isFetchingDetails
+            ) {
+                Text(if (state.isEditing) "Update" else "Create")
+            }
+        }
+    }
+}
+
+@Composable
+fun StatChip(
+    label: String,
+    value: String
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = value,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onPrimaryContainer
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+        )
+    }
+}
+
+@Composable
+fun LoadingContent() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        CircularProgressIndicator()
+        Spacer(modifier = Modifier.height(16.dp))
+        Text("Loading card...")
+    }
+}
+
+@Composable
+fun ErrorContent(
+    message: String,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.errorContainer
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(24.dp)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                Icons.Default.Error,
+                contentDescription = null,
+                modifier = Modifier.size(48.dp),
+                tint = MaterialTheme.colorScheme.error
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "Error",
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.error
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.error,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = onDismiss,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error
+                )
+            ) {
+                Text("Go Back")
+            }
+        }
+    }
+}
