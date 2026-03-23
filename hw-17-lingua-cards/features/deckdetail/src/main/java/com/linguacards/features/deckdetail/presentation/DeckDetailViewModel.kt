@@ -8,14 +8,12 @@ import com.linguacards.core.domain.repository.DeckRepository
 import com.linguacards.core.model.Card
 import com.linguacards.core.model.Deck
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -35,44 +33,16 @@ class DeckDetailViewModel @Inject constructor(
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
-    private var allCards: List<Card> = emptyList()
-    private var currentDeck: Deck? = null
-
     init {
         loadDeckData()
     }
 
     private fun loadDeckData() {
-        // Добавляем .onStart для каждого потока, чтобы гарантировать начальные значения
-        val deckFlow = deckRepository.getDeckByIdFlow(deckId)
-            .onStart {
-                // Если нет данных, эмитим null, чтобы комбайн мог работать
-                emit(null)
-            }
-
+        // Получаем потоки данных
+        val deckFlow = deckRepository.getDeckById(deckId)
         val cardsFlow = cardRepository.getCardsByDeckId(deckId)
-            .onStart {
-                // Эмитим пустой список, пока данные загружаются
-                emit(emptyList())
-            }
 
-        combine(
-            deckFlow,
-            cardsFlow,
-            _searchQuery
-        ) { deck, cards, searchQuery ->
-            Triple(deck, cards, searchQuery)
-        }
-            .onStart {
-                // Убеждаемся, что состояние Loading показывается при старте
-                _state.value = DeckDetailState.Loading
-            }
-            .catch { exception ->
-                _state.value = DeckDetailState.Error(exception.message ?: "Unknown error")
-            }
-            .launchIn(viewModelScope)
-
-        // Подписываемся на обновления после комбайна
+        // Комбинируем все потоки и обрабатываем изменения
         combine(
             deckFlow,
             cardsFlow,
@@ -81,7 +51,8 @@ class DeckDetailViewModel @Inject constructor(
             processDataUpdate(deck, cards, searchQuery)
         }
             .onStart {
-                // Начальное состояние уже установлено
+                // Показываем Loading при старте
+                _state.value = DeckDetailState.Loading
             }
             .catch { exception ->
                 _state.value = DeckDetailState.Error(exception.message ?: "Unknown error")
@@ -90,9 +61,6 @@ class DeckDetailViewModel @Inject constructor(
     }
 
     private fun processDataUpdate(deck: Deck?, cards: List<Card>, searchQuery: String) {
-        currentDeck = deck
-        allCards = cards
-
         val filteredCards = filterCardsByQuery(cards, searchQuery)
 
         when {
@@ -100,15 +68,16 @@ class DeckDetailViewModel @Inject constructor(
                 _state.value = DeckDetailState.Error("Deck not found")
             }
 
-            cards.isEmpty() -> {
+            cards.isEmpty() && searchQuery.isBlank() -> {
+                // Действительно пустая колода
                 _state.value = DeckDetailState.Empty
             }
 
-            filteredCards.isEmpty() -> {
-                // Есть карточки, но ни одна не подходит под поиск
+            cards.isNotEmpty() && filteredCards.isEmpty() && searchQuery.isNotBlank() -> {
+                // Есть карточки, но поиск не дал результатов
                 _state.value = DeckDetailState.Success(
                     deck = deck,
-                    cards = filteredCards,
+                    cards = emptyList(),
                     searchQuery = searchQuery
                 )
             }
@@ -133,7 +102,7 @@ class DeckDetailViewModel @Inject constructor(
         return cards.filter { card ->
             card.word.contains(query, ignoreCase = true) ||
                     card.translation.contains(query, ignoreCase = true) ||
-                    card.example?.contains(query, ignoreCase = true) == true
+                    (card.example?.contains(query, ignoreCase = true) == true)
         }
     }
 
@@ -149,13 +118,7 @@ class DeckDetailViewModel @Inject constructor(
     }
 
     fun refreshData() {
-        // Принудительно обновляем данные
-        loadDeckData()
+        // Просто вызываем обновление через _searchQuery
+        _searchQuery.value = _searchQuery.value
     }
-}
-
-fun DeckRepository.getDeckByIdFlow(deckId: Long): Flow<Deck?> {
-    return getAllDecks()
-        .map { decks -> decks.find { it.id == deckId } }
-        .onStart { emit(null) } // Гарантируем начальное значение
 }

@@ -1,11 +1,11 @@
 package com.linguacards.features.deckdetail.presentation
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -96,7 +97,7 @@ fun DeckDetailScreen(
             }
         }
     ) { paddingValues ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
@@ -212,29 +213,38 @@ fun CardsListContent(
     val listState = rememberLazyListState()
 
     Column(
-        modifier = modifier
+        modifier = modifier.fillMaxSize()
     ) {
         // Статистика
         DeckStats(
             totalCards = deck.cardCount,
             filteredCount = cards.size,
             isFiltered = searchQuery.isNotBlank(),
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .wrapContentHeight()
         )
 
-        if (cards.isEmpty() && searchQuery.isNotBlank()) {
-            // Нет результатов поиска
-            NoSearchResults(
-                query = searchQuery,
-                modifier = Modifier.weight(1f)
-            )
-        } else {
-            // Список карточек
-            LazyColumn(
-                state = listState,
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+        // Список - занимает всё остальное
+        LazyColumn(
+            state = listState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // Показываем сообщение если нет карточек
+            if (cards.isEmpty()) {
+                item {
+                    if (searchQuery.isNotBlank()) {
+                        NoSearchResults(query = searchQuery)
+                    } else {
+                        EmptyDeckContent()
+                    }
+                }
+            } else {
                 items(
                     items = cards,
                     key = { it.id }
@@ -258,7 +268,10 @@ fun DeckStats(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)  // Принудительно задаем минимальную высоту
+            .wrapContentHeight(),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
         )
@@ -266,8 +279,9 @@ fun DeckStats(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             StatItem(
                 value = totalCards.toString(),
