@@ -15,7 +15,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class OfflineFirstCardRepository @Inject constructor(
+class CardRepositoryImpl @Inject constructor(
     private val cardDao: CardDao,
     private val dictionaryApiService: DictionaryApiService,
 ) : CardRepository {

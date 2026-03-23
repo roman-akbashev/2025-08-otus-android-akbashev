@@ -1,7 +1,7 @@
 package com.linguacards.app.di
 
-import com.linguacards.core.data.repository.OfflineFirstCardRepository
-import com.linguacards.core.data.repository.OfflineFirstDeckRepository
+import com.linguacards.core.data.repository.CardRepositoryImpl
+import com.linguacards.core.data.repository.DeckRepositoryImpl
 import com.linguacards.core.domain.repository.CardRepository
 import com.linguacards.core.domain.repository.DeckRepository
 import dagger.Binds
@@ -17,12 +17,12 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindDeckRepository(
-        offlineFirstDeckRepository: OfflineFirstDeckRepository
+        deckRepositoryImpl: DeckRepositoryImpl
     ): DeckRepository
 
     @Binds
     @Singleton
     abstract fun bindCardRepository(
-        offlineFirstCardRepository: OfflineFirstCardRepository
+        cardRepositoryImpl: CardRepositoryImpl
     ): CardRepository
 }

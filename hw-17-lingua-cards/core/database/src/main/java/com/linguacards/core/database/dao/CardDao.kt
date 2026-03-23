@@ -27,6 +27,10 @@ interface CardDao {
     @Query("SELECT COUNT(*) FROM cards WHERE deckId = :deckId")
     suspend fun getCardCount(deckId: Long): Int
 
+    // Добавляем Flow версию для реактивности
+    @Query("SELECT COUNT(*) FROM cards WHERE deckId = :deckId")
+    fun getCardCountFlow(deckId: Long): Flow<Int>
+
     @Query("SELECT COUNT(*) FROM cards WHERE deckId = :deckId AND nextReviewDate <= :currentTime")
     suspend fun getCardsDueCount(deckId: Long, currentTime: Long): Int
 

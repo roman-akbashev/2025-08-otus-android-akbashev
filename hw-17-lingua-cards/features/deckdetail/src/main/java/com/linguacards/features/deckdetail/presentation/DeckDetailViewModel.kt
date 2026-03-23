@@ -43,70 +43,88 @@ class DeckDetailViewModel @Inject constructor(
     }
 
     private fun loadDeckData() {
-        combine(
-            deckRepository.getDeckByIdFlow(deckId),
-            cardRepository.getCardsByDeckId(deckId)
-        ) { deck, cards ->
-            if (deck == null) {
-                DeckDetailState.Error("Deck not found")
-            } else {
-                currentDeck = deck
-                allCards = cards
-                val filteredCards = filterCardsByQuery(cards, _searchQuery.value)
-
-                if (filteredCards.isEmpty() && cards.isNotEmpty()) {
-                    // Есть карточки, но ни одна не подходит под поиск
-                    DeckDetailState.Success(
-                        deck = deck,
-                        cards = filteredCards,
-                        searchQuery = _searchQuery.value
-                    )
-                } else if (filteredCards.isEmpty()) {
-                    DeckDetailState.Empty
-                } else {
-                    DeckDetailState.Success(
-                        deck = deck,
-                        cards = filteredCards,
-                        searchQuery = _searchQuery.value
-                    )
-                }
+        // Добавляем .onStart для каждого потока, чтобы гарантировать начальные значения
+        val deckFlow = deckRepository.getDeckByIdFlow(deckId)
+            .onStart {
+                // Если нет данных, эмитим null, чтобы комбайн мог работать
+                emit(null)
             }
+
+        val cardsFlow = cardRepository.getCardsByDeckId(deckId)
+            .onStart {
+                // Эмитим пустой список, пока данные загружаются
+                emit(emptyList())
+            }
+
+        combine(
+            deckFlow,
+            cardsFlow,
+            _searchQuery
+        ) { deck, cards, searchQuery ->
+            Triple(deck, cards, searchQuery)
         }
-            .onStart { _state.value = DeckDetailState.Loading }
+            .onStart {
+                // Убеждаемся, что состояние Loading показывается при старте
+                _state.value = DeckDetailState.Loading
+            }
+            .catch { exception ->
+                _state.value = DeckDetailState.Error(exception.message ?: "Unknown error")
+            }
+            .launchIn(viewModelScope)
+
+        // Подписываемся на обновления после комбайна
+        combine(
+            deckFlow,
+            cardsFlow,
+            _searchQuery
+        ) { deck, cards, searchQuery ->
+            processDataUpdate(deck, cards, searchQuery)
+        }
+            .onStart {
+                // Начальное состояние уже установлено
+            }
             .catch { exception ->
                 _state.value = DeckDetailState.Error(exception.message ?: "Unknown error")
             }
             .launchIn(viewModelScope)
     }
 
-    fun onSearchQueryChanged(query: String) {
-        _searchQuery.value = query
-        updateFilteredCards()
-    }
+    private fun processDataUpdate(deck: Deck?, cards: List<Card>, searchQuery: String) {
+        currentDeck = deck
+        allCards = cards
 
-    private fun updateFilteredCards() {
-        val filtered = filterCardsByQuery(allCards, _searchQuery.value)
+        val filteredCards = filterCardsByQuery(cards, searchQuery)
 
-        if (currentDeck != null) {
-            _state.value = when {
-                filtered.isEmpty() && allCards.isNotEmpty() ->
-                    DeckDetailState.Success(
-                        deck = currentDeck!!,
-                        cards = filtered,
-                        searchQuery = _searchQuery.value
-                    )
+        when {
+            deck == null -> {
+                _state.value = DeckDetailState.Error("Deck not found")
+            }
 
-                filtered.isEmpty() ->
-                    DeckDetailState.Empty
+            cards.isEmpty() -> {
+                _state.value = DeckDetailState.Empty
+            }
 
-                else ->
-                    DeckDetailState.Success(
-                        deck = currentDeck!!,
-                        cards = filtered,
-                        searchQuery = _searchQuery.value
-                    )
+            filteredCards.isEmpty() -> {
+                // Есть карточки, но ни одна не подходит под поиск
+                _state.value = DeckDetailState.Success(
+                    deck = deck,
+                    cards = filteredCards,
+                    searchQuery = searchQuery
+                )
+            }
+
+            else -> {
+                _state.value = DeckDetailState.Success(
+                    deck = deck,
+                    cards = filteredCards,
+                    searchQuery = searchQuery
+                )
             }
         }
+    }
+
+    fun onSearchQueryChanged(query: String) {
+        _searchQuery.value = query
     }
 
     private fun filterCardsByQuery(cards: List<Card>, query: String): List<Card> {
@@ -125,18 +143,19 @@ class DeckDetailViewModel @Inject constructor(
                 cardRepository.deleteCard(card.id)
                 // Список обновится автоматически через Flow
             } catch (e: Exception) {
-                // Обработка ошибки
                 _state.value = DeckDetailState.Error("Failed to delete card: ${e.message}")
             }
         }
     }
 
     fun refreshData() {
+        // Принудительно обновляем данные
         loadDeckData()
     }
 }
 
-// Extension функция для получения Flow<Deck?> по id
 fun DeckRepository.getDeckByIdFlow(deckId: Long): Flow<Deck?> {
-    return getAllDecks().map { decks -> decks.find { it.id == deckId } }
+    return getAllDecks()
+        .map { decks -> decks.find { it.id == deckId } }
+        .onStart { emit(null) } // Гарантируем начальное значение
 }
