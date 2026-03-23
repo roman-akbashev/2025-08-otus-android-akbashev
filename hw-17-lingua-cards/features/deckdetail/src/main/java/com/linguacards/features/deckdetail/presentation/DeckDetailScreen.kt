@@ -2,6 +2,7 @@ package com.linguacards.features.deckdetail.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -119,7 +120,6 @@ fun DeckDetailScreen(
 
                 is DeckDetailState.Empty -> {
                     EmptyDeckContent(
-                        onAddCard = onAddCard,
                         modifier = Modifier.fillMaxSize()
                     )
                 }
@@ -315,7 +315,10 @@ fun CardItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() },
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongPress
+            ),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Row(
@@ -363,7 +366,7 @@ fun CardItem(
                 // Пример (если есть)
                 card.example?.let {
                     Text(
-                        text = "例: $it",
+                        text = "example: $it",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.secondary,
                         maxLines = 1,
@@ -479,7 +482,6 @@ fun ReviewProgressBadge(card: Card) {
 
 @Composable
 fun EmptyDeckContent(
-    onAddCard: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -511,15 +513,6 @@ fun EmptyDeckContent(
         )
 
         Spacer(modifier = Modifier.height(24.dp))
-
-        Button(
-            onClick = onAddCard,
-            modifier = Modifier.testTag("add_first_card_button")
-        ) {
-            Icon(Icons.Default.Add, contentDescription = null)
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Add Card")
-        }
     }
 }
 
