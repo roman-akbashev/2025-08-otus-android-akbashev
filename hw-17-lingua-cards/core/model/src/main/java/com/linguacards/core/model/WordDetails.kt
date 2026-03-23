@@ -7,5 +7,4 @@ data class WordDetails(
     val word: String,
     val transcription: String?,
     val example: String?,
-    val definition: String?
 )

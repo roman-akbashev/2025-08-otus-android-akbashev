@@ -5,27 +5,18 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class WordResponseDto(
     val word: String,
-    val phonetic: String?,
-    val phonetics: List<PhoneticDto>,
-    val meanings: List<MeaningDto>
-)
-
-@Serializable
-data class PhoneticDto(
-    val text: String?,
-    val audio: String?
+    val phonetic: String? = null,
+    val meanings: List<MeaningDto> = emptyList()
 )
 
 @Serializable
 data class MeaningDto(
-    val partOfSpeech: String,
-    val definitions: List<DefinitionDto>
+    val definitions: List<DefinitionDto> = emptyList()
 )
 
 @Serializable
 data class DefinitionDto(
     val definition: String,
-    val example: String?,
-    val synonyms: List<String>,
-    val antonyms: List<String>
+    // значение по умолчанию, потому что поле может отсутствовать
+    val example: String? = null
 )

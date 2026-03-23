@@ -6,31 +6,22 @@ import com.linguacards.core.network.dto.WordResponseDto
 object WordDetailsMapper {
 
     fun mapToDomain(dto: WordResponseDto): WordDetails {
-        // Находим первую транскрипцию
-        val transcription = dto.phonetics
-            .firstOrNull { !it.text.isNullOrBlank() }
-            ?.text
+        // Берем транскрипцию из phonetic и удаляем слэши
+        val transcription = dto.phonetic
             ?.replace("/", "")
+            ?.trim()
 
         // Находим первый пример использования
         val example = dto.meanings
-            .firstOrNull()
-            ?.definitions
-            ?.firstOrNull { !it.example.isNullOrBlank() }
+            .asSequence()
+            .flatMap { it.definitions.asSequence() }
+            .firstOrNull { !it.example.isNullOrBlank() }
             ?.example
-
-        // Находим первое определение
-        val definition = dto.meanings
-            .firstOrNull()
-            ?.definitions
-            ?.firstOrNull()
-            ?.definition
 
         return WordDetails(
             word = dto.word,
             transcription = transcription,
-            example = example,
-            definition = definition
+            example = example
         )
     }
 }
