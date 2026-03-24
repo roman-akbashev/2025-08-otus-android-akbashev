@@ -1,6 +1,10 @@
 package com.linguacards.core.database.dao
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.Query
+import androidx.room.Update
 import com.linguacards.core.database.entity.CardEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -25,15 +29,5 @@ interface CardDao {
     suspend fun deleteCard(card: CardEntity)
 
     @Query("SELECT COUNT(*) FROM cards WHERE deckId = :deckId")
-    suspend fun getCardCount(deckId: Long): Int
-
-    // Добавляем Flow версию для реактивности
-    @Query("SELECT COUNT(*) FROM cards WHERE deckId = :deckId")
-    fun getCardCountFlow(deckId: Long): Flow<Int>
-
-    @Query("SELECT COUNT(*) FROM cards WHERE deckId = :deckId AND nextReviewDate <= :currentTime")
-    suspend fun getCardsDueCount(deckId: Long, currentTime: Long): Int
-
-    @Query("SELECT COUNT(*) FROM cards WHERE deckId = :deckId AND nextReviewDate IS NULL")
-    suspend fun getNewCardsCount(deckId: Long): Int
+    fun getCardCount(deckId: Long): Flow<Int>
 }

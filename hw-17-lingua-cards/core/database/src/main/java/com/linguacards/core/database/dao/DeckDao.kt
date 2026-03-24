@@ -20,7 +20,4 @@ interface DeckDao {
 
     @Delete
     suspend fun deleteDeck(deck: DeckEntity)
-
-    @Query("SELECT COUNT(*) FROM cards WHERE deckId = :deckId")
-    suspend fun getCardCountForDeck(deckId: Long): Int
 }

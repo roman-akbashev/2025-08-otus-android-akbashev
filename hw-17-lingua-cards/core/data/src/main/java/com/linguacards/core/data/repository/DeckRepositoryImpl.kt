@@ -38,7 +38,7 @@ class DeckRepositoryImpl @Inject constructor(
         // Используем Flow версию для реактивного обновления количества карточек
         return combine(
             deckDao.getAllDecks().map { decks -> decks.find { it.id == deckId } },
-            cardDao.getCardCountFlow(deckId).onStart { emit(0) }
+            cardDao.getCardCount(deckId).onStart { emit(0) }
         ) { deckEntity, cardCount ->
             deckEntity?.toDomain(cardCount)
         }
@@ -50,7 +50,7 @@ class DeckRepositoryImpl @Inject constructor(
         // Получаем список всех колод и для каждой подписываемся на изменения количества
         return deckDao.getAllDecks().map { decks ->
             decks.map { deck ->
-                deck.id to cardDao.getCardCountFlow(deck.id)
+                deck.id to cardDao.getCardCount(deck.id)
             }
         }.flatMapLatest { flows ->
             // Комбинируем все потоки в один
