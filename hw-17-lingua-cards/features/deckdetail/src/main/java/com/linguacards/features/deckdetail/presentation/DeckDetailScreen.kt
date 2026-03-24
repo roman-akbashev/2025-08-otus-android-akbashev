@@ -20,13 +20,13 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.FiberNew
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Queue
 import androidx.compose.material.icons.filled.Search
@@ -44,6 +44,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -63,6 +64,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.linguacards.core.model.Card
 import com.linguacards.core.model.Deck
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -79,24 +83,20 @@ fun DeckDetailScreen(
 
     var showDeleteDialog by remember { mutableStateOf<Card?>(null) }
 
-    Scaffold(
-        topBar = {
-            DeckDetailTopBar(
-                searchQuery = searchQuery,
-                onSearchQueryChange = { viewModel.onSearchQueryChanged(it) },
-                onBackClick = onBackClick,
-                onStartStudy = onStartStudy
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onAddCard,
-                modifier = Modifier.testTag("add_card_fab")
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add card")
-            }
+    Scaffold(topBar = {
+        DeckDetailTopBar(
+            searchQuery = searchQuery,
+            onSearchQueryChange = { viewModel.onSearchQueryChanged(it) },
+            onBackClick = onBackClick,
+            onStartStudy = onStartStudy
+        )
+    }, floatingActionButton = {
+        FloatingActionButton(
+            onClick = onAddCard, modifier = Modifier.testTag("add_card_fab")
+        ) {
+            Icon(Icons.Default.Add, contentDescription = "Add card")
         }
-    ) { paddingValues ->
+    }) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -128,8 +128,7 @@ fun DeckDetailScreen(
                 is DeckDetailState.Error -> {
                     ErrorContent(
                         message = (state as DeckDetailState.Error).message,
-                        onRetry = { viewModel.refreshData() }
-                    )
+                        onRetry = { viewModel.refreshData() })
                 }
             }
         }
@@ -137,14 +136,10 @@ fun DeckDetailScreen(
 
     // Диалог подтверждения удаления
     showDeleteDialog?.let { card ->
-        DeleteCardDialog(
-            card = card,
-            onConfirm = {
-                viewModel.deleteCard(card)
-                showDeleteDialog = null
-            },
-            onDismiss = { showDeleteDialog = null }
-        )
+        DeleteCardDialog(card = card, onConfirm = {
+            viewModel.deleteCard(card)
+            showDeleteDialog = null
+        }, onDismiss = { showDeleteDialog = null })
     }
 }
 
@@ -167,13 +162,21 @@ fun DeckDetailTopBar(
                     placeholder = { Text("Search cards...") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
-//                    colors = TextFieldDefaults.colors(
-//                        focusedBorderColor = Color.Transparent,
-//                        unfocusedBorderColor = Color.Transparent,
-//                    )
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        cursorColor = MaterialTheme.colorScheme.primary
+                    ),
+                    textStyle = MaterialTheme.typography.bodyMedium,
+                    shape = MaterialTheme.shapes.small
                 )
             } else {
-                Text("Deck Details")
+                Text(
+                    text = "Deck Details",
+                    style = MaterialTheme.typography.titleLarge
+                )
             }
         },
         navigationIcon = {
@@ -246,14 +249,11 @@ fun CardsListContent(
                 }
             } else {
                 items(
-                    items = cards,
-                    key = { it.id }
-                ) { card ->
+                    items = cards, key = { it.id }) { card ->
                     CardItem(
                         card = card,
                         onClick = { onCardClick(card.id) },
-                        onLongPress = { onCardLongPress(card) }
-                    )
+                        onLongPress = { onCardLongPress(card) })
                 }
             }
         }
@@ -262,17 +262,13 @@ fun CardsListContent(
 
 @Composable
 fun DeckStats(
-    totalCards: Int,
-    filteredCount: Int,
-    isFiltered: Boolean,
-    modifier: Modifier = Modifier
+    totalCards: Int, filteredCount: Int, isFiltered: Boolean, modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier
             .fillMaxWidth()
             .height(IntrinsicSize.Min)  // Принудительно задаем минимальную высоту
-            .wrapContentHeight(),
-        colors = CardDefaults.cardColors(
+            .wrapContentHeight(), colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
         )
     ) {
@@ -284,15 +280,13 @@ fun DeckStats(
             verticalAlignment = Alignment.CenterVertically
         ) {
             StatItem(
-                value = totalCards.toString(),
-                label = "Total Cards"
+                value = totalCards.toString(), label = "Total Cards"
             )
 
             if (isFiltered) {
                 VerticalDivider()
                 StatItem(
-                    value = filteredCount.toString(),
-                    label = "Filtered"
+                    value = filteredCount.toString(), label = "Filtered"
                 )
             }
         }
@@ -301,8 +295,7 @@ fun DeckStats(
 
 @Composable
 fun StatItem(
-    value: String,
-    label: String
+    value: String, label: String
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
@@ -322,18 +315,14 @@ fun StatItem(
 
 @Composable
 fun CardItem(
-    card: Card,
-    onClick: () -> Unit,
-    onLongPress: () -> Unit
+    card: Card, onClick: () -> Unit, onLongPress: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .combinedClickable(
-                onClick = onClick,
-                onLongClick = onLongPress
-            ),
-        elevation = CardDefaults.cardElevation(2.dp)
+                onClick = onClick, onLongClick = onLongPress
+            ), elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Row(
             modifier = Modifier
@@ -402,16 +391,33 @@ fun CardItem(
 @Composable
 fun ReviewInfo(card: Card) {
     val reviewDateText = if (card.nextReviewDate != null) {
-        val daysUntil = kotlinx.datetime.Clock.System.now()
-            .toEpochMilliseconds()
-            .let { now ->
-                ((card.nextReviewDate!!.toEpochMilliseconds() - now) / (1000 * 60 * 60 * 24)).toInt()
-            }
+        val now = kotlinx.datetime.Clock.System.now()
+        val nextDate = card.nextReviewDate!!
+
+        val daysUntil = calculateDaysUntil(now, nextDate)
+        val timeString = formatTime(nextDate)
 
         when {
-            daysUntil < 0 -> "Просрочено"
-            daysUntil == 0 -> "Сегодня"
-            daysUntil == 1 -> "Завтра"
+            daysUntil < 0 -> {
+                // Просрочено - показываем на сколько
+                val overdueDays = -daysUntil
+                when {
+                    overdueDays == 1 -> "Просрочено на 1 день"
+                    overdueDays in 2..4 -> "Просрочено на $overdueDays дня"
+                    else -> "Просрочено на $overdueDays дней"
+                }
+            }
+
+            daysUntil == 0 -> {
+                // Сегодня - показываем время
+                if (timeString != null) "Сегодня в $timeString" else "Сегодня"
+            }
+
+            daysUntil == 1 -> {
+                // Завтра - показываем время
+                if (timeString != null) "Завтра в $timeString" else "Завтра"
+            }
+
             else -> "Через $daysUntil дн."
         }
     } else {
@@ -422,24 +428,22 @@ fun ReviewInfo(card: Card) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            imageVector = if (card.repetitions == 0) Icons.Default.FiberNew else Icons.Default.Update,
+            imageVector = if (card.repetitions == 0 && card.nextReviewDate == null) Icons.Default.FiberNew else Icons.Default.Update,
             contentDescription = null,
             modifier = Modifier.size(12.dp),
-            tint = if (card.repetitions == 0)
-                MaterialTheme.colorScheme.tertiary
-            else
-                MaterialTheme.colorScheme.primary
+            tint = if (card.repetitions == 0 && card.nextReviewDate == null) MaterialTheme.colorScheme.tertiary
+            else MaterialTheme.colorScheme.primary
         )
 
         Spacer(modifier = Modifier.width(4.dp))
 
         Text(
-            text = reviewDateText,
-            style = MaterialTheme.typography.labelSmall,
-            color = if (card.repetitions == 0)
-                MaterialTheme.colorScheme.tertiary
-            else
-                MaterialTheme.colorScheme.primary
+            text = reviewDateText, style = MaterialTheme.typography.labelSmall, color = when {
+                card.repetitions == 0 && card.nextReviewDate == null -> MaterialTheme.colorScheme.tertiary
+                card.nextReviewDate != null && card.nextReviewDate!! <= kotlinx.datetime.Clock.System.now() -> MaterialTheme.colorScheme.error
+
+                else -> MaterialTheme.colorScheme.primary
+            }
         )
 
         if (card.repetitions > 0) {
@@ -453,44 +457,57 @@ fun ReviewInfo(card: Card) {
     }
 }
 
+// Вспомогательная функция для расчета дней
+private fun calculateDaysUntil(now: Instant, nextDate: Instant): Int {
+    val nowMillis = now.toEpochMilliseconds()
+    val nextMillis = nextDate.toEpochMilliseconds()
+
+    // Округляем вверх для положительных значений, вниз для отрицательных
+    return when {
+        nextMillis <= nowMillis -> {
+            // Уже просрочено - отрицательное количество дней
+            ((nextMillis - nowMillis) / (1000 * 60 * 60 * 24)).toInt()
+        }
+
+        else -> {
+            // Будущая дата - округляем вверх до целого дня
+            val diffMillis = nextMillis - nowMillis
+            ((diffMillis + (1000 * 60 * 60 * 24 - 1)) / (1000 * 60 * 60 * 24)).toInt()
+        }
+    }
+}
+
+// Вспомогательная функция для форматирования времени
+private fun formatTime(instant: Instant): String? {
+    return try {
+        val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+        val hour = localDateTime.hour
+        val minute = localDateTime.minute
+
+        when {
+            minute == 0 -> "$hour:00"
+            minute < 10 -> "$hour:0$minute"
+            else -> "$hour:$minute"
+        }
+    } catch (e: Exception) {
+        null
+    }
+}
+
 @Composable
 fun ReviewProgressBadge(card: Card) {
     Box(
         modifier = Modifier
-            .size(40.dp)
-            .padding(4.dp),
-        contentAlignment = Alignment.Center
+            .size(32.dp)
+            .background(
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f), shape = CircleShape
+            ), contentAlignment = Alignment.Center
     ) {
-        when {
-            card.repetitions == 0 -> {
-                // Новая карточка
-                Icon(
-                    Icons.Default.FiberNew,
-                    contentDescription = "New",
-                    tint = MaterialTheme.colorScheme.tertiary
-                )
-            }
-
-            card.nextReviewDate != null && card.nextReviewDate!! <= kotlinx.datetime.Clock.System.now() -> {
-                // Готова к повторению
-                Icon(
-                    Icons.Default.Notifications,
-                    contentDescription = "Due",
-                    tint = MaterialTheme.colorScheme.error
-                )
-            }
-
-            else -> {
-                // В процессе изучения
-                CircularProgressIndicator(
-                    progress = { (card.easinessFactor / 3.0).toFloat() },
-                    modifier = Modifier.size(32.dp),
-                    color = MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.primaryContainer,
-                    strokeWidth = 3.dp
-                )
-            }
-        }
+        Text(
+            text = card.repetitions.toString(),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.primary
+        )
     }
 }
 
@@ -499,8 +516,7 @@ fun EmptyDeckContent(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier
-            .padding(32.dp),
+        modifier = modifier.padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -514,8 +530,7 @@ fun EmptyDeckContent(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "No cards yet",
-            style = MaterialTheme.typography.headlineSmall
+            text = "No cards yet", style = MaterialTheme.typography.headlineSmall
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -532,12 +547,10 @@ fun EmptyDeckContent(
 
 @Composable
 fun NoSearchResults(
-    query: String,
-    modifier: Modifier = Modifier
+    query: String, modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier
-            .padding(32.dp),
+        modifier = modifier.padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -551,8 +564,7 @@ fun NoSearchResults(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "No results for \"$query\"",
-            style = MaterialTheme.typography.titleLarge
+            text = "No results for \"$query\"", style = MaterialTheme.typography.titleLarge
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -582,8 +594,7 @@ fun LoadingContent() {
 
 @Composable
 fun ErrorContent(
-    message: String,
-    onRetry: () -> Unit
+    message: String, onRetry: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -625,32 +636,23 @@ fun ErrorContent(
 
 @Composable
 fun DeleteCardDialog(
-    card: Card,
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit
+    card: Card, onConfirm: () -> Unit, onDismiss: () -> Unit
 ) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Delete Card") },
-        text = {
-            Text("Are you sure you want to delete \"${card.word}\"?")
-        },
-        confirmButton = {
-            TextButton(
-                onClick = onConfirm,
-                colors = ButtonDefaults.textButtonColors(
-                    contentColor = MaterialTheme.colorScheme.error
-                )
-            ) {
-                Text("Delete")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
+    AlertDialog(onDismissRequest = onDismiss, title = { Text("Delete Card") }, text = {
+        Text("Are you sure you want to delete \"${card.word}\"?")
+    }, confirmButton = {
+        TextButton(
+            onClick = onConfirm, colors = ButtonDefaults.textButtonColors(
+                contentColor = MaterialTheme.colorScheme.error
+            )
+        ) {
+            Text("Delete")
         }
-    )
+    }, dismissButton = {
+        TextButton(onClick = onDismiss) {
+            Text("Cancel")
+        }
+    })
 }
 
 @Composable
