@@ -27,12 +27,6 @@ fun LinguaCardsNavHost(
             DeckListScreen(
                 onDeckClick = { deckId ->
                     navController.navigate("deck_detail/$deckId")
-                },
-                onCreateDeck = {
-                    navController.navigate("deck_edit/0")
-                },
-                onDeckLongPress = { deck ->
-                    // Показать диалог с опциями
                 }
             )
         }
@@ -68,8 +62,6 @@ fun LinguaCardsNavHost(
                 navArgument("cardId") { type = NavType.LongType }
             )
         ) { backStackEntry ->
-            val deckId = backStackEntry.arguments?.getLong("deckId") ?: 0L
-            val cardId = backStackEntry.arguments?.getLong("cardId") ?: 0L
             CardEditScreen(
                 onSave = { navController.popBackStack() },
                 onCancel = { navController.popBackStack() }
@@ -84,11 +76,6 @@ fun LinguaCardsNavHost(
             StudyScreen(
                 onFinish = { navController.popBackStack() }
             )
-        }
-
-        // Экран настроек
-        composable("settings") {
-            // SettingsScreen()
         }
     }
 }

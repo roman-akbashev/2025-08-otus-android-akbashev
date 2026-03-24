@@ -13,6 +13,5 @@ sealed class DeckDetailState {
 
     data class Error(val message: String) : DeckDetailState()
 
-    // Для пустого состояния
     object Empty : DeckDetailState()
 }

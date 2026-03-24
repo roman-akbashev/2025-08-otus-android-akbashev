@@ -48,7 +48,6 @@ dependencies {
     implementation(project(":core:data"))
     implementation(project(":core:database"))
     implementation(project(":core:network"))
-//    implementation(project(":core:common"))
 
     // Feature модули
     implementation(project(":features:decklist"))

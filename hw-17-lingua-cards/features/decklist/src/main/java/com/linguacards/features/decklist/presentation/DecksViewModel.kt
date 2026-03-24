@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,18 +26,29 @@ class DecksViewModel @Inject constructor(
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
-    private var allDecks: List<Deck> = emptyList()
+    private val _allDecksCount = MutableStateFlow(0)
+    val allDecksCount: StateFlow<Int> = _allDecksCount.asStateFlow()
 
     init {
         loadDecks()
     }
 
-    fun loadDecks() {
-        deckRepository.getAllDecks()
-            .onStart { _state.value = DecksState.Loading }
-            .onEach { decks ->
-                allDecks = decks
-                filterDecks(_searchQuery.value)
+    private fun loadDecks() {
+        // Получаем поток колод
+        val decksFlow = deckRepository.getAllDecks()
+
+        // Комбинируем поток колод с поисковым запросом
+        combine(
+            decksFlow,
+            _searchQuery
+        ) { decks, searchQuery ->
+            // Обновляем счетчик всех колод
+            _allDecksCount.value = decks.size
+            processDataUpdate(decks, searchQuery)
+        }
+            .onStart {
+                // Показываем Loading при старте
+                _state.value = DecksState.Loading
             }
             .catch { exception ->
                 _state.value = DecksState.Error(exception.message ?: "Unknown error")
@@ -45,34 +56,69 @@ class DecksViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
-    fun onSearchQueryChanged(query: String) {
-        _searchQuery.value = query
-        filterDecks(query)
-    }
+    private fun processDataUpdate(decks: List<Deck>, searchQuery: String) {
+        val filteredDecks = filterDecksByQuery(decks, searchQuery)
 
-    private fun filterDecks(query: String) {
-        val filtered = if (query.isBlank()) {
-            allDecks
-        } else {
-            allDecks.filter { deck ->
-                deck.name.contains(query, ignoreCase = true) ||
-                        deck.description?.contains(query, ignoreCase = true) == true
+        when {
+            decks.isEmpty() && searchQuery.isBlank() -> {
+                // Действительно пустой список колод
+                _state.value = DecksState.Empty
+            }
+
+            decks.isNotEmpty() && filteredDecks.isEmpty() && searchQuery.isNotBlank() -> {
+                // Есть колоды, но поиск не дал результатов
+                _state.value = DecksState.Success(
+                    decks = emptyList(),
+                    searchQuery = searchQuery
+                )
+            }
+
+            else -> {
+                _state.value = DecksState.Success(
+                    decks = filteredDecks,
+                    searchQuery = searchQuery
+                )
             }
         }
-        _state.value = DecksState.Success(filtered)
+    }
+
+    fun onSearchQueryChanged(query: String) {
+        _searchQuery.value = query
+    }
+
+    private fun filterDecksByQuery(decks: List<Deck>, query: String): List<Deck> {
+        if (query.isBlank()) return decks
+
+        return decks.filter { deck ->
+            deck.name.contains(query, ignoreCase = true) ||
+                    deck.description?.contains(query, ignoreCase = true) == true
+        }
     }
 
     fun createDeck(name: String, description: String?) {
         viewModelScope.launch {
-            deckRepository.createDeck(name, description)
-            // Список обновится автоматически через Flow
+            try {
+                deckRepository.createDeck(name, description)
+                // Список обновится автоматически через Flow
+            } catch (e: Exception) {
+                _state.value = DecksState.Error("Failed to create deck: ${e.message}")
+            }
         }
     }
 
     fun deleteDeck(deck: Deck) {
         viewModelScope.launch {
-            deckRepository.deleteDeck(deck.id)
-            // Список обновится автоматически
+            try {
+                deckRepository.deleteDeck(deck.id)
+                // Список обновится автоматически через Flow
+            } catch (e: Exception) {
+                _state.value = DecksState.Error("Failed to delete deck: ${e.message}")
+            }
         }
+    }
+
+    fun refreshData() {
+        // Просто вызываем обновление через _searchQuery
+        _searchQuery.value = _searchQuery.value
     }
 }

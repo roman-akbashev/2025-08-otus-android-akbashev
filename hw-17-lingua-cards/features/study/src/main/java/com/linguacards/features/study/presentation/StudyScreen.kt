@@ -92,7 +92,6 @@ fun StudyScreen(
                 is StudyState.Finished -> {
                     StudyFinishedContent(
                         onFinish = onFinish,
-                        onRestart = { viewModel.resetStudy() }
                     )
                 }
 
@@ -358,7 +357,6 @@ fun GradeButton(
 @Composable
 fun StudyFinishedContent(
     onFinish: () -> Unit,
-    onRestart: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -387,10 +385,7 @@ fun StudyFinishedContent(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             OutlinedButton(onClick = onFinish) {
-                Text("Finish")
-            }
-            Button(onClick = onRestart) {
-                Text("Study Again")
+                Text("Close")
             }
         }
     }
@@ -482,7 +477,6 @@ fun PreviewStudyFinished() {
         ) {
             StudyFinishedContent(
                 onFinish = {},
-                onRestart = {}
             )
         }
     }

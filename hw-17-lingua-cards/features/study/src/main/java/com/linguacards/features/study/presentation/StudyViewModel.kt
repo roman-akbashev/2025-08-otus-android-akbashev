@@ -101,8 +101,4 @@ class StudyViewModel @Inject constructor(
             )
         }
     }
-
-    fun resetStudy() {
-        loadCards()
-    }
 }
