@@ -134,7 +134,6 @@ fun DeckDetailScreen(
         }
     }
 
-    // Диалог подтверждения удаления
     showDeleteDialog?.let { card ->
         DeleteCardDialog(card = card, onConfirm = {
             viewModel.deleteCard(card)
@@ -399,22 +398,18 @@ fun ReviewInfo(card: Card) {
 
         when {
             daysUntil < 0 -> {
-                // Просрочено - показываем на сколько
-                val overdueDays = -daysUntil
-                when {
-                    overdueDays == 1 -> "Просрочено на 1 день"
-                    overdueDays in 2..4 -> "Просрочено на $overdueDays дня"
+                when (val overdueDays = -daysUntil) {
+                    1 -> "Просрочено на 1 день"
+                    in 2..4 -> "Просрочено на $overdueDays дня"
                     else -> "Просрочено на $overdueDays дней"
                 }
             }
 
             daysUntil == 0 -> {
-                // Сегодня - показываем время
                 if (timeString != null) "Сегодня в $timeString" else "Сегодня"
             }
 
             daysUntil == 1 -> {
-                // Завтра - показываем время
                 if (timeString != null) "Завтра в $timeString" else "Завтра"
             }
 
@@ -431,8 +426,12 @@ fun ReviewInfo(card: Card) {
             imageVector = if (card.repetitions == 0 && card.nextReviewDate == null) Icons.Default.FiberNew else Icons.Default.Update,
             contentDescription = null,
             modifier = Modifier.size(12.dp),
-            tint = if (card.repetitions == 0 && card.nextReviewDate == null) MaterialTheme.colorScheme.tertiary
-            else MaterialTheme.colorScheme.primary
+            tint = when {
+                card.repetitions == 0 && card.nextReviewDate == null -> MaterialTheme.colorScheme.tertiary
+                card.nextReviewDate != null && card.nextReviewDate!! <= kotlinx.datetime.Clock.System.now() -> MaterialTheme.colorScheme.error
+
+                else -> MaterialTheme.colorScheme.primary
+            }
         )
 
         Spacer(modifier = Modifier.width(4.dp))
@@ -457,7 +456,6 @@ fun ReviewInfo(card: Card) {
     }
 }
 
-// Вспомогательная функция для расчета дней
 private fun calculateDaysUntil(now: Instant, nextDate: Instant): Int {
     val nowMillis = now.toEpochMilliseconds()
     val nextMillis = nextDate.toEpochMilliseconds()
@@ -477,7 +475,6 @@ private fun calculateDaysUntil(now: Instant, nextDate: Instant): Int {
     }
 }
 
-// Вспомогательная функция для форматирования времени
 private fun formatTime(instant: Instant): String? {
     return try {
         val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
@@ -489,7 +486,7 @@ private fun formatTime(instant: Instant): String? {
             minute < 10 -> "$hour:0$minute"
             else -> "$hour:$minute"
         }
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         null
     }
 }
