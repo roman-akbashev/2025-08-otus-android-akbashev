@@ -101,11 +101,13 @@ dependencies {
     testImplementation(libs.kotlin.coroutines.test)
     testImplementation(libs.turbine)
 
+    androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.androidx.test.junit)
     androidTestImplementation(libs.androidx.test.espresso)
     androidTestImplementation(libs.compose.ui.test)
 
     debugImplementation(libs.compose.ui.tooling)
+    debugImplementation(libs.compose.ui.test.manifest)
 }
 
 kapt {
