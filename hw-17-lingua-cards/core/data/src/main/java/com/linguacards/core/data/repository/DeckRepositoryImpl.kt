@@ -23,7 +23,6 @@ class DeckRepositoryImpl @Inject constructor(
 ) : DeckRepository {
 
     override fun getAllDecks(): Flow<List<Deck>> {
-        // Комбинируем список колод с потоками количества карточек
         return combine(
             deckDao.getAllDecks(),
             getCardCountsFlow()
@@ -35,7 +34,6 @@ class DeckRepositoryImpl @Inject constructor(
     }
 
     override fun getDeckById(deckId: Long): Flow<Deck?> {
-        // Используем Flow версию для реактивного обновления количества карточек
         return combine(
             deckDao.getAllDecks().map { decks -> decks.find { it.id == deckId } },
             cardDao.getCardCount(deckId).onStart { emit(0) }
@@ -44,16 +42,13 @@ class DeckRepositoryImpl @Inject constructor(
         }
     }
 
-    // Вспомогательный метод для получения Flow с количеством карточек для всех колод
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun getCardCountsFlow(): Flow<Map<Long, Int>> {
-        // Получаем список всех колод и для каждой подписываемся на изменения количества
         return deckDao.getAllDecks().map { decks ->
             decks.map { deck ->
                 deck.id to cardDao.getCardCount(deck.id)
             }
         }.flatMapLatest { flows ->
-            // Комбинируем все потоки в один
             combine(flows.map { (id, flow) ->
                 flow.map { count -> id to count }
             }) { arrays ->

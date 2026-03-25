@@ -137,7 +137,7 @@ fun DeckListScreen(
                 is DecksState.Error -> {
                     ErrorContent(
                         message = (state as DecksState.Error).message,
-                        onRetry = { viewModel.refreshData() },
+                        onRetry = { viewModel.retry() },
                         modifier = Modifier.fillMaxSize()
                     )
                 }

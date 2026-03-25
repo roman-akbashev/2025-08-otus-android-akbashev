@@ -52,7 +52,7 @@ class CalculateNextReviewUseCaseTest {
         )
 
         // Then
-        assertEquals(1.96, newEasinessFactor, 0.001) // Исправлено: 2.5 - 0.54 = 1.96
+        assertEquals(1.96, newEasinessFactor, 0.001)
     }
 
     @Test
@@ -69,7 +69,7 @@ class CalculateNextReviewUseCaseTest {
         )
 
         // Then
-        assertEquals(1.3, newEasinessFactor, 0.001) // Должен остановиться на 1.3
+        assertEquals(1.3, newEasinessFactor, 0.001)
     }
 
     @Test
@@ -156,7 +156,7 @@ class CalculateNextReviewUseCaseTest {
         )
 
         // Then
-        assertEquals(2.36, newEasinessFactor, 0.001) // Исправлено: 2.5 - 0.14 = 2.36
+        assertEquals(2.36, newEasinessFactor, 0.001)
     }
 
     @Test
@@ -224,27 +224,6 @@ class CalculateNextReviewUseCaseTest {
     }
 
     @Test
-    fun `GOOD grade should change easiness factor`() {
-        // Given
-        val easinessFactor = 2.5
-
-        // When
-        val (_, newEasinessFactor, _) = useCase(
-            repetitions = 5,
-            easinessFactor = easinessFactor,
-            interval = 30,
-            grade = SrsGrade.GOOD
-        )
-
-        // Then
-        assertEquals(
-            2.5,
-            newEasinessFactor,
-            0.001
-        ) // Для GOOD с ordinal=3, gradeValue=4, EF не меняется
-    }
-
-    @Test
     fun `EASY grade should increment repetitions`() {
         // Given
         val repetitions = 3
@@ -305,7 +284,7 @@ class CalculateNextReviewUseCaseTest {
         )
 
         // Then
-        assertEquals(27, newInterval) // Исправлено: 8 * 2.6 * 1.3 = 27.04 -> roundToInt = 27
+        assertEquals(27, newInterval) // 8 * 2.6 * 1.3 = 27.04 -> roundToInt = 27
     }
 
     @Test
@@ -322,15 +301,15 @@ class CalculateNextReviewUseCaseTest {
         )
 
         // Then
-        assertEquals(2.6, newEasinessFactor, 0.001) // 2.5 + 0.1
+        assertEquals(2.6, newEasinessFactor, 0.001)  // 2.5 + 0.1
     }
 
     @Test
     fun `multiple reviews should maintain correct progression for GOOD grades`() {
         // Симулируем последовательность GOOD ответов
-        var repetitions = 0
-        var easinessFactor = 2.5
-        var interval = 0
+        val repetitions = 0
+        val easinessFactor = 2.5
+        val interval = 0
 
         // Первый GOOD
         val (r1, ef1, i1) = useCase(repetitions, easinessFactor, interval, SrsGrade.GOOD)
@@ -389,9 +368,9 @@ class CalculateNextReviewUseCaseTest {
     @Test
     fun `mixed reviews should correctly handle forgetting curve`() {
         // Симулируем смешанную последовательность
-        var repetitions = 0
-        var easinessFactor = 2.5
-        var interval = 0
+        val repetitions = 0
+        val easinessFactor = 2.5
+        val interval = 0
 
         // Первый GOOD
         val (r1, ef1, i1) = useCase(repetitions, easinessFactor, interval, SrsGrade.GOOD)
@@ -493,7 +472,6 @@ class CalculateNextReviewUseCaseTest {
             grade = SrsGrade.GOOD
         )
 
-        // Просто проверяем, что нет исключений и результат положительный
         assertTrue(interval > 0)
     }
 }

@@ -128,7 +128,7 @@ fun DeckDetailScreen(
                 is DeckDetailState.Error -> {
                     ErrorContent(
                         message = (state as DeckDetailState.Error).message,
-                        onRetry = { viewModel.refreshData() })
+                        onRetry = { viewModel.retry() })
                 }
             }
         }

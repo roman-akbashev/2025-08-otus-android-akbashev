@@ -61,7 +61,6 @@ class DecksViewModel @Inject constructor(
 
         when {
             decks.isEmpty() && searchQuery.isBlank() -> {
-                // Действительно пустой список колод
                 _state.value = DecksState.Empty
             }
 
@@ -117,8 +116,7 @@ class DecksViewModel @Inject constructor(
         }
     }
 
-    fun refreshData() {
-        // Просто вызываем обновление через _searchQuery
-        _searchQuery.value = _searchQuery.value
+    fun retry() {
+        loadDecks()
     }
 }

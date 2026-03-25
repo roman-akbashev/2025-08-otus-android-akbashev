@@ -15,7 +15,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Error
@@ -23,7 +22,6 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Translate
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -127,6 +125,7 @@ fun CardEditScreen(
                         onWordFocusLost = viewModel::onWordFocusLost,
                         focusManager = focusManager,
                         viewModel = viewModel,
+                        onCancel = onCancel,
                         modifier = Modifier
                             .fillMaxSize()
                             .verticalScroll(scrollState)
@@ -160,6 +159,7 @@ fun CardEditForm(
     onWordFocusLost: () -> Unit,
     focusManager: FocusManager,
     viewModel: CardEditViewModel,
+    onCancel: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var wordFocused by remember { mutableStateOf(false) }
@@ -180,9 +180,11 @@ fun CardEditForm(
                     modifier = Modifier.padding(16.dp)
                 ) {
                     Text(
-                        text = "SM-2 Statistics",
+                        text = "Statistics",
                         style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center
                     )
                     Spacer(modifier = Modifier.height(8.dp))
 
@@ -197,10 +199,6 @@ fun CardEditForm(
                         StatChip(
                             label = "Interval",
                             value = "${state.originalCard.interval} days"
-                        )
-                        StatChip(
-                            label = "EF",
-                            value = "%.2f".format(state.originalCard.easinessFactor)
                         )
                     }
                 }
@@ -324,18 +322,6 @@ fun CardEditForm(
             maxLines = 4
         )
 
-        // Подсказка об авто-заполнении
-        if (!state.isEditing && state.word.isNotBlank() && !state.isFetchingDetails) {
-            AssistChip(
-                onClick = { /* Показать больше информации */ },
-                label = { Text("Auto-fill available from dictionary") },
-                leadingIcon = {
-                    Icon(Icons.Default.AutoAwesome, contentDescription = null)
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-
         // Кнопки действий
         Row(
             modifier = Modifier
@@ -348,7 +334,7 @@ fun CardEditForm(
                     if (state.isEditing) {
                         viewModel.resetState()
                     } else {
-//                        onCancel()
+                        onCancel()
                     }
                 },
                 modifier = Modifier.weight(1f)
