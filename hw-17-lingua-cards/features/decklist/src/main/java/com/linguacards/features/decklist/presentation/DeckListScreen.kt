@@ -1,33 +1,26 @@
 package com.linguacards.features.decklist.presentation
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -39,7 +32,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -52,12 +44,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.linguacards.core.model.Deck
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -70,10 +59,10 @@ fun DeckListScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
-    val allDecksCount by viewModel.allDecksCount.collectAsState()
 
     var showCreateDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf<Deck?>(null) }
+    val errorMessage by viewModel.errorMessage.collectAsState()
 
     Scaffold(
         topBar = {
@@ -106,7 +95,6 @@ fun DeckListScreen(
 
                     // Статистика колод
                     DeckStats(
-                        totalDecks = allDecksCount,
                         filteredCount = successState.decks.size,
                         isFiltered = successState.searchQuery.isNotBlank(),
                         modifier = Modifier
@@ -133,16 +121,22 @@ fun DeckListScreen(
                 is DecksState.Empty -> {
                     EmptyDeckListContent(modifier = Modifier.fillMaxSize())
                 }
-
-                is DecksState.Error -> {
-                    ErrorContent(
-                        message = (state as DecksState.Error).message,
-                        onRetry = { viewModel.retry() },
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
             }
         }
+    }
+
+    // Показываем диалог ошибки, если есть сообщение
+    if (errorMessage != null) {
+        AlertDialog(
+            onDismissRequest = { viewModel.clearErrorMessage() },
+            title = { Text("Error") },
+            text = { Text(errorMessage ?: "Unknown error") },
+            confirmButton = {
+                TextButton(onClick = { viewModel.clearErrorMessage() }) {
+                    Text("OK")
+                }
+            }
+        )
     }
 
     // Диалог создания колоды
@@ -171,7 +165,6 @@ fun DeckListScreen(
 
 @Composable
 fun DeckStats(
-    totalDecks: Int,
     filteredCount: Int,
     isFiltered: Boolean,
     modifier: Modifier = Modifier
@@ -179,7 +172,6 @@ fun DeckStats(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(IntrinsicSize.Min)
             .wrapContentHeight(),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
@@ -192,18 +184,11 @@ fun DeckStats(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            StatItem(
-                value = totalDecks.toString(),
-                label = "Total Decks"
-            )
 
-            if (isFiltered) {
-                VerticalDivider()
-                StatItem(
-                    value = filteredCount.toString(),
-                    label = "Filtered"
-                )
-            }
+            StatItem(
+                value = filteredCount.toString(),
+                label = if (isFiltered) "Filtered" else "Total Decks"
+            )
         }
     }
 }
@@ -227,16 +212,6 @@ fun StatItem(
             color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
         )
     }
-}
-
-@Composable
-fun VerticalDivider() {
-    Box(
-        modifier = Modifier
-            .width(1.dp)
-            .fillMaxHeight()
-            .background(MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.2f))
-    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -321,6 +296,9 @@ fun DeckItem(
     onClick: () -> Unit,
     onLongPress: () -> Unit
 ) {
+    val formattedDate = remember(deck.updatedAt) {
+        formatDate(deck.updatedAt)
+    }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -357,7 +335,7 @@ fun DeckItem(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = "${deck.cardCount} cards • Updated ${formatDate(deck.updatedAt)}",
+                    text = "${deck.cardCount} cards • Updated $formattedDate",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -453,48 +431,6 @@ fun LoadingContent(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun ErrorContent(
-    message: String,
-    onRetry: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier.padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Icon(
-            Icons.Default.Error,
-            contentDescription = null,
-            modifier = Modifier.size(64.dp),
-            tint = MaterialTheme.colorScheme.error
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "Error",
-            style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.error
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = message,
-            style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(onClick = onRetry) {
-            Text("Retry")
-        }
-    }
-}
-
-@Composable
 fun CreateDeckDialog(
     onDismiss: () -> Unit,
     onCreate: (String, String?) -> Unit
@@ -574,125 +510,4 @@ fun DeleteDeckDialog(
 private fun formatDate(instant: Instant): String {
     val dateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
     return "${dateTime.dayOfMonth}.${dateTime.monthNumber}.${dateTime.year}"
-}
-
-// Preview data
-private val now = Clock.System.now()
-
-private val previewDecks = listOf(
-    Deck(
-        id = 1,
-        name = "Spanish Basics",
-        description = "Essential Spanish vocabulary for beginners. Learn greetings, numbers, and common phrases.",
-        createdAt = now,
-        updatedAt = now,
-        cardCount = 42
-    ),
-    Deck(
-        id = 2,
-        name = "French Vocabulary",
-        description = null,
-        createdAt = now,
-        updatedAt = now,
-        cardCount = 128
-    ),
-    Deck(
-        id = 3,
-        name = "German Articles",
-        description = "Practice der, die, das with common nouns",
-        createdAt = now,
-        updatedAt = now,
-        cardCount = 0
-    )
-)
-
-@Preview(showBackground = true, name = "DeckListScreen - Loading State")
-@Composable
-fun PreviewDeckListScreenLoading() {
-    MaterialTheme {
-        Surface(modifier = Modifier.fillMaxSize()) {
-            LoadingContent()
-        }
-    }
-}
-
-@Preview(showBackground = true, name = "DeckListScreen - Empty State")
-@Composable
-fun PreviewDeckListScreenEmpty() {
-    MaterialTheme {
-        Surface(modifier = Modifier.fillMaxSize()) {
-            EmptyDeckListContent()
-        }
-    }
-}
-
-@Preview(showBackground = true, name = "DeckListScreen - No Search Results")
-@Composable
-fun PreviewDeckListScreenNoResults() {
-    MaterialTheme {
-        Surface(modifier = Modifier.fillMaxSize()) {
-            NoSearchResults(query = "nonexistent")
-        }
-    }
-}
-
-@Preview(showBackground = true, name = "DeckListScreen - With Decks")
-@Composable
-fun PreviewDeckListScreenWithDecks() {
-    MaterialTheme {
-        Surface(modifier = Modifier.fillMaxSize()) {
-            Column {
-                DeckStats(
-                    totalDecks = 5,
-                    filteredCount = 3,
-                    isFiltered = true,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                )
-                DeckListContent(
-                    decks = previewDecks,
-                    onDeckClick = {},
-                    onDeckLongPress = {}
-                )
-            }
-        }
-    }
-}
-
-@Preview(showBackground = true, name = "DeckListScreen - Error State")
-@Composable
-fun PreviewDeckListScreenError() {
-    MaterialTheme {
-        Surface(modifier = Modifier.fillMaxSize()) {
-            ErrorContent(
-                message = "Failed to load decks. Check your connection.",
-                onRetry = {}
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true, name = "Deck Stats")
-@Composable
-fun PreviewDeckStats() {
-    MaterialTheme {
-        Surface(modifier = Modifier.fillMaxSize()) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                DeckStats(
-                    totalDecks = 10,
-                    filteredCount = 10,
-                    isFiltered = false
-                )
-                DeckStats(
-                    totalDecks = 10,
-                    filteredCount = 3,
-                    isFiltered = true
-                )
-            }
-        }
-    }
 }

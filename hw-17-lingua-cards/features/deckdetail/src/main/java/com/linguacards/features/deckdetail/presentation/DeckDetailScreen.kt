@@ -261,12 +261,15 @@ fun CardsListContent(
 
 @Composable
 fun DeckStats(
-    totalCards: Int, filteredCount: Int, isFiltered: Boolean, modifier: Modifier = Modifier
+    totalCards: Int,
+    filteredCount: Int,
+    isFiltered: Boolean,
+    modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(IntrinsicSize.Min)  // Принудительно задаем минимальную высоту
+            .height(IntrinsicSize.Min)
             .wrapContentHeight(), colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
         )

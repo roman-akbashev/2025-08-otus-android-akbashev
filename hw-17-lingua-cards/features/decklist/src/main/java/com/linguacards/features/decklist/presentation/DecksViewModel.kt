@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,32 +27,26 @@ class DecksViewModel @Inject constructor(
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
-    private val _allDecksCount = MutableStateFlow(0)
-    val allDecksCount: StateFlow<Int> = _allDecksCount.asStateFlow()
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
     init {
         loadDecks()
     }
 
     private fun loadDecks() {
-        // Получаем поток колод
-        val decksFlow = deckRepository.getAllDecks()
-
-        // Комбинируем поток колод с поисковым запросом
         combine(
-            decksFlow,
+            deckRepository.getAllDecks(),
             _searchQuery
         ) { decks, searchQuery ->
-            // Обновляем счетчик всех колод
-            _allDecksCount.value = decks.size
             processDataUpdate(decks, searchQuery)
         }
             .onStart {
-                // Показываем Loading при старте
-                _state.value = DecksState.Loading
+                _state.update { DecksState.Loading }
             }
             .catch { exception ->
-                _state.value = DecksState.Error(exception.message ?: "Unknown error")
+                _errorMessage.update { exception.message ?: "Unknown error" }
+                _state.update { DecksState.Empty }
             }
             .launchIn(viewModelScope)
     }
@@ -59,30 +54,31 @@ class DecksViewModel @Inject constructor(
     private fun processDataUpdate(decks: List<Deck>, searchQuery: String) {
         val filteredDecks = filterDecksByQuery(decks, searchQuery)
 
-        when {
+        val newState = when {
             decks.isEmpty() && searchQuery.isBlank() -> {
-                _state.value = DecksState.Empty
+                DecksState.Empty
             }
 
             decks.isNotEmpty() && filteredDecks.isEmpty() && searchQuery.isNotBlank() -> {
                 // Есть колоды, но поиск не дал результатов
-                _state.value = DecksState.Success(
+                DecksState.Success(
                     decks = emptyList(),
                     searchQuery = searchQuery
                 )
             }
 
             else -> {
-                _state.value = DecksState.Success(
+                DecksState.Success(
                     decks = filteredDecks,
                     searchQuery = searchQuery
                 )
             }
         }
+        _state.update { newState }
     }
 
     fun onSearchQueryChanged(query: String) {
-        _searchQuery.value = query
+        _searchQuery.update { query }
     }
 
     private fun filterDecksByQuery(decks: List<Deck>, query: String): List<Deck> {
@@ -98,9 +94,8 @@ class DecksViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 deckRepository.createDeck(name, description)
-                // Список обновится автоматически через Flow
             } catch (e: Exception) {
-                _state.value = DecksState.Error("Failed to create deck: ${e.message}")
+                _errorMessage.update { "Failed to create deck: ${e.message}" }
             }
         }
     }
@@ -109,14 +104,13 @@ class DecksViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 deckRepository.deleteDeck(deck.id)
-                // Список обновится автоматически через Flow
             } catch (e: Exception) {
-                _state.value = DecksState.Error("Failed to delete deck: ${e.message}")
+                _errorMessage.update { "Failed to delete deck: ${e.message}" }
             }
         }
     }
 
-    fun retry() {
-        loadDecks()
+    fun clearErrorMessage() {
+        _errorMessage.update { null }
     }
 }

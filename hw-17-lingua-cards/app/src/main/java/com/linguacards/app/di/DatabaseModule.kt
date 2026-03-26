@@ -24,7 +24,7 @@ object DatabaseModule {
             LinguaCardsDatabase::class.java,
             "lingua_cards.db"
         )
-            .createFromAsset("databases/lingua_cards.db") // заполненная бд для демонмтрации
+//            .createFromAsset("databases/lingua_cards.db") // заполненная бд для демонмтрации
             .fallbackToDestructiveMigration(false) // Для разработки, в продакшене нужны миграции
             .build()
     }
