@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -41,9 +40,6 @@ class DecksViewModel @Inject constructor(
         ) { decks, searchQuery ->
             processDataUpdate(decks, searchQuery)
         }
-            .onStart {
-                _state.update { DecksState.Loading }
-            }
             .catch { exception ->
                 _errorMessage.update { exception.message ?: "Unknown error" }
                 _state.update { DecksState.Empty }
@@ -60,7 +56,6 @@ class DecksViewModel @Inject constructor(
             }
 
             decks.isNotEmpty() && filteredDecks.isEmpty() && searchQuery.isNotBlank() -> {
-                // Есть колоды, но поиск не дал результатов
                 DecksState.Success(
                     decks = emptyList(),
                     searchQuery = searchQuery
