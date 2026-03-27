@@ -22,7 +22,7 @@ fun LinguaCardsNavHost(
         startDestination = "deck_list",
         modifier = modifier
     ) {
-        // Главный экран - список колод
+
         composable("deck_list") {
             DeckListScreen(
                 onDeckClick = { deckId ->
@@ -31,7 +31,6 @@ fun LinguaCardsNavHost(
             )
         }
 
-        // Экран деталей колоды (список карточек)
         composable(
             "deck_detail/{deckId}",
             arguments = listOf(navArgument("deckId") { type = NavType.LongType })
@@ -54,7 +53,6 @@ fun LinguaCardsNavHost(
             )
         }
 
-        // Экран редактирования карточки
         composable(
             "card_edit/{deckId}/{cardId}",
             arguments = listOf(
@@ -68,7 +66,6 @@ fun LinguaCardsNavHost(
             )
         }
 
-        // Экран изучения
         composable(
             "study/{deckId}",
             arguments = listOf(navArgument("deckId") { type = NavType.LongType })

@@ -33,6 +33,8 @@ class CardEditViewModel @Inject constructor(
         )
     )
     val state: StateFlow<CardEditState> = _state.asStateFlow()
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
     private var debounceJob: Job? = null
 
@@ -59,10 +61,10 @@ class CardEditViewModel @Inject constructor(
                         } else currentState
                     }
                 } else {
-                    _state.value = CardEditState.Error("Card not found")
+                    _errorMessage.update { "Card not found" }
                 }
             } catch (e: Exception) {
-                _state.value = CardEditState.Error("Failed to load card: ${e.message}")
+                _errorMessage.update { "Failed to load card: ${e.message}" }
             }
         }
     }
@@ -110,7 +112,6 @@ class CardEditViewModel @Inject constructor(
         if (currentState is CardEditState.Content) {
             val word = currentState.word.trim()
 
-            // Не загружаем, если слово пустое или уже есть данные
             if (word.isBlank() ||
                 (currentState.example.isNotBlank() && currentState.transcription.isNotBlank())
             ) {
@@ -120,7 +121,7 @@ class CardEditViewModel @Inject constructor(
             // Запускаем загрузку с дебаунсом
             debounceJob?.cancel()
             debounceJob = viewModelScope.launch {
-                delay(500) // Ждем 500мс после последнего изменения
+                delay(500)
                 fetchWordDetails(word)
             }
         }
@@ -148,17 +149,16 @@ class CardEditViewModel @Inject constructor(
                             )
                         } else currentState
                     }
-                }.onFailure { error ->
+                }.onFailure { _ ->
                     _state.update { currentState ->
                         if (currentState is CardEditState.Content) {
                             currentState.copy(
                                 isFetchingDetails = false
-                                // Не показываем ошибку пользователю, просто не загружаем
                             )
                         } else currentState
                     }
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 _state.update { currentState ->
                     if (currentState is CardEditState.Content) {
                         currentState.copy(isFetchingDetails = false)
@@ -175,7 +175,7 @@ class CardEditViewModel @Inject constructor(
         val errors = validateFields(currentState)
 
         if (errors.isNotEmpty()) {
-            _state.update { it ->
+            _state.update {
                 if (it is CardEditState.Content) {
                     it.copy(errors = errors)
                 } else it
@@ -193,9 +193,9 @@ class CardEditViewModel @Inject constructor(
                     cardRepository.createCard(card)
                 }
 
-                _state.value = CardEditState.Saved
+                _state.update { CardEditState.Saved }
             } catch (e: Exception) {
-                _state.value = CardEditState.Error("Failed to save card: ${e.message}")
+                _errorMessage.update { "Failed to save card: ${e.message}" }
             }
         }
 
@@ -235,14 +235,6 @@ class CardEditViewModel @Inject constructor(
         )
     }
 
-    fun clearErrors() {
-        _state.update { currentState ->
-            if (currentState is CardEditState.Content) {
-                currentState.copy(errors = emptyMap())
-            } else currentState
-        }
-    }
-
     fun resetState() {
         _state.update { currentState ->
             if (currentState is CardEditState.Content) {
@@ -256,5 +248,9 @@ class CardEditViewModel @Inject constructor(
                 )
             } else currentState
         }
+    }
+
+    fun clearErrorMessage() {
+        _errorMessage.update { null }
     }
 }

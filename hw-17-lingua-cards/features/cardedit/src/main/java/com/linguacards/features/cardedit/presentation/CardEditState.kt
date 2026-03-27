@@ -16,7 +16,5 @@ sealed class CardEditState {
         val errors: Map<String, String> = emptyMap(),
         val originalCard: Card? = null
     ) : CardEditState()
-
-    data class Error(val message: String) : CardEditState()
-    object Saved : CardEditState() // Для сигнала об успешном сохранении
+    object Saved : CardEditState()
 }

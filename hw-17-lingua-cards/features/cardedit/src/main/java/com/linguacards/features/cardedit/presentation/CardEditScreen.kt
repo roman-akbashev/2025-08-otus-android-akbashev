@@ -17,13 +17,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Translate
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -35,9 +34,11 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,6 +67,7 @@ fun CardEditScreen(
     viewModel: CardEditViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val errorMessage by viewModel.errorMessage.collectAsState()
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val scrollState = rememberScrollState()
@@ -132,19 +134,29 @@ fun CardEditScreen(
                     )
                 }
 
-                is CardEditState.Error -> {
-                    ErrorContent(
-                        message = currentState.message,
-                        onDismiss = onCancel,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
-
                 is CardEditState.Saved -> {
                     // Не отображаем, просто триггерим onSave
                 }
             }
         }
+    }
+    if (errorMessage != null) {
+        AlertDialog(
+            onDismissRequest = {
+                viewModel.clearErrorMessage()
+                onCancel()
+            },
+            title = { Text("Error") },
+            text = { Text(errorMessage ?: "Unknown error") },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.clearErrorMessage()
+                    onCancel()
+                }) {
+                    Text("Go Back")
+                }
+            }
+        )
     }
 }
 
@@ -390,61 +402,5 @@ fun LoadingContent() {
         CircularProgressIndicator()
         Spacer(modifier = Modifier.height(16.dp))
         Text("Loading card...")
-    }
-}
-
-@Composable
-fun ErrorContent(
-    message: String,
-    onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.errorContainer
-        )
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(24.dp)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Icon(
-                Icons.Default.Error,
-                contentDescription = null,
-                modifier = Modifier.size(48.dp),
-                tint = MaterialTheme.colorScheme.error
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "Error",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.error
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = message,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.error,
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = onDismiss,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error
-                )
-            ) {
-                Text("Go Back")
-            }
-        }
     }
 }

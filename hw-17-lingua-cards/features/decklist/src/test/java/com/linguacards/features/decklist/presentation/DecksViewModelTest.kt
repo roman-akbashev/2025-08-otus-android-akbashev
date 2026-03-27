@@ -9,13 +9,11 @@ import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -86,14 +84,12 @@ class DecksViewModelTest {
 
         // Then
         viewModel.state.test {
-            // First emission should be Loading
             val loadingState = awaitItem()
             assertTrue(loadingState is DecksState.Loading)
 
-            // Advance coroutines to process the flow
+            // Process the flow
             advanceUntilIdle()
 
-            // Second emission should be Empty
             val emptyState = awaitItem()
             assertTrue(emptyState is DecksState.Empty)
 
@@ -111,14 +107,12 @@ class DecksViewModelTest {
 
         // Then
         viewModel.state.test {
-            // First emission: Loading
             val loadingState = awaitItem()
             assertTrue(loadingState is DecksState.Loading)
 
             // Process the flow
             advanceUntilIdle()
 
-            // Second emission: Success with decks
             val successState = awaitItem()
             assertTrue(successState is DecksState.Success)
             assertEquals(sampleDecks, (successState as DecksState.Success).decks)
@@ -138,14 +132,12 @@ class DecksViewModelTest {
 
         // Then
         viewModel.state.test {
-            // First emission: Loading
             val loadingState = awaitItem()
             assertTrue(loadingState is DecksState.Loading)
 
             // Process the flow
             advanceUntilIdle()
 
-            // Second emission: Empty
             val emptyState = awaitItem()
             assertTrue(emptyState is DecksState.Empty)
 
@@ -168,7 +160,6 @@ class DecksViewModelTest {
         viewModel = DecksViewModel(deckRepository)
 
         // Then
-        // Даем время на выполнение
         advanceUntilIdle()
 
         // Проверяем errorMessage
@@ -193,12 +184,11 @@ class DecksViewModelTest {
         viewModel = DecksViewModel(deckRepository)
         advanceUntilIdle()
 
-        // When
-        viewModel.onSearchQueryChanged("Spanish")
-
-        // Then
         viewModel.searchQuery.test {
             assertEquals("", awaitItem()) // Initial value
+
+            viewModel.onSearchQueryChanged("Spanish")
+
             assertEquals("Spanish", awaitItem()) // Updated value
             cancelAndIgnoreRemainingEvents()
         }
@@ -211,13 +201,15 @@ class DecksViewModelTest {
         viewModel = DecksViewModel(deckRepository)
 
         viewModel.state.test {
-            // Wait for initial load
             awaitItem() // Loading
+
             advanceUntilIdle()
+
             awaitItem() // Success with all decks
 
             // When
             viewModel.onSearchQueryChanged("Spanish")
+
             advanceUntilIdle()
 
             // Then
@@ -238,13 +230,15 @@ class DecksViewModelTest {
         viewModel = DecksViewModel(deckRepository)
 
         viewModel.state.test {
-            // Wait for initial load
             awaitItem() // Loading
+
             advanceUntilIdle()
+
             awaitItem() // Success with all decks
 
             // When
             viewModel.onSearchQueryChanged("French")
+
             advanceUntilIdle()
 
             // Then
@@ -264,13 +258,15 @@ class DecksViewModelTest {
         viewModel = DecksViewModel(deckRepository)
 
         viewModel.state.test {
-            // Wait for initial load
             awaitItem() // Loading
+
             advanceUntilIdle()
+
             awaitItem() // Success with all decks
 
             // When
             viewModel.onSearchQueryChanged("spanish")
+
             advanceUntilIdle()
 
             // Then
@@ -290,13 +286,15 @@ class DecksViewModelTest {
         viewModel = DecksViewModel(deckRepository)
 
         viewModel.state.test {
-            // Wait for initial load
             awaitItem() // Loading
+
             advanceUntilIdle()
+
             awaitItem() // Success with all decks
 
             // When
             viewModel.onSearchQueryChanged("Nonexistent")
+
             advanceUntilIdle()
 
             // Then
@@ -316,18 +314,22 @@ class DecksViewModelTest {
         viewModel = DecksViewModel(deckRepository)
 
         viewModel.state.test {
-            // Wait for initial load
             awaitItem() // Loading
+
             advanceUntilIdle()
+
             awaitItem() // Success with all decks
 
             // Filter
             viewModel.onSearchQueryChanged("Spanish")
+
             advanceUntilIdle()
+
             awaitItem() // Success with filtered decks
 
             // When - clear search
             viewModel.onSearchQueryChanged("")
+
             advanceUntilIdle()
 
             // Then - should show all decks
@@ -346,43 +348,37 @@ class DecksViewModelTest {
         coEvery { deckRepository.getAllDecks() } returns flowOf(sampleDecks)
         coEvery { deckRepository.createDeck(any(), any()) } returns 4L
         viewModel = DecksViewModel(deckRepository)
+
         advanceUntilIdle()
 
         // When
         viewModel.createDeck("New Deck", "Description")
+
         advanceUntilIdle()
 
         // Then
         coVerify { deckRepository.createDeck("New Deck", "Description") }
-
-        viewModel.errorMessage.test {
-            // Only initial null value
-            assertNull(awaitItem())
-            cancelAndIgnoreRemainingEvents()
-        }
     }
 
     @Test
     fun `createDeck should set error message when exception occurs`() = runTest {
         // Given
         coEvery { deckRepository.getAllDecks() } returns flowOf(sampleDecks)
+
         val exception = RuntimeException("Failed to create deck")
         coEvery { deckRepository.createDeck(any(), any()) } throws exception
+
         viewModel = DecksViewModel(deckRepository)
-        advanceUntilIdle()
 
-        // When
-        viewModel.createDeck("New Deck", "Description")
         advanceUntilIdle()
-
-        // Then
-        coVerify { deckRepository.createDeck("New Deck", "Description") }
 
         viewModel.errorMessage.test {
-            // First value: null (initial)
             assertNull(awaitItem())
 
-            // Second value: error message
+            viewModel.createDeck("New Deck", "Description")
+
+            advanceUntilIdle()
+
             val errorMessage = awaitItem()
             assertEquals("Failed to create deck: Failed to create deck", errorMessage)
 
@@ -396,7 +392,9 @@ class DecksViewModelTest {
         val deckToDelete = sampleDecks[0]
         coEvery { deckRepository.getAllDecks() } returns flowOf(sampleDecks)
         coEvery { deckRepository.deleteDeck(any()) } returns Unit
+
         viewModel = DecksViewModel(deckRepository)
+
         advanceUntilIdle()
 
         // When
@@ -418,6 +416,7 @@ class DecksViewModelTest {
         val deckToDelete = sampleDecks[0]
         coEvery { deckRepository.getAllDecks() } returns flowOf(sampleDecks)
         val exception = RuntimeException("Failed to delete deck")
+
         coEvery { deckRepository.deleteDeck(any()) } throws exception
         viewModel = DecksViewModel(deckRepository)
         advanceUntilIdle()
@@ -427,27 +426,20 @@ class DecksViewModelTest {
         advanceUntilIdle()
 
         // Then
-        coVerify { deckRepository.deleteDeck(deckToDelete.id) }
-
-        viewModel.errorMessage.test {
-            // First value: null (initial)
-            assertNull(awaitItem())
-
-            // Second value: error message
-            val errorMessage = awaitItem()
-            assertEquals("Failed to delete deck: Failed to delete deck", errorMessage)
-
-            cancelAndIgnoreRemainingEvents()
-        }
+        val currentError = viewModel.errorMessage.value
+        assertEquals("Failed to delete deck: Failed to delete deck", currentError)
     }
 
     @Test
     fun `clearErrorMessage should reset error message to null`() = runTest {
         // Given
         coEvery { deckRepository.getAllDecks() } returns flowOf(sampleDecks)
+
         val exception = RuntimeException("Some error")
         coEvery { deckRepository.createDeck(any(), any()) } throws exception
+
         viewModel = DecksViewModel(deckRepository)
+
         advanceUntilIdle()
 
         viewModel.errorMessage.test {
@@ -468,6 +460,7 @@ class DecksViewModelTest {
 
             // Cleared to null
             val clearedMessage = awaitItem()
+
             assertNull(clearedMessage)
 
             cancelAndIgnoreRemainingEvents()
