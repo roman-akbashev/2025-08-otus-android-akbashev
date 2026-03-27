@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,36 +26,28 @@ class DeckDetailViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val deckId: Long = savedStateHandle.get<Long>("deckId") ?: 0L
-
     private val _state = MutableStateFlow<DeckDetailState>(DeckDetailState.Loading)
     val state: StateFlow<DeckDetailState> = _state.asStateFlow()
-
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
     init {
         loadDeckData()
     }
 
     private fun loadDeckData() {
-        // Получаем потоки данных
-        val deckFlow = deckRepository.getDeckById(deckId)
-        val cardsFlow = cardRepository.getCardsByDeckId(deckId)
-
-        // Комбинируем все потоки и обрабатываем изменения
         combine(
-            deckFlow,
-            cardsFlow,
+            deckRepository.getDeckById(deckId),
+            cardRepository.getCardsByDeckId(deckId),
             _searchQuery
         ) { deck, cards, searchQuery ->
             processDataUpdate(deck, cards, searchQuery)
         }
-            .onStart {
-                // Показываем Loading при старте
-                _state.value = DeckDetailState.Loading
-            }
             .catch { exception ->
-                _state.value = DeckDetailState.Error(exception.message ?: "Unknown error")
+                _errorMessage.update { exception.message ?: "Unknown error" }
+                _state.update { DeckDetailState.Empty }
             }
             .launchIn(viewModelScope)
     }
@@ -65,7 +57,7 @@ class DeckDetailViewModel @Inject constructor(
 
         when {
             deck == null -> {
-                _state.value = DeckDetailState.Error("Deck not found")
+                _errorMessage.update { "Deck not found" }
             }
 
             cards.isEmpty() && searchQuery.isBlank() -> {
@@ -73,7 +65,6 @@ class DeckDetailViewModel @Inject constructor(
             }
 
             cards.isNotEmpty() && filteredCards.isEmpty() && searchQuery.isNotBlank() -> {
-                // Есть карточки, но поиск не дал результатов
                 _state.value = DeckDetailState.Success(
                     deck = deck,
                     cards = emptyList(),
@@ -92,7 +83,7 @@ class DeckDetailViewModel @Inject constructor(
     }
 
     fun onSearchQueryChanged(query: String) {
-        _searchQuery.value = query
+        _searchQuery.update { query }
     }
 
     private fun filterCardsByQuery(cards: List<Card>, query: String): List<Card> {
@@ -109,14 +100,13 @@ class DeckDetailViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 cardRepository.deleteCard(card.id)
-                // Список обновится автоматически через Flow
             } catch (e: Exception) {
-                _state.value = DeckDetailState.Error("Failed to delete card: ${e.message}")
+                _errorMessage.update { "Failed to delete card: ${e.message}" }
             }
         }
     }
 
-    fun retry() {
-        loadDeckData()
+    fun clearErrorMessage() {
+        _errorMessage.update { null }
     }
 }

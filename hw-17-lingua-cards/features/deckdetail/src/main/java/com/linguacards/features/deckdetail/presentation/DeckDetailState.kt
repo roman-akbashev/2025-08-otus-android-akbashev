@@ -10,8 +10,5 @@ sealed class DeckDetailState {
         val cards: List<Card>,
         val searchQuery: String = ""
     ) : DeckDetailState()
-
-    data class Error(val message: String) : DeckDetailState()
-
     object Empty : DeckDetailState()
 }

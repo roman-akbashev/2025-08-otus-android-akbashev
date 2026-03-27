@@ -22,10 +22,8 @@ class DecksViewModel @Inject constructor(
 
     private val _state = MutableStateFlow<DecksState>(DecksState.Loading)
     val state: StateFlow<DecksState> = _state.asStateFlow()
-
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
-
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 

@@ -3,6 +3,7 @@ package com.linguacards.features.decklist.presentation
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -59,10 +60,10 @@ fun DeckListScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
 
     var showCreateDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf<Deck?>(null) }
-    val errorMessage by viewModel.errorMessage.collectAsState()
 
     Scaffold(
         topBar = {
@@ -93,7 +94,6 @@ fun DeckListScreen(
                 is DecksState.Success -> {
                     val successState = state as DecksState.Success
 
-                    // Статистика колод
                     DeckStats(
                         filteredCount = successState.decks.size,
                         isFiltered = successState.searchQuery.isNotBlank(),
@@ -125,7 +125,6 @@ fun DeckListScreen(
         }
     }
 
-    // Показываем диалог ошибки, если есть сообщение
     if (errorMessage != null) {
         AlertDialog(
             onDismissRequest = { viewModel.clearErrorMessage() },
@@ -139,7 +138,6 @@ fun DeckListScreen(
         )
     }
 
-    // Диалог создания колоды
     if (showCreateDialog) {
         CreateDeckDialog(
             onDismiss = { showCreateDialog = false },
@@ -150,7 +148,6 @@ fun DeckListScreen(
         )
     }
 
-    // Диалог подтверждения удаления
     showDeleteDialog?.let { deck ->
         DeleteDeckDialog(
             deck = deck,
@@ -172,7 +169,7 @@ fun DeckStats(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .wrapContentHeight(),
+            .height(IntrinsicSize.Min),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
         )

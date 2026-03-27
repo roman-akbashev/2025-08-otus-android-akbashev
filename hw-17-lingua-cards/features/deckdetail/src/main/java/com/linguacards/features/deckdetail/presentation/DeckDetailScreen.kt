@@ -25,7 +25,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.FiberNew
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Queue
@@ -33,7 +32,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material.icons.filled.Update
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -58,7 +56,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -80,23 +77,26 @@ fun DeckDetailScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
 
     var showDeleteDialog by remember { mutableStateOf<Card?>(null) }
 
-    Scaffold(topBar = {
-        DeckDetailTopBar(
-            searchQuery = searchQuery,
-            onSearchQueryChange = { viewModel.onSearchQueryChanged(it) },
-            onBackClick = onBackClick,
-            onStartStudy = onStartStudy
-        )
-    }, floatingActionButton = {
-        FloatingActionButton(
-            onClick = onAddCard, modifier = Modifier.testTag("add_card_fab")
-        ) {
-            Icon(Icons.Default.Add, contentDescription = "Add card")
-        }
-    }) { paddingValues ->
+    Scaffold(
+        topBar = {
+            DeckDetailTopBar(
+                searchQuery = searchQuery,
+                onSearchQueryChange = { viewModel.onSearchQueryChanged(it) },
+                onBackClick = onBackClick,
+                onStartStudy = onStartStudy
+            )
+        }, floatingActionButton = {
+            FloatingActionButton(
+                onClick = onAddCard,
+                modifier = Modifier.testTag("add_card_fab")
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Add card")
+            }
+        }) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -124,14 +124,21 @@ fun DeckDetailScreen(
                         modifier = Modifier.fillMaxSize()
                     )
                 }
-
-                is DeckDetailState.Error -> {
-                    ErrorContent(
-                        message = (state as DeckDetailState.Error).message,
-                        onRetry = { viewModel.retry() })
-                }
             }
         }
+    }
+
+    if (errorMessage != null) {
+        AlertDialog(
+            onDismissRequest = { viewModel.clearErrorMessage() },
+            title = { Text("Error") },
+            text = { Text(errorMessage ?: "Unknown error") },
+            confirmButton = {
+                TextButton(onClick = { viewModel.clearErrorMessage() }) {
+                    Text("OK")
+                }
+            }
+        )
     }
 
     showDeleteDialog?.let { card ->
@@ -217,8 +224,7 @@ fun CardsListContent(
     Column(
         modifier = modifier.fillMaxSize()
     ) {
-        // Статистика
-        DeckStats(
+        CardStats(
             totalCards = deck.cardCount,
             filteredCount = cards.size,
             isFiltered = searchQuery.isNotBlank(),
@@ -228,7 +234,6 @@ fun CardsListContent(
                 .wrapContentHeight()
         )
 
-        // Список - занимает всё остальное
         LazyColumn(
             state = listState,
             modifier = Modifier
@@ -237,11 +242,13 @@ fun CardsListContent(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Показываем сообщение если нет карточек
             if (cards.isEmpty()) {
                 item {
                     if (searchQuery.isNotBlank()) {
-                        NoSearchResults(query = searchQuery)
+                        NoSearchResults(
+                            query = searchQuery,
+                            modifier = Modifier.fillMaxSize()
+                        )
                     } else {
                         EmptyDeckContent()
                     }
@@ -260,7 +267,7 @@ fun CardsListContent(
 }
 
 @Composable
-fun DeckStats(
+fun CardStats(
     totalCards: Int,
     filteredCount: Int,
     isFiltered: Boolean,
@@ -269,8 +276,8 @@ fun DeckStats(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(IntrinsicSize.Min)
-            .wrapContentHeight(), colors = CardDefaults.cardColors(
+            .height(IntrinsicSize.Min),
+        colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
         )
     ) {
@@ -447,15 +454,6 @@ fun ReviewInfo(card: Card) {
                 else -> MaterialTheme.colorScheme.primary
             }
         )
-
-        if (card.repetitions > 0) {
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "EF: %.2f".format(card.easinessFactor),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-            )
-        }
     }
 }
 
@@ -547,10 +545,13 @@ fun EmptyDeckContent(
 
 @Composable
 fun NoSearchResults(
-    query: String, modifier: Modifier = Modifier
+    query: String,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.padding(32.dp),
+        modifier = modifier
+            .padding(32.dp)
+            .wrapContentHeight(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -564,7 +565,8 @@ fun NoSearchResults(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "No results for \"$query\"", style = MaterialTheme.typography.titleLarge
+            text = "No results for \"$query\"",
+            style = MaterialTheme.typography.titleLarge
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -589,48 +591,6 @@ fun LoadingContent() {
         CircularProgressIndicator()
         Spacer(modifier = Modifier.height(16.dp))
         Text("Loading deck...")
-    }
-}
-
-@Composable
-fun ErrorContent(
-    message: String, onRetry: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Icon(
-            Icons.Default.Error,
-            contentDescription = null,
-            modifier = Modifier.size(64.dp),
-            tint = MaterialTheme.colorScheme.error
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "Error",
-            style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.error
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = message,
-            style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(onClick = onRetry) {
-            Text("Retry")
-        }
     }
 }
 
