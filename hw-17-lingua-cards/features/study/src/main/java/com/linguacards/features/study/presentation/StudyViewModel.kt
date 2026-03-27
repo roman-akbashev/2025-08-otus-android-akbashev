@@ -11,6 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import javax.inject.Inject
@@ -24,10 +25,8 @@ class StudyViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val deckId: Long = savedStateHandle.get<Long>("deckId") ?: 0L
-
     private val _state = MutableStateFlow<StudyState>(StudyState.Loading)
     val state: StateFlow<StudyState> = _state.asStateFlow()
-
     private var currentCard: Card? = null
     private val cardsQueue = mutableListOf<Card>()
     private var totalCards = 0
@@ -44,8 +43,8 @@ class StudyViewModel @Inject constructor(
                 cardsQueue.addAll(cards)
                 totalCards = cardsQueue.size
                 showNextCard()
-            } catch (e: Exception) {
-                _state.value = StudyState.Finished
+            } catch (_: Exception) {
+                _state.update { StudyState.Finished }
             }
         }
     }
@@ -53,7 +52,9 @@ class StudyViewModel @Inject constructor(
     fun onCardFlip() {
         val currentState = _state.value
         if (currentState is StudyState.Card) {
-            _state.value = currentState.copy(isFlipped = !currentState.isFlipped)
+            _state.update {
+                currentState.copy(isFlipped = !currentState.isFlipped)
+            }
         }
     }
 
@@ -90,15 +91,17 @@ class StudyViewModel @Inject constructor(
 
     private fun showNextCard() {
         if (cardsQueue.isEmpty()) {
-            _state.value = StudyState.Finished
+            _state.update { StudyState.Finished }
         } else {
             currentCard = cardsQueue.first()
             val studiedCount = totalCards - cardsQueue.size + 1
-            _state.value = StudyState.Card(
-                card = currentCard!!,
-                isFlipped = false,
-                progress = "$studiedCount/$totalCards"
-            )
+            _state.update {
+                StudyState.Card(
+                    card = currentCard!!,
+                    isFlipped = false,
+                    progress = "$studiedCount/$totalCards"
+                )
+            }
         }
     }
 }
