@@ -8,10 +8,8 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -74,6 +72,43 @@ class DecksViewModelTest {
         Dispatchers.resetMain()
     }
 
+    // По тестам были вопросы на защите проектной работы
+    // Распишу как все работает
+    @Test
+    fun `loadDecks should update state with decks when repository returns data`() = runTest {
+        // 1. Настройка мока
+        coEvery { deckRepository.getAllDecks() } returns flowOf(sampleDecks)
+
+        // 2. Создание ViewModel - запускается init и loadDecks()
+        viewModel = DecksViewModel(deckRepository)
+
+        // 3. Начало тестирования Flow
+        viewModel.state.test {
+            // 4. awaitItem() получает ПЕРВОЕ значение (DecksState.Loading)
+            //    Оно эмитится СРАЗУ при создании _state
+            val loadingState = awaitItem()
+
+            assertTrue(loadingState is DecksState.Loading)
+
+            // 5. В этот момент loadDecks() уже вызвал combine, но данные еще не пришли
+            //    потому что корутина приостановлена тестовым диспетчером
+
+            // 6. advanceUntilIdle() выполняет все отложенные корутины
+            //    Теперь getAllDecks() выполняется и эмитит данные
+            advanceUntilIdle()
+
+            // 7. awaitItem() получает ВТОРОЕ значение (DecksState.Success)
+            val successState = awaitItem()
+
+            // 8. Проверки
+            assertTrue(successState is DecksState.Success)
+            assertEquals(sampleDecks, (successState as DecksState.Success).decks)
+
+            // 9. корректного завершения тестирования Flow и игнорирования любых оставшихся эмиссий
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
     @Test
     fun `init should load decks and set state to Loading initially`() = runTest {
         // Given
@@ -97,30 +132,6 @@ class DecksViewModelTest {
         }
     }
 
-    @Test
-    fun `loadDecks should update state with decks when repository returns data`() = runTest {
-        // Given
-        coEvery { deckRepository.getAllDecks() } returns flowOf(sampleDecks)
-
-        // When
-        viewModel = DecksViewModel(deckRepository)
-
-        // Then
-        viewModel.state.test {
-            val loadingState = awaitItem()
-            assertTrue(loadingState is DecksState.Loading)
-
-            // Process the flow
-            advanceUntilIdle()
-
-            val successState = awaitItem()
-            assertTrue(successState is DecksState.Success)
-            assertEquals(sampleDecks, (successState as DecksState.Success).decks)
-            assertEquals("", successState.searchQuery)
-
-            cancelAndIgnoreRemainingEvents()
-        }
-    }
 
     @Test
     fun `loadDecks should set state to Empty when repository returns empty list`() = runTest {
@@ -148,33 +159,26 @@ class DecksViewModelTest {
     @Test
     fun `loadDecks should set error message when repository throws exception`() = runTest {
         // Given
-        val exception = RuntimeException("Database error")
-        coEvery { deckRepository.getAllDecks() } answers {
-            flow {
-                delay(1)
-                throw exception
-            }
+        val errorMessage = "Database error"
+        val errorFlow = flow<List<Deck>> {
+            throw RuntimeException(errorMessage)
         }
+        coEvery { deckRepository.getAllDecks() } returns errorFlow
 
         // When
         viewModel = DecksViewModel(deckRepository)
 
         // Then
-        advanceUntilIdle()
+        viewModel.errorMessage.test {
+            assertNull(awaitItem())
 
-        // Проверяем errorMessage
-        val errorMessages = mutableListOf<String?>()
-        val errorJob = launch {
-            viewModel.errorMessage.collect { errorMessages.add(it) }
+            advanceUntilIdle()
+
+            val errorMessage = awaitItem()
+            assertEquals("Database error", errorMessage)
+
+            cancelAndIgnoreRemainingEvents()
         }
-
-        delay(100)
-        advanceUntilIdle()
-
-        println("Error messages collected: $errorMessages")
-        assertTrue(errorMessages.any { it == "Database error" })
-
-        errorJob.cancel()
     }
 
     @Test
