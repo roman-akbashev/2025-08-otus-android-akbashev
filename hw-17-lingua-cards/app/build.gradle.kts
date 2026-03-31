@@ -19,7 +19,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.linguacards.app.CustomTestRunner"
     }
 
     buildTypes {
@@ -105,6 +105,12 @@ dependencies {
     androidTestImplementation(libs.androidx.test.junit)
     androidTestImplementation(libs.androidx.test.espresso)
     androidTestImplementation(libs.compose.ui.test)
+    androidTestImplementation("com.kaspersky.android-components:kaspresso:1.5.5")
+    // Для Compose UI тестов с Kaspresso
+    androidTestImplementation("com.kaspersky.android-components:kaspresso-compose-support:1.5.5")
+
+    androidTestImplementation("com.google.dagger:hilt-android-testing:2.48")
+    kaptAndroidTest("com.google.dagger:hilt-compiler:2.48")
 
     debugImplementation(libs.compose.ui.tooling)
 }

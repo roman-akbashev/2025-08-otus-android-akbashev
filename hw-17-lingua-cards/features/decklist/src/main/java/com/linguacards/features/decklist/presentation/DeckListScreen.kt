@@ -171,7 +171,8 @@ fun DeckStats(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(IntrinsicSize.Min),
+            .height(IntrinsicSize.Min)
+            .testTag("deck_stats"),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
         )
@@ -225,7 +226,7 @@ fun DeckListTopBar(
     var isSearching by remember { mutableStateOf(false) }
 
     TopAppBar(
-        modifier = modifier,
+        modifier = modifier.testTag("deck_list"),
         title = {
             if (isSearching) {
                 OutlinedTextField(
@@ -233,7 +234,9 @@ fun DeckListTopBar(
                     onValueChange = onSearchQueryChange,
                     placeholder = { Text("Search decks...") },
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("search_field"),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
                         unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
@@ -253,7 +256,9 @@ fun DeckListTopBar(
         },
         actions = {
             if (isSearching) {
-                IconButton(onClick = {
+                IconButton(
+                    modifier = Modifier.testTag("search_close"),
+                    onClick = {
                     isSearching = false
                     onSearchQueryChange("")
                 }) {
@@ -310,6 +315,7 @@ fun DeckItem(
                 onClick = onClick,
                 onLongClick = onLongPress
             )
+            .testTag("deck_item")
     ) {
         Row(
             modifier = Modifier
