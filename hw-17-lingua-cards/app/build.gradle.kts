@@ -40,7 +40,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
-
 }
 
 kotlin {
@@ -105,12 +104,11 @@ dependencies {
     androidTestImplementation(libs.androidx.test.junit)
     androidTestImplementation(libs.androidx.test.espresso)
     androidTestImplementation(libs.compose.ui.test)
-    androidTestImplementation("com.kaspersky.android-components:kaspresso:1.5.5")
-    // Для Compose UI тестов с Kaspresso
-    androidTestImplementation("com.kaspersky.android-components:kaspresso-compose-support:1.5.5")
+    androidTestImplementation(libs.kaspresso)
+    androidTestImplementation(libs.kaspresso.compose.support)
 
-    androidTestImplementation("com.google.dagger:hilt-android-testing:2.48")
-    kaptAndroidTest("com.google.dagger:hilt-compiler:2.48")
+    androidTestImplementation(libs.hilt.android.testing)
+    kaptAndroidTest(libs.androidx.hilt.compiler)
 
     debugImplementation(libs.compose.ui.tooling)
 }

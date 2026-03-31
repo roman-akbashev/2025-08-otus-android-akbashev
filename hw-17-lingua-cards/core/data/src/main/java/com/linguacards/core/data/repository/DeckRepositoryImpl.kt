@@ -9,6 +9,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.datetime.Clock
@@ -42,21 +43,6 @@ class DeckRepositoryImpl @Inject constructor(
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private fun getCardCountsFlow(): Flow<Map<Long, Int>> {
-        return deckDao.getAllDecks().map { decks ->
-            decks.map { deck ->
-                deck.id to cardDao.getCardCount(deck.id)
-            }
-        }.flatMapLatest { flows ->
-            combine(flows.map { (id, flow) ->
-                flow.map { count -> id to count }
-            }) { arrays ->
-                arrays.toMap()
-            }
-        }
-    }
-
     override suspend fun createDeck(name: String, description: String?): Long {
         val now = Clock.System.now().toEpochMilliseconds()
         val entity = DeckEntity(
@@ -77,6 +63,32 @@ class DeckRepositoryImpl @Inject constructor(
         val deck = deckDao.getDeckById(deckId) ?: return
         deckDao.deleteDeck(deck)
     }
+
+    override suspend fun deleteAllDecks() {
+        deckDao.deleteAllDecks()
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun getCardCountsFlow(): Flow<Map<Long, Int>> {
+        return deckDao.getAllDecks().map { decks ->
+            decks.map { deck ->
+                deck.id to cardDao.getCardCount(deck.id)
+            }
+        }.flatMapLatest { flows ->
+            if (flows.isEmpty()) {
+                flowOf(emptyMap())
+            } else {
+                combine(flows.map { (id, flow) ->
+                    flow.map { count -> id to count }
+                }) { arrays ->
+                    arrays.toMap()
+                }
+            }
+        }.onStart {
+            emit(emptyMap())
+        }
+    }
+
 
     private fun DeckEntity.toDomain(cardCount: Int): Deck {
         return Deck(

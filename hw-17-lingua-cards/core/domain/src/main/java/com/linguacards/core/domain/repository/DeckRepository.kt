@@ -9,4 +9,5 @@ interface DeckRepository {
     suspend fun createDeck(name: String, description: String?): Long
     suspend fun updateDeck(deck: Deck)
     suspend fun deleteDeck(deckId: Long)
+    suspend fun deleteAllDecks()
 }

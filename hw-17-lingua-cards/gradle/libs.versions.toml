@@ -1,5 +1,6 @@
 [versions]
 agp = "8.11.1"
+kaspresso = "1.6.0"
 kotlin = "2.2.10"
 core-ktx = "1.13.1"
 lifecycle = "2.8.3"
@@ -60,6 +61,9 @@ androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-com
 junit = { module = "junit:junit", version.ref = "junit" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+kaspresso = { module = "com.kaspersky.android-components:kaspresso", version.ref = "kaspresso" }
+kaspresso-compose-support = { module = "com.kaspersky.android-components:kaspresso-compose-support", version.ref = "kaspresso" }
+hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "hilt" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

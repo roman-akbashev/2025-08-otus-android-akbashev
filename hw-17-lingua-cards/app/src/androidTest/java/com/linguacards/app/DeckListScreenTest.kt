@@ -6,8 +6,8 @@ import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performGesture
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTouchInput
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
 import com.linguacards.core.domain.repository.DeckRepository
@@ -34,6 +34,9 @@ class DeckListScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.simple(
     @Before
     fun setup() {
         hiltRule.inject()
+        runBlocking {
+            deckRepository.deleteAllDecks()
+        }
     }
 
     @Test
@@ -49,13 +52,13 @@ class DeckListScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.simple(
         }
 
         step("Click create button") {
-            composeRule.onNodeWithText("Create").performClick()
+            composeRule.onNodeWithTag("create_button").performClick()
         }
 
         step("Verify deck is displayed") {
             composeRule.onNodeWithText("Test Deck").assertIsDisplayed()
             composeRule.onNodeWithText("Test Description").assertIsDisplayed()
-            composeRule.onNodeWithText("0 cards").assertIsDisplayed()
+            composeRule.onNodeWithText("0").assertIsDisplayed()
         }
 
         step("Verify deck stats") {
@@ -81,7 +84,7 @@ class DeckListScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.simple(
 
         step("Verify deck is displayed without description") {
             composeRule.onNodeWithText("Simple Deck").assertIsDisplayed()
-            composeRule.onNodeWithText("0 cards").assertIsDisplayed()
+            composeRule.onNodeWithText("0").assertIsDisplayed()
         }
     }
 
@@ -95,7 +98,7 @@ class DeckListScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.simple(
         }
 
         step("Click search button") {
-            composeRule.onNodeWithTag("search_field").performClick()
+            composeRule.onNodeWithTag("search_button").performClick()
         }
 
         step("Enter search query") {
@@ -124,7 +127,7 @@ class DeckListScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.simple(
         }
 
         step("Search for non-existent deck") {
-            composeRule.onNodeWithTag("search_field").performClick()
+            composeRule.onNodeWithTag("search_button").performClick()
             composeRule.onNodeWithTag("search_field").performTextInput("NonExistentDeck123")
         }
 
@@ -145,8 +148,8 @@ class DeckListScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.simple(
         }
 
         step("Long press on deck to open delete dialog") {
-            composeRule.onNodeWithText("Deck To Delete").performGesture {
-                this.longClick()
+            composeRule.onNodeWithText("Deck To Delete").performTouchInput {
+                longClick()
             }
         }
 

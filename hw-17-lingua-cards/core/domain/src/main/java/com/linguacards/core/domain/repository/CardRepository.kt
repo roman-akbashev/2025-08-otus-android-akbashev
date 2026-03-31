@@ -10,6 +10,7 @@ interface CardRepository {
     suspend fun createCard(card: Card): Long
     suspend fun updateCard(card: Card)
     suspend fun deleteCard(cardId: Long)
+    suspend fun deleteAllCards()
     suspend fun getCardsForStudy(deckId: Long, limit: Int = 20): List<Card>
     suspend fun updateCardAfterReview(card: Card)
     suspend fun fetchWordDetails(word: String): Result<WordDetails>

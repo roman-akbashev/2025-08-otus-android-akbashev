@@ -259,13 +259,15 @@ fun DeckListTopBar(
                 IconButton(
                     modifier = Modifier.testTag("search_close"),
                     onClick = {
-                    isSearching = false
-                    onSearchQueryChange("")
-                }) {
+                        isSearching = false
+                        onSearchQueryChange("")
+                    }) {
                     Icon(Icons.Default.Close, contentDescription = "Close search")
                 }
             } else {
-                IconButton(onClick = { isSearching = true }) {
+                IconButton(
+                    modifier = Modifier.testTag("search_button"),
+                    onClick = { isSearching = true }) {
                     Icon(Icons.Default.Search, contentDescription = "Search")
                 }
             }
@@ -475,6 +477,7 @@ fun CreateDeckDialog(
         },
         confirmButton = {
             TextButton(
+                modifier = Modifier.testTag("create_button"),
                 onClick = { onCreate(name, description.takeIf { it.isNotBlank() }) },
                 enabled = name.isNotBlank()
             ) {

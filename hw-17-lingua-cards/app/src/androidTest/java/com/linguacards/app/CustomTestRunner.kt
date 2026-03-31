@@ -3,6 +3,7 @@ package com.linguacards.app
 import android.app.Application
 import android.content.Context
 import androidx.test.runner.AndroidJUnitRunner
+import dagger.hilt.android.testing.HiltTestApplication
 
 class CustomTestRunner : AndroidJUnitRunner() {
     override fun newApplication(
@@ -10,6 +11,6 @@ class CustomTestRunner : AndroidJUnitRunner() {
         className: String?,
         context: Context?
     ): Application {
-        return super.newApplication(cl, TestLinguaCardsApplication::class.java.name, context)
+        return super.newApplication(cl, HiltTestApplication::class.java.name, context)
     }
 }

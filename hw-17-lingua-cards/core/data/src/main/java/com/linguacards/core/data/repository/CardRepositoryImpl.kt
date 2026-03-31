@@ -52,6 +52,10 @@ class CardRepositoryImpl @Inject constructor(
         cardDao.deleteCard(card)
     }
 
+    override suspend fun deleteAllCards() {
+        cardDao.deleteAllCards()
+    }
+
     override suspend fun getCardsForStudy(deckId: Long, limit: Int): List<Card> {
         val currentTime = Clock.System.now().toEpochMilliseconds()
         return cardDao.getCardsForStudy(deckId, currentTime, limit)
