@@ -30,4 +30,7 @@ interface CardDao {
 
     @Query("SELECT COUNT(*) FROM cards WHERE deckId = :deckId")
     fun getCardCount(deckId: Long): Flow<Int>
+
+    @Query("DELETE FROM cards")
+    suspend fun deleteAllCards()
 }

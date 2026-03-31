@@ -20,4 +20,7 @@ interface DeckDao {
 
     @Delete
     suspend fun deleteDeck(deck: DeckEntity)
+
+    @Query("DELETE FROM decks")
+    suspend fun deleteAllDecks()
 }
