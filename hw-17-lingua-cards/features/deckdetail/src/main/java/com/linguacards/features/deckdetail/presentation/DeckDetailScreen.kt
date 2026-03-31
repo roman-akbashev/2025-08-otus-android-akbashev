@@ -24,7 +24,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FiberNew
 import androidx.compose.material.icons.filled.PlayArrow
@@ -74,6 +73,7 @@ fun DeckDetailScreen(
     onAddCard: () -> Unit,
     onStartStudy: () -> Unit,
     onBackClick: () -> Unit,
+    modifier: Modifier = Modifier,
     viewModel: DeckDetailViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -83,6 +83,7 @@ fun DeckDetailScreen(
     var showDeleteDialog by remember { mutableStateOf<Card?>(null) }
 
     Scaffold(
+        modifier = modifier,
         topBar = {
             DeckDetailTopBar(
                 searchQuery = searchQuery,
@@ -156,11 +157,13 @@ fun DeckDetailTopBar(
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
     onBackClick: () -> Unit,
-    onStartStudy: () -> Unit
+    onStartStudy: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     var isSearching by remember { mutableStateOf(false) }
 
     TopAppBar(
+        modifier = modifier,
         title = {
             if (isSearching) {
                 OutlinedTextField(
@@ -305,9 +308,12 @@ fun CardStats(
 
 @Composable
 fun StatItem(
-    value: String, label: String
+    value: String,
+    label: String,
+    modifier: Modifier = Modifier
 ) {
     Column(
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -325,10 +331,13 @@ fun StatItem(
 
 @Composable
 fun CardItem(
-    card: Card, onClick: () -> Unit, onLongPress: () -> Unit
+    card: Card,
+    onClick: () -> Unit,
+    onLongPress: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .combinedClickable(
                 onClick = onClick, onLongClick = onLongPress
@@ -387,8 +396,9 @@ fun CardItem(
                     )
                 }
 
-                // Информация о повторении
                 Spacer(modifier = Modifier.height(4.dp))
+
+                // Информация о повторении
                 ReviewInfo(card = card)
             }
 
@@ -399,7 +409,10 @@ fun CardItem(
 }
 
 @Composable
-fun ReviewInfo(card: Card) {
+fun ReviewInfo(
+    card: Card,
+    modifier: Modifier = Modifier
+) {
     val reviewDateText = if (card.nextReviewDate != null) {
         val now = kotlinx.datetime.Clock.System.now()
         val nextDate = card.nextReviewDate!!
@@ -431,6 +444,7 @@ fun ReviewInfo(card: Card) {
     }
 
     Row(
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
@@ -494,9 +508,12 @@ private fun formatTime(instant: Instant): String? {
 }
 
 @Composable
-fun ReviewProgressBadge(card: Card) {
+fun ReviewProgressBadge(
+    card: Card,
+    modifier: Modifier = Modifier
+) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .size(32.dp)
             .background(
                 color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f), shape = CircleShape
@@ -581,9 +598,11 @@ fun NoSearchResults(
 }
 
 @Composable
-fun LoadingContent() {
+fun LoadingContent(
+    modifier: Modifier = Modifier
+) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -597,29 +616,38 @@ fun LoadingContent() {
 
 @Composable
 fun DeleteCardDialog(
-    card: Card, onConfirm: () -> Unit, onDismiss: () -> Unit
+    card: Card,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    AlertDialog(onDismissRequest = onDismiss, title = { Text("Delete Card") }, text = {
-        Text("Are you sure you want to delete \"${card.word}\"?")
-    }, confirmButton = {
-        TextButton(
-            onClick = onConfirm, colors = ButtonDefaults.textButtonColors(
-                contentColor = MaterialTheme.colorScheme.error
-            )
-        ) {
-            Text("Delete")
-        }
-    }, dismissButton = {
-        TextButton(onClick = onDismiss) {
-            Text("Cancel")
-        }
-    })
+    AlertDialog(
+        modifier = modifier,
+        onDismissRequest = onDismiss,
+        title = { Text("Delete Card") },
+        text = {
+            Text("Are you sure you want to delete \"${card.word}\"?")
+        }, confirmButton = {
+            TextButton(
+                onClick = onConfirm, colors = ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colorScheme.error
+                )
+            ) {
+                Text("Delete")
+            }
+        }, dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        })
 }
 
 @Composable
-fun VerticalDivider() {
+fun VerticalDivider(
+    modifier: Modifier = Modifier
+) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .width(1.dp)
             .fillMaxHeight()
             .background(MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.2f))

@@ -55,12 +55,14 @@ import com.linguacards.core.model.SrsGrade
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StudyScreen(
+    modifier: Modifier = Modifier,
     viewModel: StudyViewModel = hiltViewModel(),
     onFinish: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
 
     Scaffold(
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = { Text("Study") },
@@ -111,7 +113,8 @@ fun StudyCardContent(
     isFlipped: Boolean,
     progress: String,
     onCardFlip: () -> Unit,
-    onGradeSelected: (SrsGrade) -> Unit
+    onGradeSelected: (SrsGrade) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val rotation = animateFloatAsState(
         targetValue = if (isFlipped) 180f else 0f,
@@ -123,7 +126,7 @@ fun StudyCardContent(
     val isAnimating = rotation.value != 0f && rotation.value != 180f
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -199,9 +202,12 @@ fun StudyCardContent(
 }
 
 @Composable
-fun FrontCardContent(card: Card) {
+fun FrontCardContent(
+    card: Card,
+    modifier: Modifier = Modifier
+) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -227,9 +233,12 @@ fun FrontCardContent(card: Card) {
 }
 
 @Composable
-fun BackCardContent(card: Card) {
+fun BackCardContent(
+    card: Card,
+    modifier: Modifier = Modifier
+) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(24.dp)
             .graphicsLayer {
@@ -328,8 +337,8 @@ fun GradeButton(
     modifier: Modifier = Modifier
 ) {
     Button(
-        onClick = onClick,
         modifier = modifier,
+        onClick = onClick,
         colors = ButtonDefaults.buttonColors(
             containerColor = color
         ),
@@ -346,9 +355,10 @@ fun GradeButton(
 @Composable
 fun StudyFinishedContent(
     onFinish: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,

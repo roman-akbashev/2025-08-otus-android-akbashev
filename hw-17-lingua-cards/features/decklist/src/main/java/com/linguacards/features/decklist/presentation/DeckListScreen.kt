@@ -55,6 +55,7 @@ import kotlinx.datetime.toLocalDateTime
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeckListScreen(
+    modifier: Modifier = Modifier,
     viewModel: DecksViewModel = hiltViewModel(),
     onDeckClick: (Long) -> Unit,
 ) {
@@ -66,6 +67,7 @@ fun DeckListScreen(
     var showDeleteDialog by remember { mutableStateOf<Deck?>(null) }
 
     Scaffold(
+        modifier = modifier,
         topBar = {
             DeckListTopBar(
                 searchQuery = searchQuery,
@@ -193,9 +195,11 @@ fun DeckStats(
 @Composable
 fun StatItem(
     value: String,
-    label: String
+    label: String,
+    modifier: Modifier = Modifier
 ) {
     Column(
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -215,11 +219,13 @@ fun StatItem(
 @Composable
 fun DeckListTopBar(
     searchQuery: String,
-    onSearchQueryChange: (String) -> Unit
+    onSearchQueryChange: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     var isSearching by remember { mutableStateOf(false) }
 
     TopAppBar(
+        modifier = modifier,
         title = {
             if (isSearching) {
                 OutlinedTextField(
@@ -291,13 +297,14 @@ fun DeckListContent(
 fun DeckItem(
     deck: Deck,
     onClick: () -> Unit,
-    onLongPress: () -> Unit
+    onLongPress: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val formattedDate = remember(deck.updatedAt) {
         formatDate(deck.updatedAt)
     }
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .combinedClickable(
                 onClick = onClick,
@@ -430,12 +437,14 @@ fun LoadingContent(modifier: Modifier = Modifier) {
 @Composable
 fun CreateDeckDialog(
     onDismiss: () -> Unit,
-    onCreate: (String, String?) -> Unit
+    onCreate: (String, String?) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
 
     AlertDialog(
+        modifier = modifier,
         onDismissRequest = onDismiss,
         title = { Text("Create New Deck") },
         text = {
@@ -478,9 +487,11 @@ fun CreateDeckDialog(
 fun DeleteDeckDialog(
     deck: Deck,
     onConfirm: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     AlertDialog(
+        modifier = modifier,
         onDismissRequest = onDismiss,
         title = { Text("Delete Deck") },
         text = {
