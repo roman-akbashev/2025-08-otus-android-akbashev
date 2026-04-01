@@ -12,7 +12,8 @@ navigation = "2.7.7"
 material3 = "1.2.1"
 junit = "4.13.2"
 turbine = "1.1.0"
-detekt = "1.23.6"
+detekt = "1.23.8"
+jreleaser = "1.16.0"
 kotlin-serialization = "1.9.0"
 kotlinx-datetime = "0.6.2"
 compose-bom = "2025.12.01"
@@ -32,6 +33,7 @@ androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 androidx-test-junit = { module = "androidx.test.ext:junit", version = "1.1.5" }
 androidx-test-espresso = { module = "androidx.test.espresso:espresso-core", version = "3.5.1" }
+detekt-api = { module = "io.gitlab.arturbosch.detekt:detekt-api", version.ref = "detekt" }
 
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
 compose-ui = { module = "androidx.compose.ui:ui"}
@@ -64,6 +66,7 @@ mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 kaspresso = { module = "com.kaspersky.android-components:kaspresso", version.ref = "kaspresso" }
 kaspresso-compose-support = { module = "com.kaspersky.android-components:kaspresso-compose-support", version.ref = "kaspresso" }
 hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "hilt" }
+detekt-test = { module = "io.gitlab.arturbosch.detekt:detekt-test", version.ref = "detekt" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -75,4 +78,6 @@ dagger-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 room = { id = "androidx.room", version.ref = "room" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+jreleaser = { id = "org.jreleaser", version.ref = "jreleaser" }
 

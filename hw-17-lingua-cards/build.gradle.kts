@@ -9,4 +9,6 @@ plugins {
     alias(libs.plugins.room) apply false
     alias(libs.plugins.detekt) apply false
     alias(libs.plugins.kotlin.compose) apply false
+    alias(libs.plugins.kotlin.jvm) apply false
+    alias(libs.plugins.jreleaser) apply false
 }
