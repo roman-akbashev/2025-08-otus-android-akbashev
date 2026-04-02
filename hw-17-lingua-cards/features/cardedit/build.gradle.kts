@@ -62,7 +62,4 @@ dependencies {
     testImplementation(libs.kotlin.coroutines.test)
     testImplementation(libs.turbine)
     testImplementation(libs.androidx.test.junit)
-
-    androidTestImplementation(libs.androidx.test.espresso)
-    androidTestImplementation(libs.compose.ui.test)
 }

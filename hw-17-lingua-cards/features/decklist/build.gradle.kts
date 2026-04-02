@@ -63,7 +63,4 @@ dependencies {
     testImplementation(libs.turbine)
     testImplementation(libs.androidx.test.junit)
     testImplementation(libs.mockk)
-
-    androidTestImplementation(libs.androidx.test.espresso)
-    androidTestImplementation(libs.compose.ui.test)
 }
