@@ -415,19 +415,6 @@ class CalculateNextReviewUseCaseTest {
     }
 
     @Test
-    fun `interval rounding should always be integer`() {
-        val (_, _, interval) = useCase(
-            repetitions = 10,
-            easinessFactor = 2.5,
-            interval = 17,
-            grade = SrsGrade.GOOD
-        )
-
-        // Проверяем, что interval - целое число
-        assertEquals(interval.toDouble(), interval.toDouble(), 0.0)
-    }
-
-    @Test
     fun `different grade values should produce different easiness factor changes`() {
         val baseEF = 2.5
 
