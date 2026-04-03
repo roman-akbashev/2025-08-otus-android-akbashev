@@ -52,12 +52,14 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.linguacards.features.cardedit.R
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -86,7 +88,9 @@ fun CardEditScreen(
                 title = {
                     Text(
                         if ((state as? CardEditState.Content)?.isEditing == true)
-                            "Edit Card" else "New Card"
+                            stringResource(R.string.edit_card_title)
+                        else
+                            stringResource(R.string.edit_card_title)
                     )
                 },
                 navigationIcon = {
@@ -148,14 +152,14 @@ fun CardEditScreen(
                 viewModel.clearErrorMessage()
                 onCancel()
             },
-            title = { Text("Error") },
+            title = { Text(stringResource(R.string.error_title)) },
             text = { Text(errorMessage ?: "Unknown error") },
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.clearErrorMessage()
                     onCancel()
                 }) {
-                    Text("Go Back")
+                    Text(stringResource(R.string.error_go_back))
                 }
             }
         )
@@ -194,7 +198,7 @@ fun CardEditForm(
                     modifier = Modifier.padding(16.dp)
                 ) {
                     Text(
-                        text = "Statistics",
+                        text = stringResource(R.string.statistics_title),
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                         modifier = Modifier.fillMaxWidth(),
@@ -207,12 +211,12 @@ fun CardEditForm(
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
                         StatChip(
-                            label = "Repetitions",
+                            label = stringResource(R.string.repetitions_label),
                             value = state.originalCard.repetitions.toString()
                         )
                         StatChip(
-                            label = "Interval",
-                            value = "${state.originalCard.interval} days"
+                            label = stringResource(R.string.interval_label),
+                            value = "${state.originalCard.interval}"
                         )
                     }
                 }
@@ -223,13 +227,13 @@ fun CardEditForm(
         OutlinedTextField(
             value = state.word,
             onValueChange = onWordChanged,
-            label = { Text("Word *") },
-            placeholder = { Text("Enter the word or phrase") },
-            isError = state.errors.containsKey("word"),
+            label = { Text(stringResource(R.string.word_label)) },
+            placeholder = { Text(stringResource(R.string.word_placeholder)) },
+            isError = state.errors.containsKey(stringResource(R.string.word_contains)),
             supportingText = {
-                if (state.errors.containsKey("word")) {
+                if (state.errors.containsKey(stringResource(R.string.word_contains))) {
                     Text(
-                        text = state.errors["word"] ?: "",
+                        text = stringResource(R.string.word_required_error),
                         color = MaterialTheme.colorScheme.error
                     )
                 }
@@ -269,13 +273,13 @@ fun CardEditForm(
         OutlinedTextField(
             value = state.translation,
             onValueChange = onTranslationChanged,
-            label = { Text("Translation *") },
-            placeholder = { Text("Enter the translation") },
-            isError = state.errors.containsKey("translation"),
+            label = { Text(stringResource(R.string.translation_label)) },
+            placeholder = { Text(stringResource(R.string.translation_placeholder)) },
+            isError = state.errors.containsKey(stringResource(R.string.translation_contains)),
             supportingText = {
-                if (state.errors.containsKey("translation")) {
+                if (state.errors.containsKey(stringResource(R.string.translation_contains))) {
                     Text(
-                        text = state.errors["translation"] ?: "",
+                        text = stringResource(R.string.translation_required_error),
                         color = MaterialTheme.colorScheme.error
                     )
                 }
@@ -300,8 +304,8 @@ fun CardEditForm(
         OutlinedTextField(
             value = state.transcription,
             onValueChange = onTranscriptionChanged,
-            label = { Text("Transcription (optional)") },
-            placeholder = { Text("e.g., /həˈləʊ/") },
+            label = { Text(stringResource(R.string.transcription_label)) },
+            placeholder = { Text(stringResource(R.string.transcription_placeholder)) },
             leadingIcon = {
                 Icon(Icons.Default.Mic, contentDescription = null)
             },
@@ -319,8 +323,8 @@ fun CardEditForm(
         OutlinedTextField(
             value = state.example,
             onValueChange = onExampleChanged,
-            label = { Text("Example (optional)") },
-            placeholder = { Text("Enter an example sentence") },
+            label = { Text(stringResource(R.string.example_label)) },
+            placeholder = { Text(stringResource(R.string.example_placeholder)) },
             leadingIcon = {
                 Icon(Icons.Default.Info, contentDescription = null)
             },
@@ -353,7 +357,12 @@ fun CardEditForm(
                 },
                 modifier = Modifier.weight(1f)
             ) {
-                Text(if (state.isEditing) "Reset" else "Cancel")
+                Text(
+                    if (state.isEditing)
+                        stringResource(R.string.reset_button)
+                    else
+                        stringResource(R.string.cancel_button)
+                )
             }
 
             Button(
@@ -365,7 +374,12 @@ fun CardEditForm(
                 modifier = Modifier.weight(1f),
                 enabled = !state.isFetchingDetails
             ) {
-                Text(if (state.isEditing) "Update" else "Create")
+                Text(
+                    if (state.isEditing)
+                        stringResource(R.string.update_button)
+                    else
+                        stringResource(R.string.create_button)
+                )
             }
         }
     }
@@ -407,6 +421,6 @@ fun LoadingContent(
     ) {
         CircularProgressIndicator()
         Spacer(modifier = Modifier.height(16.dp))
-        Text("Loading card...")
+        Text(stringResource(R.string.loading_card))
     }
 }

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="edit_card_title">Edit Card</string>
+    <string name="new_card_title">New Card</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="save_button">Save</string>
+    <string name="word_label">Word *</string>
+    <string name="word_contains">word</string>
+    <string name="word_placeholder">Enter the word</string>
+    <string name="word_required_error">Word is required</string>
+    <string name="translation_label">Translation *</string>
+    <string name="translation_contains">translation</string>
+    <string name="translation_placeholder">Enter the translation</string>
+    <string name="translation_required_error">Translation is required</string>
+    <string name="transcription_label">Transcription (optional)</string>
+    <string name="transcription_placeholder">e.g., /həˈləʊ/</string>
+    <string name="example_label">Example (optional)</string>
+    <string name="example_placeholder">Enter an example sentence</string>
+    <string name="statistics_title">Statistics</string>
+    <string name="repetitions_label">Repetitions</string>
+    <string name="interval_label">Interval</string>
+    <string name="reset_button">Reset</string>
+    <string name="update_button">Update</string>
+    <string name="create_button">Create</string>
+    <string name="loading_card">Loading card…</string>
+    <string name="error_title">Error</string>
+    <string name="error_go_back">Go Back</string>
+    <string name="card_not_found">Card not found</string>
+</resources>
