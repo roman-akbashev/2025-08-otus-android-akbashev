@@ -42,15 +42,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.linguacards.core.model.Card
 import com.linguacards.core.model.SrsGrade
+import com.linguacards.features.study.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,7 +66,7 @@ fun StudyScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text("Study") },
+                title = { Text(stringResource(R.string.study_title)) },
                 navigationIcon = {
                     IconButton(onClick = onFinish) {
                         Icon(Icons.Default.Close, contentDescription = "Close")
@@ -169,7 +170,6 @@ fun StudyCardContent(
                         } else {
                             "Card back: ${card.translation}"
                         }
-                        testTag = "StudyCard" // Для UI тестов
                     },
                 contentAlignment = Alignment.Center
             ) {
@@ -258,7 +258,7 @@ fun BackCardContent(
             HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Example:",
+                text = stringResource(R.string.example),
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -279,52 +279,36 @@ fun GradeButtons(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .semantics { testTag = "GradeButtonsRow" }
             .height(IntrinsicSize.Min),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         GradeButton(
-            text = "Again",
+            text = stringResource(R.string.grade_again),
             color = MaterialTheme.colorScheme.error,
             onClick = { onGradeSelected(SrsGrade.AGAIN) },
-            modifier = Modifier
-                .weight(1f)
-                .semantics {
-                    testTag = "GradeButton_Again"
-                }
+            modifier = Modifier.weight(1f)
         )
 
         GradeButton(
-            text = "Hard",
+            text = stringResource(R.string.grade_hard),
             color = MaterialTheme.colorScheme.tertiary,
             onClick = { onGradeSelected(SrsGrade.HARD) },
-            modifier = Modifier
-                .weight(1f)
-                .semantics {
-                    testTag = "GradeButton_Hard"
-                }
+            modifier = Modifier.weight(1f)
         )
 
         GradeButton(
-            text = "Good",
+            text = stringResource(R.string.grade_good),
             color = MaterialTheme.colorScheme.primary,
             onClick = { onGradeSelected(SrsGrade.GOOD) },
-            modifier = Modifier
-                .weight(1f)
-                .semantics {
-                    testTag = "GradeButton_Good"
-                }
+            modifier = Modifier.weight(1f)
         )
 
         GradeButton(
-            text = "Easy",
+            text = stringResource(R.string.grade_easy),
             color = MaterialTheme.colorScheme.secondary,
             onClick = { onGradeSelected(SrsGrade.EASY) },
-            modifier = Modifier
-                .weight(1f)
-                .semantics {
-                    testTag = "GradeButton_Easy"
-                }
+            modifier = Modifier.weight(1f)
+
         )
     }
 }
@@ -370,12 +354,12 @@ fun StudyFinishedContent(
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Great job!",
+            text = stringResource(R.string.great_job_title),
             style = MaterialTheme.typography.headlineMedium
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "You've completed all cards for today",
+            text = stringResource(R.string.completed_message),
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center
         )
@@ -384,7 +368,7 @@ fun StudyFinishedContent(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             OutlinedButton(onClick = onFinish) {
-                Text("Close")
+                Text(stringResource(R.string.close_button))
             }
         }
     }

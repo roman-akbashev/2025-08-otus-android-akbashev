@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="study_title">Обучение</string>
+    <string name="great_job_title">Отлично!</string>
+    <string name="completed_message">Вы повторили все карточки на сегодня</string>
+    <string name="close_button">Закрыть</string>
+    <string name="grade_again">Не знаю</string>
+    <string name="grade_hard">Сложно</string>
+    <string name="grade_good">Нормально</string>
+    <string name="grade_easy">Легко</string>
+    <string name="example">Пример:</string>
+</resources>
