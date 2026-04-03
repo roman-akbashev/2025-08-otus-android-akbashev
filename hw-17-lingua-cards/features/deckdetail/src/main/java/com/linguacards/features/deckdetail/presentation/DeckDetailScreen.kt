@@ -56,11 +56,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.linguacards.core.model.Card
 import com.linguacards.core.model.Deck
+import com.linguacards.features.deckdetail.R
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -133,11 +135,11 @@ fun DeckDetailScreen(
     if (errorMessage != null) {
         AlertDialog(
             onDismissRequest = { viewModel.clearErrorMessage() },
-            title = { Text("Error") },
+            title = { Text(stringResource(R.string.search_cards_hint)) },
             text = { Text(errorMessage ?: "Unknown error") },
             confirmButton = {
                 TextButton(onClick = { viewModel.clearErrorMessage() }) {
-                    Text("OK")
+                    Text(stringResource(R.string.error_ok))
                 }
             }
         )
@@ -169,7 +171,7 @@ fun DeckDetailTopBar(
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = onSearchQueryChange,
-                    placeholder = { Text("Search cards...") },
+                    placeholder = { Text(stringResource(R.string.search_cards_hint)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -184,7 +186,7 @@ fun DeckDetailTopBar(
                 )
             } else {
                 Text(
-                    text = "Deck Details",
+                    text = stringResource(R.string.deck_detail_title),
                     style = MaterialTheme.typography.titleLarge
                 )
             }
@@ -293,13 +295,15 @@ fun CardStats(
             verticalAlignment = Alignment.CenterVertically
         ) {
             StatItem(
-                value = totalCards.toString(), label = "Total Cards"
+                value = totalCards.toString(),
+                label = stringResource(R.string.total_cards_label)
             )
 
             if (isFiltered) {
                 VerticalDivider()
                 StatItem(
-                    value = filteredCount.toString(), label = "Filtered"
+                    value = filteredCount.toString(),
+                    label = stringResource(R.string.filtered_label)
                 )
             }
         }
@@ -388,7 +392,7 @@ fun CardItem(
                 // Пример (если есть)
                 card.example?.let {
                     Text(
-                        text = "example: $it",
+                        text = stringResource(R.string.example_prefix, it),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.secondary,
                         maxLines = 1,
@@ -423,24 +427,26 @@ fun ReviewInfo(
         when {
             daysUntil < 0 -> {
                 when (val overdueDays = -daysUntil) {
-                    1 -> "Просрочено на 1 день"
-                    in 2..4 -> "Просрочено на $overdueDays дня"
-                    else -> "Просрочено на $overdueDays дней"
+                    1 -> stringResource(R.string.overdue_1_day)
+                    in 2..4 -> stringResource(R.string.overdue_2_4_days, overdueDays)
+                    else -> stringResource(R.string.overdue_days_format, overdueDays)
                 }
             }
 
             daysUntil == 0 -> {
-                if (timeString != null) "Сегодня в $timeString" else "Сегодня"
+                if (timeString != null) stringResource(R.string.today_at_time, timeString)
+                else stringResource(R.string.today_label)
             }
 
             daysUntil == 1 -> {
-                if (timeString != null) "Завтра в $timeString" else "Завтра"
+                if (timeString != null) stringResource(R.string.tomorrow_at_time, timeString)
+                else stringResource(R.string.tomorrow_label)
             }
 
-            else -> "Через $daysUntil дн."
+            else -> stringResource(R.string.in_days_format, daysUntil)
         }
     } else {
-        "Новая карточка"
+        stringResource(R.string.new_card_label)
     }
 
     Row(
@@ -546,13 +552,14 @@ fun EmptyDeckContent(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "No cards yet", style = MaterialTheme.typography.headlineSmall
+            text = stringResource(R.string.no_cards_title),
+            style = MaterialTheme.typography.headlineSmall
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Add your first card to start learning",
+            text = stringResource(R.string.no_cards_message),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -583,14 +590,14 @@ fun NoSearchResults(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "No results for \"$query\"",
+            text = stringResource(R.string.no_search_results_title, query),
             style = MaterialTheme.typography.titleLarge
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Try a different search term",
+            text = stringResource(R.string.no_search_results_message),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -610,7 +617,7 @@ fun LoadingContent(
     ) {
         CircularProgressIndicator()
         Spacer(modifier = Modifier.height(16.dp))
-        Text("Loading deck...")
+        Text(stringResource(R.string.loading_deck))
     }
 }
 
@@ -624,20 +631,20 @@ fun DeleteCardDialog(
     AlertDialog(
         modifier = modifier,
         onDismissRequest = onDismiss,
-        title = { Text("Delete Card") },
+        title = { Text(stringResource(R.string.delete_card_dialog_title)) },
         text = {
-            Text("Are you sure you want to delete \"${card.word}\"?")
+            Text(stringResource(R.string.delete_card_dialog_message, card.word))
         }, confirmButton = {
             TextButton(
                 onClick = onConfirm, colors = ButtonDefaults.textButtonColors(
                     contentColor = MaterialTheme.colorScheme.error
                 )
             ) {
-                Text("Delete")
+                Text(stringResource(R.string.delete_card_button))
             }
         }, dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel_button))
             }
         })
 }
