@@ -46,9 +46,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.linguacards.core.model.Deck
+import com.linguacards.features.decklist.R
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -133,11 +135,11 @@ fun DeckListScreen(
     if (errorMessage != null) {
         AlertDialog(
             onDismissRequest = { viewModel.clearErrorMessage() },
-            title = { Text("Error") },
+            title = { Text(stringResource(R.string.error_title)) },
             text = { Text(errorMessage ?: "Unknown error") },
             confirmButton = {
                 TextButton(onClick = { viewModel.clearErrorMessage() }) {
-                    Text("OK")
+                    Text(stringResource(R.string.error_ok))
                 }
             }
         )
@@ -190,7 +192,9 @@ fun DeckStats(
 
             StatItem(
                 value = filteredCount.toString(),
-                label = if (isFiltered) "Filtered" else "Total Decks"
+                label = if (isFiltered)
+                    stringResource(R.string.deck_stats_filtered)
+                else stringResource(R.string.deck_stats_total_decks)
             )
         }
     }
@@ -236,7 +240,7 @@ fun DeckListTopBar(
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = onSearchQueryChange,
-                    placeholder = { Text("Search decks...") },
+                    placeholder = { Text(stringResource(R.string.search_decks_hint)) },
                     singleLine = true,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -260,7 +264,7 @@ fun DeckListTopBar(
         },
         actions = {
             IconButton(onClick = { onAboutClick() }) {
-                Icon(Icons.Default.Info, contentDescription = "About")
+                Icon(imageVector = Icons.Default.Info, contentDescription = "About")
             }
             if (isSearching) {
                 IconButton(
@@ -354,7 +358,7 @@ fun DeckItem(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = "${deck.cardCount} cards • Updated $formattedDate",
+                    text = stringResource(R.string.deck_updated, formattedDate),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -388,14 +392,14 @@ fun EmptyDeckListContent(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "No decks yet",
+            text = stringResource(R.string.empty_decks_title),
             style = MaterialTheme.typography.headlineSmall
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Create your first deck to start learning",
+            text = stringResource(R.string.empty_decks_message),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -422,14 +426,17 @@ fun NoSearchResults(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "No results for \"$query\"",
+            text = stringResource(
+                R.string.search_no_results_title,
+                query
+            ),
             style = MaterialTheme.typography.titleLarge
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Try a different search term",
+            text = stringResource(R.string.search_no_results_message),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -445,7 +452,7 @@ fun LoadingContent(modifier: Modifier = Modifier) {
     ) {
         CircularProgressIndicator()
         Spacer(modifier = Modifier.height(16.dp))
-        Text("Loading decks...")
+        Text(text = stringResource(R.string.loading_decks))
     }
 }
 
@@ -461,7 +468,7 @@ fun CreateDeckDialog(
     AlertDialog(
         modifier = modifier,
         onDismissRequest = onDismiss,
-        title = { Text("Create New Deck") },
+        title = { Text(stringResource(R.string.create_deck_dialog_title)) },
         text = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -469,7 +476,7 @@ fun CreateDeckDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Deck name") },
+                    label = { Text(stringResource(R.string.deck_name_label)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -477,7 +484,7 @@ fun CreateDeckDialog(
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Description (optional)") },
+                    label = { Text(stringResource(R.string.deck_description_label)) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -488,12 +495,12 @@ fun CreateDeckDialog(
                 onClick = { onCreate(name, description.takeIf { it.isNotBlank() }) },
                 enabled = name.isNotBlank()
             ) {
-                Text("Create")
+                Text(stringResource(R.string.create_button))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel_button))
             }
         }
     )
@@ -509,9 +516,14 @@ fun DeleteDeckDialog(
     AlertDialog(
         modifier = modifier,
         onDismissRequest = onDismiss,
-        title = { Text("Delete Deck") },
+        title = { Text(stringResource(R.string.delete_deck_dialog_title)) },
         text = {
-            Text("Are you sure you want to delete \"${deck.name}\"? This will also delete all cards in this deck.")
+            Text(
+                stringResource(
+                    R.string.delete_deck_dialog_message,
+                    deck.name
+                )
+            )
         },
         confirmButton = {
             TextButton(
@@ -520,12 +532,12 @@ fun DeleteDeckDialog(
                     contentColor = MaterialTheme.colorScheme.error
                 )
             ) {
-                Text("Delete")
+                Text(stringResource(R.string.delete_button))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel_button))
             }
         }
     )
