@@ -2,7 +2,7 @@
 <resources>
     <string name="about_title">О приложении</string>
     <string name="about_version">Версия</string>
-    <string name="about_description">LinguaCards — приложение для изучения иностранных языков с использованием интервальных повторений (SM-2). Создавайте колоды карточек, отслеживайте прогресс и улучшайте словарный запас.</string>
+    <string name="about_description">LinguaCards — приложение для изучения английских слов с использованием интервальных повторений. Создавайте колоды карточек, отслеживайте прогресс и улучшайте словарный запас.</string>
     <string name="about_developer">Разработчик: Роман Акбашев</string>
     <string name="about_email">roman-akbashev@mail.ru</string>
     <string name="about_privacy_policy">Политика конфиденциальности</string>
