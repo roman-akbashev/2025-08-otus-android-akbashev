@@ -127,6 +127,11 @@ class CardEditViewModel @Inject constructor(
         }
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        debounceJob?.cancel()
+    }
+
     private fun fetchWordDetails(word: String) {
         viewModelScope.launch {
             _state.update { currentState ->

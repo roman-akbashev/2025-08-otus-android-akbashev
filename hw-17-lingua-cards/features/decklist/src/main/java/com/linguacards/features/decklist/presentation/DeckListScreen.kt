@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.AlertDialog
@@ -58,6 +59,7 @@ fun DeckListScreen(
     modifier: Modifier = Modifier,
     viewModel: DecksViewModel = hiltViewModel(),
     onDeckClick: (Long) -> Unit,
+    onAboutClick: () -> Unit,
 ) {
     val state by viewModel.state.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
@@ -71,7 +73,8 @@ fun DeckListScreen(
         topBar = {
             DeckListTopBar(
                 searchQuery = searchQuery,
-                onSearchQueryChange = { viewModel.onSearchQueryChanged(it) }
+                onSearchQueryChange = { viewModel.onSearchQueryChanged(it) },
+                onAboutClick = onAboutClick
             )
         },
         floatingActionButton = {
@@ -221,6 +224,7 @@ fun StatItem(
 fun DeckListTopBar(
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
+    onAboutClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var isSearching by remember { mutableStateOf(false) }
@@ -255,6 +259,9 @@ fun DeckListTopBar(
             }
         },
         actions = {
+            IconButton(onClick = { onAboutClick() }) {
+                Icon(Icons.Default.Info, contentDescription = "About")
+            }
             if (isSearching) {
                 IconButton(
                     modifier = Modifier.testTag("search_close"),

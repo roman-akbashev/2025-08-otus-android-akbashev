@@ -33,4 +33,9 @@ interface CardDao {
 
     @Query("DELETE FROM cards")
     suspend fun deleteAllCards()
+
+    @Query("SELECT deckId, COUNT(*) as count FROM cards GROUP BY deckId")
+    fun getCardCounts(): Flow<List<DeckCardCount>>
+
+    data class DeckCardCount(val deckId: Long, val count: Int)
 }

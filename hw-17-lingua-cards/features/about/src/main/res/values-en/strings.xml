@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="about_title">About</string>
+    <string name="about_version">Version</string>
+    <string name="about_description">LinguaCards is an app for learning foreign languages using spaced repetition (SM-2). Create card decks, track your progress and improve your vocabulary.</string>
+    <string name="about_developer">Roman Akbashev</string>
+    <string name="about_email">roman-akbashev@mail.ru</string>
+    <string name="about_privacy_policy">Privacy Policy</string>
+    <string name="about_license">License: MIT</string>
+</resources>

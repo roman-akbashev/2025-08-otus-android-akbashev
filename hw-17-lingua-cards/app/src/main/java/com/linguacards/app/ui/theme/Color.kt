@@ -1,4 +1,4 @@
-package com.example.linguacards.ui.theme
+package com.linguacards.app.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

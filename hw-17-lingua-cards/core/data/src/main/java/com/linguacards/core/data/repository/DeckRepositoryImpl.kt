@@ -5,11 +5,8 @@ import com.linguacards.core.database.dao.DeckDao
 import com.linguacards.core.database.entity.DeckEntity
 import com.linguacards.core.domain.repository.DeckRepository
 import com.linguacards.core.model.Deck
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.datetime.Clock
@@ -26,10 +23,11 @@ class DeckRepositoryImpl @Inject constructor(
     override fun getAllDecks(): Flow<List<Deck>> {
         return combine(
             deckDao.getAllDecks(),
-            getCardCountsFlow()
-        ) { deckEntities, cardCounts ->
+            cardDao.getCardCounts()
+        ) { deckEntities, cardCountsList ->
+            val cardCountsMap = cardCountsList.associate { it.deckId to it.count }
             deckEntities.map { entity ->
-                entity.toDomain(cardCounts[entity.id] ?: 0)
+                entity.toDomain(cardCountsMap[entity.id] ?: 0)
             }
         }
     }
@@ -66,27 +64,6 @@ class DeckRepositoryImpl @Inject constructor(
 
     override suspend fun deleteAllDecks() {
         deckDao.deleteAllDecks()
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private fun getCardCountsFlow(): Flow<Map<Long, Int>> {
-        return deckDao.getAllDecks().map { decks ->
-            decks.map { deck ->
-                deck.id to cardDao.getCardCount(deck.id)
-            }
-        }.flatMapLatest { flows ->
-            if (flows.isEmpty()) {
-                flowOf(emptyMap())
-            } else {
-                combine(flows.map { (id, flow) ->
-                    flow.map { count -> id to count }
-                }) { arrays ->
-                    arrays.toMap()
-                }
-            }
-        }.onStart {
-            emit(emptyMap())
-        }
     }
 
 

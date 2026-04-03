@@ -49,14 +49,15 @@ kotlin {
 }
 
 dependencies {
-    // Модули проекта
+    // Modules
     implementation(project(":core:model"))
     implementation(project(":core:domain"))
     implementation(project(":core:data"))
     implementation(project(":core:database"))
     implementation(project(":core:network"))
+    implementation(project(":features:about"))
 
-    // Feature модули
+    // Features
     implementation(project(":features:decklist"))
     implementation(project(":features:deckdetail"))
     implementation(project(":features:cardedit"))

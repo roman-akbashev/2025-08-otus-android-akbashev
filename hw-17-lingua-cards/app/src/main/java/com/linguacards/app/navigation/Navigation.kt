@@ -7,6 +7,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.linguacards.features.about.presentation.AboutScreen
 import com.linguacards.features.cardedit.presentation.CardEditScreen
 import com.linguacards.features.deckdetail.presentation.DeckDetailScreen
 import com.linguacards.features.decklist.presentation.DeckListScreen
@@ -27,7 +28,8 @@ fun LinguaCardsNavHost(
             DeckListScreen(
                 onDeckClick = { deckId ->
                     navController.navigate("deck_detail/$deckId")
-                }
+                },
+                onAboutClick = { navController.navigate("about") }
             )
         }
 
@@ -73,6 +75,10 @@ fun LinguaCardsNavHost(
             StudyScreen(
                 onFinish = { navController.popBackStack() }
             )
+        }
+
+        composable("about") {
+            AboutScreen(navController = navController)
         }
     }
 }

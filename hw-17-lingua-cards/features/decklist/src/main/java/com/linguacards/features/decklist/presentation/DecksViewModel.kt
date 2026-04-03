@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -34,7 +35,7 @@ class DecksViewModel @Inject constructor(
     private fun loadDecks() {
         combine(
             deckRepository.getAllDecks(),
-            _searchQuery
+            _searchQuery.debounce(300)
         ) { decks, searchQuery ->
             processDataUpdate(decks, searchQuery)
         }
