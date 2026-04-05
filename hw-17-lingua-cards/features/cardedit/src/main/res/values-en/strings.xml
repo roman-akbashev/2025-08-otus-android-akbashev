@@ -5,11 +5,9 @@
     <string name="cancel_button">Cancel</string>
     <string name="save_button">Save</string>
     <string name="word_label">Word *</string>
-    <string name="word_contains">word</string>
     <string name="word_placeholder">Enter the word</string>
     <string name="word_required_error">Word is required</string>
     <string name="translation_label">Translation *</string>
-    <string name="translation_contains">translation</string>
     <string name="translation_placeholder">Enter the translation</string>
     <string name="translation_required_error">Translation is required</string>
     <string name="transcription_label">Transcription (optional)</string>
@@ -24,6 +22,6 @@
     <string name="create_button">Create</string>
     <string name="loading_card">Loading card…</string>
     <string name="error_title">Error</string>
-    <string name="error_go_back">Go Back</string>
+    <string name="error_ok">OK</string>
     <string name="card_not_found">Card not found</string>
 </resources>

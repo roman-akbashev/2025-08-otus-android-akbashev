@@ -21,6 +21,8 @@ hiltNavigationCompose = "1.1.0"
 hilt = "2.57.1"
 hiltCompiler = "1.2.0"
 mockk = "1.13.8"
+runtimeAnnotation = "1.10.6"
+javaxInject = "1"
 
 [libraries]
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "core-ktx" }
@@ -34,6 +36,8 @@ androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref =
 androidx-test-junit = { module = "androidx.test.ext:junit", version = "1.1.5" }
 androidx-test-espresso = { module = "androidx.test.espresso:espresso-core", version = "3.5.1" }
 detekt-api = { module = "io.gitlab.arturbosch.detekt:detekt-api", version.ref = "detekt" }
+javax-inject = { module = "javax.inject:javax.inject", version.ref = "javaxInject" }
+
 
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
 compose-ui = { module = "androidx.compose.ui:ui"}
@@ -67,6 +71,7 @@ kaspresso = { module = "com.kaspersky.android-components:kaspresso", version.ref
 kaspresso-compose-support = { module = "com.kaspersky.android-components:kaspresso-compose-support", version.ref = "kaspresso" }
 hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "hilt" }
 detekt-test = { module = "io.gitlab.arturbosch.detekt:detekt-test", version.ref = "detekt" }
+androidx-runtime-annotation = { group = "androidx.compose.runtime", name = "runtime-annotation", version.ref = "runtimeAnnotation" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

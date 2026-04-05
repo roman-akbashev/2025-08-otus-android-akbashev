@@ -8,11 +8,13 @@ import com.linguacards.core.domain.repository.DeckRepository
 import com.linguacards.core.model.Card
 import com.linguacards.core.model.Deck
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -37,11 +39,12 @@ class DeckDetailViewModel @Inject constructor(
         loadDeckData()
     }
 
+    @OptIn(FlowPreview::class)
     private fun loadDeckData() {
         combine(
             deckRepository.getDeckById(deckId),
             cardRepository.getCardsByDeckId(deckId),
-            _searchQuery
+            _searchQuery.debounce(300)
         ) { deck, cards, searchQuery ->
             processDataUpdate(deck, cards, searchQuery)
         }
@@ -58,6 +61,7 @@ class DeckDetailViewModel @Inject constructor(
         when {
             deck == null -> {
                 _errorMessage.update { "Deck not found" }
+                _state.update { DeckDetailState.Empty }
             }
 
             cards.isEmpty() && searchQuery.isBlank() -> {

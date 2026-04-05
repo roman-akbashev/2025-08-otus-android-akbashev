@@ -74,7 +74,7 @@ class CardEditViewModel @Inject constructor(
             if (currentState is CardEditState.Content) {
                 currentState.copy(
                     word = word,
-                    errors = currentState.errors - "word"
+                    errors = currentState.errors - ValidationErrorField.WORD
                 )
             } else currentState
         }
@@ -85,7 +85,7 @@ class CardEditViewModel @Inject constructor(
             if (currentState is CardEditState.Content) {
                 currentState.copy(
                     translation = translation,
-                    errors = currentState.errors - "translation"
+                    errors = currentState.errors - ValidationErrorField.TRANSLATION
                 )
             } else currentState
         }
@@ -140,35 +140,28 @@ class CardEditViewModel @Inject constructor(
                 } else currentState
             }
 
-            try {
-                val result = cardRepository.fetchWordDetails(word)
-                result.onSuccess { details ->
-                    _state.update { currentState ->
-                        if (currentState is CardEditState.Content) {
-                            currentState.copy(
-                                example = currentState.example.ifEmpty { details.example ?: "" },
-                                transcription = currentState.transcription.ifEmpty {
-                                    details.transcription ?: ""
-                                },
-                                isFetchingDetails = false
-                            )
-                        } else currentState
-                    }
-                }.onFailure { _ ->
-                    _state.update { currentState ->
-                        if (currentState is CardEditState.Content) {
-                            currentState.copy(
-                                isFetchingDetails = false
-                            )
-                        } else currentState
-                    }
-                }
-            } catch (_: Exception) {
+            val result = cardRepository.fetchWordDetails(word)
+            result.onSuccess { details ->
                 _state.update { currentState ->
                     if (currentState is CardEditState.Content) {
-                        currentState.copy(isFetchingDetails = false)
+                        currentState.copy(
+                            example = currentState.example.ifEmpty { details.example ?: "" },
+                            transcription = currentState.transcription.ifEmpty {
+                                details.transcription ?: ""
+                            },
+                            isFetchingDetails = false
+                        )
                     } else currentState
                 }
+            }.onFailure { result ->
+                _state.update { currentState ->
+                    if (currentState is CardEditState.Content) {
+                        currentState.copy(
+                            isFetchingDetails = false
+                        )
+                    } else currentState
+                }
+                _errorMessage.update { "Couldn't get a transcription and an example. Error: " + result.message }
             }
         }
     }
@@ -207,15 +200,15 @@ class CardEditViewModel @Inject constructor(
         return true
     }
 
-    private fun validateFields(state: CardEditState.Content): Map<String, String> {
-        val errors = mutableMapOf<String, String>()
+    private fun validateFields(state: CardEditState.Content): Map<ValidationErrorField, String> {
+        val errors = mutableMapOf<ValidationErrorField, String>()
 
         if (state.word.isBlank()) {
-            errors["word"] = "Word is required"
+            errors[ValidationErrorField.WORD] = "Word is required"
         }
 
         if (state.translation.isBlank()) {
-            errors["translation"] = "Translation is required"
+            errors[ValidationErrorField.TRANSLATION] = "Translation is required"
         }
 
         return errors
@@ -253,6 +246,7 @@ class CardEditViewModel @Inject constructor(
                 )
             } else currentState
         }
+        debounceJob?.cancel()
     }
 
     fun clearErrorMessage() {

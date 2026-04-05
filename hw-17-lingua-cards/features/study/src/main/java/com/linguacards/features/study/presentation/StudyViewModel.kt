@@ -27,6 +27,9 @@ class StudyViewModel @Inject constructor(
     private val deckId: Long = savedStateHandle.get<Long>("deckId") ?: 0L
     private val _state = MutableStateFlow<StudyState>(StudyState.Loading)
     val state: StateFlow<StudyState> = _state.asStateFlow()
+
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
     private var currentCard: Card? = null
     private val cardsQueue = mutableListOf<Card>()
     private var totalCards = 0
@@ -43,8 +46,9 @@ class StudyViewModel @Inject constructor(
                 cardsQueue.addAll(cards)
                 totalCards = cardsQueue.size
                 showNextCard()
-            } catch (_: Exception) {
+            } catch (e: Exception) {
                 _state.update { StudyState.Finished }
+                _errorMessage.update { e.message }
             }
         }
     }
@@ -59,8 +63,16 @@ class StudyViewModel @Inject constructor(
     }
 
     fun onGradeSelected(grade: SrsGrade) {
-        currentCard?.let { card ->
-            viewModelScope.launch {
+        val currentState = _state.value
+        // Блокируем повторные вызовы, если уже обрабатывается
+        if (currentState !is StudyState.Card || currentState.isProcessing) return
+
+        // Устанавливаем флаг обработки
+        _state.update { currentState.copy(isProcessing = true) }
+
+        viewModelScope.launch {
+            try {
+                val card = currentState.card
                 // Вычисляем новые значения по SM-2
                 val (newRepetitions, newEf, newInterval) = calculateNextReviewUseCase(
                     card.repetitions,
@@ -78,16 +90,27 @@ class StudyViewModel @Inject constructor(
                     updatedAt = Clock.System.now()
                 )
 
+                // Сохраняем в БД
                 cardRepository.updateCardAfterReview(updatedCard)
 
-                // Убираем текущую карточку из очереди
+                // Удаляем карточку из очереди ТОЛЬКО после успешного сохранения
                 cardsQueue.removeFirstOrNull()
 
-                // Показываем следующую
+                // Показываем следующую карточку
                 showNextCard()
+            } catch (e: Exception) {
+                // В случае ошибки сбрасываем флаг обработки, но не удаляем карточку из очереди
+                // Пользователь может попробовать снова
+                _state.update { currentState.copy(isProcessing = false) }
+                _errorMessage.update { e.message }
             }
         }
     }
+
+    fun clearErrorMessage() {
+        _errorMessage.update { null }
+    }
+
 
     private fun showNextCard() {
         if (cardsQueue.isEmpty()) {

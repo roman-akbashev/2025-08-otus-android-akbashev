@@ -1,6 +1,7 @@
 package com.linguacards.app.di
 
 import android.content.Context
+import androidx.room.Room
 import com.linguacards.core.database.LinguaCardsDatabase
 import com.linguacards.core.database.dao.CardDao
 import com.linguacards.core.database.dao.DeckDao
@@ -18,7 +19,13 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): LinguaCardsDatabase {
-        return LinguaCardsDatabase.getInstance(context)
+        return Room.databaseBuilder(
+            context,
+            LinguaCardsDatabase::class.java,
+            "lingua_cards.db"
+        )
+            .fallbackToDestructiveMigration(false) // Для разработки, в продакшене нужны миграции
+            .build()
     }
 
     @Provides

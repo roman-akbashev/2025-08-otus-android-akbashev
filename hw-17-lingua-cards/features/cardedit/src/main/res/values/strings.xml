@@ -5,11 +5,9 @@
     <string name="cancel_button">Отмена</string>
     <string name="save_button">Сохранить</string>
     <string name="word_label">Слово *</string>
-    <string name="word_contains">слово</string>
     <string name="word_placeholder">Введите слово</string>
     <string name="word_required_error">Слово обязательно</string>
     <string name="translation_label">Перевод *</string>
-    <string name="translation_contains">перевод</string>
     <string name="translation_placeholder">Введите перевод</string>
     <string name="translation_required_error">Перевод обязателен</string>
     <string name="transcription_label">Транскрипция (необязательно)</string>
@@ -24,6 +22,6 @@
     <string name="create_button">Создать</string>
     <string name="loading_card">Загрузка карточки…</string>
     <string name="error_title">Ошибка</string>
-    <string name="error_go_back">Назад</string>
+    <string name="error_ok">ОК</string>
     <string name="card_not_found">Карточка не найдена</string>
 </resources>

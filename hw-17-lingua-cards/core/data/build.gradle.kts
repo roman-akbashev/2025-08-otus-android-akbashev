@@ -3,7 +3,6 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.kapt)
 }
 
 android {
@@ -32,10 +31,7 @@ dependencies {
     implementation(project(":core:database"))
     implementation(project(":core:network"))
 
-    implementation(libs.google.hilt.android)
-    kapt(libs.google.hilt.android.compiler)
-    kapt(libs.androidx.hilt.compiler)
-    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.javax.inject)
 
     implementation(libs.kotlin.coroutines.core)
     implementation(libs.kotlin.coroutines.android)

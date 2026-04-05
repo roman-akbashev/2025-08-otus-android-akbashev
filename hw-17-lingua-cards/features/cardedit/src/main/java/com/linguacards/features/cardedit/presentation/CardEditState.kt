@@ -13,7 +13,7 @@ sealed class CardEditState {
         val transcription: String = "",
         val isEditing: Boolean = false,
         val isFetchingDetails: Boolean = false,
-        val errors: Map<String, String> = emptyMap(),
+        val errors: Map<ValidationErrorField, String> = emptyMap(),
         val originalCard: Card? = null
     ) : CardEditState()
     object Saved : CardEditState()

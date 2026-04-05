@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -31,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -61,6 +63,7 @@ fun StudyScreen(
     onFinish: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
 
     Scaffold(
         modifier = modifier,
@@ -99,12 +102,35 @@ fun StudyScreen(
                         card = cardState.card,
                         isFlipped = cardState.isFlipped,
                         progress = cardState.progress,
+                        isProcessing = cardState.isProcessing,
                         onCardFlip = { viewModel.onCardFlip() },
                         onGradeSelected = { grade -> viewModel.onGradeSelected(grade) }
                     )
                 }
             }
         }
+    }
+    if (errorMessage != null) {
+        AlertDialog(
+            onDismissRequest = {
+                viewModel.clearErrorMessage()
+                if (state is StudyState.Finished) {
+                    onFinish()
+                }
+            },
+            title = { Text(stringResource(R.string.error_title)) },
+            text = { Text(errorMessage ?: "Unknown error") },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.clearErrorMessage()
+                    if (state is StudyState.Finished) {
+                        onFinish()
+                    }
+                }) {
+                    Text(stringResource(R.string.error_ok))
+                }
+            }
+        )
     }
 }
 
@@ -113,6 +139,7 @@ fun StudyCardContent(
     card: Card,
     isFlipped: Boolean,
     progress: String,
+    isProcessing: Boolean,
     onCardFlip: () -> Unit,
     onGradeSelected: (SrsGrade) -> Unit,
     modifier: Modifier = Modifier
@@ -190,6 +217,7 @@ fun StudyCardContent(
             if (isFlipped) {
                 GradeButtons(
                     onGradeSelected = onGradeSelected,
+                    isProcessing = isProcessing,
                     modifier = Modifier.fillMaxSize()
                 )
             } else {
@@ -274,6 +302,7 @@ fun BackCardContent(
 @Composable
 fun GradeButtons(
     onGradeSelected: (SrsGrade) -> Unit,
+    isProcessing: Boolean,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -286,6 +315,7 @@ fun GradeButtons(
             text = stringResource(R.string.grade_again),
             color = MaterialTheme.colorScheme.error,
             onClick = { onGradeSelected(SrsGrade.AGAIN) },
+            enabled = !isProcessing,
             modifier = Modifier.weight(1f)
         )
 
@@ -293,6 +323,7 @@ fun GradeButtons(
             text = stringResource(R.string.grade_hard),
             color = MaterialTheme.colorScheme.tertiary,
             onClick = { onGradeSelected(SrsGrade.HARD) },
+            enabled = !isProcessing,
             modifier = Modifier.weight(1f)
         )
 
@@ -300,6 +331,7 @@ fun GradeButtons(
             text = stringResource(R.string.grade_good),
             color = MaterialTheme.colorScheme.primary,
             onClick = { onGradeSelected(SrsGrade.GOOD) },
+            enabled = !isProcessing,
             modifier = Modifier.weight(1f)
         )
 
@@ -307,8 +339,8 @@ fun GradeButtons(
             text = stringResource(R.string.grade_easy),
             color = MaterialTheme.colorScheme.secondary,
             onClick = { onGradeSelected(SrsGrade.EASY) },
+            enabled = !isProcessing,
             modifier = Modifier.weight(1f)
-
         )
     }
 }
@@ -318,11 +350,13 @@ fun GradeButton(
     text: String,
     color: Color,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     Button(
         modifier = modifier,
         onClick = onClick,
+        enabled = enabled,
         colors = ButtonDefaults.buttonColors(
             containerColor = color
         ),

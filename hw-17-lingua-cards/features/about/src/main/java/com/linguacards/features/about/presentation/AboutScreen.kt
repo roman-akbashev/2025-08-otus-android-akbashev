@@ -30,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.navigation.NavController
+import com.linguacards.features.about.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -126,7 +127,7 @@ private fun getVersionName(context: Context): String {
 private fun openEmail(context: Context) {
     val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
         data =
-            $$"mailto:$${context.getString(com.linguacards.features.about.R.string.about_email)}".toUri()
+            "mailto:${context.getString(R.string.about_email)}".toUri()
     }
     context.startActivity(Intent.createChooser(emailIntent, "Send email"))
 }

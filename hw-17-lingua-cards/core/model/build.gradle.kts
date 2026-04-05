@@ -30,4 +30,5 @@ dependencies {
     implementation(libs.kotlin.serialization.json)
     implementation(libs.kotlin.coroutines.core)
     implementation(libs.kotlinx.datetime)
+    implementation(libs.androidx.runtime.annotation)
 }

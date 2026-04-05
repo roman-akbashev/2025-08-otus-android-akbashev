@@ -90,7 +90,7 @@ fun CardEditScreen(
                         if ((state as? CardEditState.Content)?.isEditing == true)
                             stringResource(R.string.edit_card_title)
                         else
-                            stringResource(R.string.edit_card_title)
+                            stringResource(R.string.new_card_title)
                     )
                 },
                 navigationIcon = {
@@ -150,16 +150,14 @@ fun CardEditScreen(
         AlertDialog(
             onDismissRequest = {
                 viewModel.clearErrorMessage()
-                onCancel()
             },
             title = { Text(stringResource(R.string.error_title)) },
             text = { Text(errorMessage ?: "Unknown error") },
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.clearErrorMessage()
-                    onCancel()
                 }) {
-                    Text(stringResource(R.string.error_go_back))
+                    Text(stringResource(R.string.error_ok))
                 }
             }
         )
@@ -229,9 +227,9 @@ fun CardEditForm(
             onValueChange = onWordChanged,
             label = { Text(stringResource(R.string.word_label)) },
             placeholder = { Text(stringResource(R.string.word_placeholder)) },
-            isError = state.errors.containsKey(stringResource(R.string.word_contains)),
+            isError = state.errors.containsKey(ValidationErrorField.WORD),
             supportingText = {
-                if (state.errors.containsKey(stringResource(R.string.word_contains))) {
+                if (state.errors.containsKey(ValidationErrorField.WORD)) {
                     Text(
                         text = stringResource(R.string.word_required_error),
                         color = MaterialTheme.colorScheme.error
@@ -275,9 +273,9 @@ fun CardEditForm(
             onValueChange = onTranslationChanged,
             label = { Text(stringResource(R.string.translation_label)) },
             placeholder = { Text(stringResource(R.string.translation_placeholder)) },
-            isError = state.errors.containsKey(stringResource(R.string.translation_contains)),
+            isError = state.errors.containsKey(ValidationErrorField.TRANSLATION),
             supportingText = {
-                if (state.errors.containsKey(stringResource(R.string.translation_contains))) {
+                if (state.errors.containsKey(ValidationErrorField.TRANSLATION)) {
                     Text(
                         text = stringResource(R.string.translation_required_error),
                         color = MaterialTheme.colorScheme.error

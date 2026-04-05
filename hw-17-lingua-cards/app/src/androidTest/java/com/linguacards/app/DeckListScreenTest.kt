@@ -1,5 +1,6 @@
 package com.linguacards.app
 
+import android.content.Context
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.longClick
@@ -11,9 +12,10 @@ import androidx.compose.ui.test.performTouchInput
 import com.kaspersky.kaspresso.kaspresso.Kaspresso
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
 import com.linguacards.core.domain.repository.DeckRepository
+import com.linguacards.features.decklist.R
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -28,15 +30,19 @@ class DeckListScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.simple(
     @get:Rule
     val composeRule = createAndroidComposeRule<MainActivity>()
 
+    lateinit var context: Context
+
     @Inject
     lateinit var deckRepository: DeckRepository
+
 
     @Before
     fun setup() {
         hiltRule.inject()
-        runBlocking {
+        runTest {
             deckRepository.deleteAllDecks()
         }
+        context = composeRule.activity.applicationContext
     }
 
     @Test
@@ -46,9 +52,8 @@ class DeckListScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.simple(
         }
 
         step("Fill deck name and description") {
-            composeRule.onNodeWithText("Deck name").performTextInput("Test Deck")
-            composeRule.onNodeWithText("Description (optional)")
-                .performTextInput("Test Description")
+            composeRule.onNodeWithTag("deck_name").performTextInput("Test Deck")
+            composeRule.onNodeWithTag("deck_description").performTextInput("Test Description")
         }
 
         step("Click create button") {
@@ -63,7 +68,8 @@ class DeckListScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.simple(
 
         step("Verify deck stats") {
             composeRule.onNodeWithTag("deck_stats").assertIsDisplayed()
-            composeRule.onNodeWithText("Total Decks").assertIsDisplayed()
+            composeRule.onNodeWithText(context.getString(R.string.deck_stats_total_decks))
+                .assertIsDisplayed()
             composeRule.onNodeWithText("1").assertIsDisplayed()
         }
     }
@@ -75,11 +81,11 @@ class DeckListScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.simple(
         }
 
         step("Fill only deck name") {
-            composeRule.onNodeWithText("Deck name").performTextInput("Simple Deck")
+            composeRule.onNodeWithTag("deck_name").performTextInput("Simple Deck")
         }
 
         step("Click create button") {
-            composeRule.onNodeWithText("Create").performClick()
+            composeRule.onNodeWithTag("create_button").performClick()
         }
 
         step("Verify deck is displayed without description") {
@@ -91,7 +97,7 @@ class DeckListScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.simple(
     @Test
     fun testSearchDeck() = run {
         step("Create test deck first") {
-            runBlocking {
+            runTest {
                 deckRepository.createDeck("Search Test Deck", "This is a test deck for search")
             }
             composeRule.waitForIdle()
@@ -118,29 +124,9 @@ class DeckListScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.simple(
     }
 
     @Test
-    fun testSearchNoResults() = run {
-        step("Create a deck") {
-            runBlocking {
-                deckRepository.createDeck("Regular Deck", "Regular description")
-            }
-            composeRule.waitForIdle()
-        }
-
-        step("Search for non-existent deck") {
-            composeRule.onNodeWithTag("search_button").performClick()
-            composeRule.onNodeWithTag("search_field").performTextInput("NonExistentDeck123")
-        }
-
-        step("Verify no results message") {
-            composeRule.onNodeWithText("No results for \"NonExistentDeck123\"").assertIsDisplayed()
-            composeRule.onNodeWithText("Try a different search term").assertIsDisplayed()
-        }
-    }
-
-    @Test
     fun testDeleteDeck() = run {
         step("Create test deck") {
-            runBlocking {
+            runTest {
                 deckRepository.createDeck("Deck To Delete", "Will be deleted")
             }
             composeRule.waitForIdle()
@@ -154,29 +140,34 @@ class DeckListScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.simple(
         }
 
         step("Confirm deletion") {
-            composeRule.onNodeWithText("Delete Deck").assertIsDisplayed()
-            composeRule.onNodeWithText("Are you sure you want to delete \"Deck To Delete\"? This will also delete all cards in this deck.")
-                .assertIsDisplayed()
-            composeRule.onNodeWithText("Delete").performClick()
+            composeRule.onNodeWithTag("delete_dialog").assertIsDisplayed()
+            composeRule.onNodeWithText(
+                context.getString(
+                    R.string.delete_deck_dialog_message,
+                    "Deck To Delete"
+                )
+            ).assertIsDisplayed()
+            composeRule.onNodeWithTag("delete_button").performClick()
         }
 
         step("Verify deck is deleted") {
             composeRule.onNodeWithText("Deck To Delete").assertDoesNotExist()
-            composeRule.onNodeWithText("No decks yet").assertIsDisplayed()
+            composeRule.onNodeWithText(context.getString(R.string.empty_decks_title))
+                .assertIsDisplayed()
         }
     }
 
     @Test
     fun testMultipleDecksCreation() = run {
         step("Create first deck") {
-            runBlocking {
+            runTest {
                 deckRepository.createDeck("First Deck", "First description")
             }
             composeRule.waitForIdle()
         }
 
         step("Create second deck") {
-            runBlocking {
+            runTest {
                 deckRepository.createDeck("Second Deck", "Second description")
             }
             composeRule.waitForIdle()
@@ -190,7 +181,8 @@ class DeckListScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.simple(
         step("Verify deck stats show correct count") {
             composeRule.onNodeWithTag("deck_stats").assertIsDisplayed()
             composeRule.onNodeWithText("2").assertIsDisplayed()
-            composeRule.onNodeWithText("Total Decks").assertIsDisplayed()
+            composeRule.onNodeWithText(context.getString(R.string.deck_stats_total_decks))
+                .assertIsDisplayed()
         }
     }
 

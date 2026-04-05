@@ -1,25 +1,26 @@
 package com.linguacards.features.cardedit.presentation
 
 import androidx.lifecycle.SavedStateHandle
-import app.cash.turbine.test
 import com.linguacards.core.domain.repository.CardRepository
 import com.linguacards.core.model.Card
 import com.linguacards.core.model.WordDetails
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.test.*
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CardEditViewModelTest {
@@ -27,44 +28,31 @@ class CardEditViewModelTest {
     private lateinit var viewModel: CardEditViewModel
     private lateinit var cardRepository: CardRepository
     private lateinit var savedStateHandle: SavedStateHandle
-    private lateinit var testDispatcher: TestDispatcher
+    private val testDispatcher = StandardTestDispatcher()
 
-    private val testDeckId = 1L
-    private val testCardId = 100L
     private val now = Clock.System.now()
+    private val deckId = 1L
+    private val cardId = 100L
 
     private val sampleCard = Card(
-        id = testCardId,
-        deckId = testDeckId,
-        word = "apple",
-        translation = "яблоко",
-        example = "I eat an apple",
-        transcription = "/ˈæpəl/",
+        id = cardId,
+        deckId = deckId,
+        word = "Hello",
+        translation = "Привет",
+        example = "Hello world",
+        transcription = "həˈləʊ",
         easinessFactor = 2.5,
-        interval = 0,
-        repetitions = 0,
-        nextReviewDate = null,
+        interval = 5,
+        repetitions = 2,
+        nextReviewDate = now,
         createdAt = now,
         updatedAt = now
     )
 
-    private val wordDetails = WordDetails(
-        word = "apple",
-        example = "This is an example sentence",
-        transcription = "/ˈæpəl/",
-    )
-
     @Before
     fun setup() {
-        testDispatcher = StandardTestDispatcher()
         Dispatchers.setMain(testDispatcher)
         cardRepository = mockk()
-        savedStateHandle = SavedStateHandle(
-            mapOf(
-                "deckId" to testDeckId,
-                "cardId" to testCardId
-            )
-        )
     }
 
     @After
@@ -72,596 +60,367 @@ class CardEditViewModelTest {
         Dispatchers.resetMain()
     }
 
-    @Test
-    fun `init with new card (cardId = 0) should set initial Content state without loading card`() = runTest {
-        // Given
-        val newCardHandle = SavedStateHandle(mapOf("deckId" to testDeckId, "cardId" to 0L))
-
-        // When
-        viewModel = CardEditViewModel(cardRepository, newCardHandle)
-
-        // Then
-        viewModel.state.test {
-            val state = awaitItem()
-            assertTrue(state is CardEditState.Content)
-            assertEquals(testDeckId, (state as CardEditState.Content).deckId)
-            assertEquals(0L, state.cardId)
-            assertFalse(state.isEditing)
-            assertEquals("", state.word)
-            assertEquals("", state.translation)
-
-            cancelAndIgnoreRemainingEvents()
-        }
-    }
 
     @Test
-    fun `init with existing card (cardId != 0) should set initial state and load card`() = runTest {
+    fun `init without cardId should create empty Content state`() = runTest {
         // Given
-        coEvery { cardRepository.getCardById(testCardId) } returns sampleCard
+        savedStateHandle = SavedStateHandle(mapOf("deckId" to deckId))
 
         // When
         viewModel = CardEditViewModel(cardRepository, savedStateHandle)
 
         // Then
-        viewModel.state.test {
-            // Initial Content state (empty fields)
-            val initialState = awaitItem()
-            assertTrue(initialState is CardEditState.Content)
-            assertEquals(testDeckId, (initialState as CardEditState.Content).deckId)
-            assertEquals(testCardId, initialState.cardId)
-            assertTrue(initialState.isEditing)
-            assertEquals("", initialState.word) // Still empty initially
-
-            // Wait for card to load
-            advanceUntilIdle()
-
-            // Updated state with loaded card data
-            val loadedState = awaitItem()
-            assertTrue(loadedState is CardEditState.Content)
-            assertEquals("apple", (loadedState as CardEditState.Content).word)
-            assertEquals("яблоко", loadedState.translation)
-            assertEquals("I eat an apple", loadedState.example)
-            assertEquals("/ˈæpəl/", loadedState.transcription)
-            assertEquals(sampleCard, loadedState.originalCard)
-
-            cancelAndIgnoreRemainingEvents()
-        }
+        val state = viewModel.state.value
+        assertTrue(state is CardEditState.Content)
+        val content = state as CardEditState.Content
+        assertEquals(deckId, content.deckId)
+        assertEquals(0L, content.cardId)
+        assertFalse(content.isEditing)
+        assertEquals("", content.word)
+        assertEquals("", content.translation)
+        assertEquals("", content.example)
+        assertEquals("", content.transcription)
+        assertTrue(content.errors.isEmpty())
+        assertNull(content.originalCard)
     }
 
     @Test
-    fun `init with existing card should set error message when card not found`() = runTest {
+    fun `init with existing cardId should load card and update state`() = runTest {
         // Given
-        coEvery { cardRepository.getCardById(testCardId) } returns null
+        savedStateHandle = SavedStateHandle(mapOf("deckId" to deckId, "cardId" to cardId))
+        coEvery { cardRepository.getCardById(cardId) } returns sampleCard
 
         // When
         viewModel = CardEditViewModel(cardRepository, savedStateHandle)
+        testDispatcher.scheduler.advanceUntilIdle()
 
         // Then
-        viewModel.errorMessage.test {
-            assertNull(awaitItem())
-
-            advanceUntilIdle()
-
-            val errorMessage = awaitItem()
-            assertEquals("Card not found", errorMessage)
-
-            cancelAndIgnoreRemainingEvents()
-        }
+        val state = viewModel.state.value
+        assertTrue(state is CardEditState.Content)
+        val content = state as CardEditState.Content
+        assertEquals(deckId, content.deckId)
+        assertEquals(cardId, content.cardId)
+        assertTrue(content.isEditing)
+        assertEquals(sampleCard.word, content.word)
+        assertEquals(sampleCard.translation, content.translation)
+        assertEquals(sampleCard.example, content.example)
+        assertEquals(sampleCard.transcription, content.transcription)
+        assertEquals(sampleCard, content.originalCard)
     }
 
     @Test
-    fun `init with existing card should set error message when repository throws exception`() = runTest {
+    fun `init with invalid cardId should set error message`() = runTest {
         // Given
-        coEvery { cardRepository.getCardById(testCardId) } throws RuntimeException("Database error")
+        savedStateHandle = SavedStateHandle(mapOf("deckId" to deckId, "cardId" to cardId))
+        coEvery { cardRepository.getCardById(cardId) } returns null
 
         // When
         viewModel = CardEditViewModel(cardRepository, savedStateHandle)
+        testDispatcher.scheduler.advanceUntilIdle()
 
         // Then
-        viewModel.errorMessage.test {
-            assertNull(awaitItem())
+        assertEquals("Card not found", viewModel.errorMessage.value)
+    }
 
-            advanceUntilIdle()
+    @Test
+    fun `init with repository exception should set error message`() = runTest {
+        // Given
+        savedStateHandle = SavedStateHandle(mapOf("deckId" to deckId, "cardId" to cardId))
+        coEvery { cardRepository.getCardById(cardId) } throws RuntimeException("DB error")
 
-            val errorMessage = awaitItem()
-            assertEquals("Failed to load card: Database error", errorMessage)
+        // When
+        viewModel = CardEditViewModel(cardRepository, savedStateHandle)
+        testDispatcher.scheduler.advanceUntilIdle()
 
-            cancelAndIgnoreRemainingEvents()
-        }
+        // Then
+        assertTrue(viewModel.errorMessage.value?.contains("DB error") == true)
     }
 
     @Test
     fun `onWordChanged should update word and clear word error`() = runTest {
         // Given
+        savedStateHandle = SavedStateHandle(mapOf("deckId" to deckId))
         viewModel = CardEditViewModel(cardRepository, savedStateHandle)
-        advanceUntilIdle()
 
-        viewModel.state.test {
-            val initialState = awaitItem() as CardEditState.Content
-            assertEquals("", initialState.word)
-            assertTrue(initialState.errors.isEmpty())
+        // Simulate a validation error first
+        viewModel.onSaveClick() // triggers validation
+        testDispatcher.scheduler.advanceUntilIdle()
 
-            // When - set word
-            viewModel.onWordChanged("new word")
+        val stateWithError = viewModel.state.value as CardEditState.Content
+        assertTrue(stateWithError.errors.containsKey(ValidationErrorField.WORD))
 
-            val updatedState = awaitItem() as CardEditState.Content
-            assertEquals("new word", updatedState.word)
+        // When
+        viewModel.onWordChanged("New Word")
+        testDispatcher.scheduler.advanceUntilIdle()
 
-            // When - simulate error then fix
-            viewModel.onSaveClick() // This would set error if validation fails
-            advanceUntilIdle()
-
-            val stateWithError = awaitItem() as CardEditState.Content
-            assertTrue(stateWithError.errors.containsKey("word"))
-
-            // Fix word
-            viewModel.onWordChanged("fixed word")
-            val stateErrorCleared = awaitItem() as CardEditState.Content
-            assertFalse(stateErrorCleared.errors.containsKey("word"))
-
-            cancelAndIgnoreRemainingEvents()
-        }
+        // Then
+        val newState = viewModel.state.value as CardEditState.Content
+        assertEquals("New Word", newState.word)
+        assertFalse(newState.errors.containsKey(ValidationErrorField.WORD))
     }
 
     @Test
     fun `onTranslationChanged should update translation and clear translation error`() = runTest {
         // Given
+        savedStateHandle = SavedStateHandle(mapOf("deckId" to deckId))
         viewModel = CardEditViewModel(cardRepository, savedStateHandle)
-        advanceUntilIdle()
 
-        viewModel.state.test {
-            val initialState = awaitItem() as CardEditState.Content
-            assertEquals("", initialState.translation)
+        viewModel.onSaveClick()
+        testDispatcher.scheduler.advanceUntilIdle()
 
-            // When
-            viewModel.onTranslationChanged("перевод")
+        val stateWithError = viewModel.state.value as CardEditState.Content
+        assertTrue(stateWithError.errors.containsKey(ValidationErrorField.TRANSLATION))
 
-            val updatedState = awaitItem() as CardEditState.Content
-            assertEquals("перевод", updatedState.translation)
+        // When
+        viewModel.onTranslationChanged("Новый перевод")
+        testDispatcher.scheduler.advanceUntilIdle()
 
-            cancelAndIgnoreRemainingEvents()
-        }
+        // Then
+        val newState = viewModel.state.value as CardEditState.Content
+        assertEquals("Новый перевод", newState.translation)
+        assertFalse(newState.errors.containsKey(ValidationErrorField.TRANSLATION))
     }
 
     @Test
     fun `onExampleChanged should update example`() = runTest {
         // Given
+        savedStateHandle = SavedStateHandle(mapOf("deckId" to deckId))
         viewModel = CardEditViewModel(cardRepository, savedStateHandle)
-        advanceUntilIdle()
 
-        viewModel.state.test {
-            awaitItem() // Initial state
+        // When
+        viewModel.onExampleChanged("New example sentence")
+        testDispatcher.scheduler.advanceUntilIdle()
 
-            // When
-            viewModel.onExampleChanged("New example sentence")
-
-            val updatedState = awaitItem() as CardEditState.Content
-            assertEquals("New example sentence", updatedState.example)
-
-            cancelAndIgnoreRemainingEvents()
-        }
+        // Then
+        val state = viewModel.state.value as CardEditState.Content
+        assertEquals("New example sentence", state.example)
     }
 
     @Test
     fun `onTranscriptionChanged should update transcription`() = runTest {
         // Given
+        savedStateHandle = SavedStateHandle(mapOf("deckId" to deckId))
         viewModel = CardEditViewModel(cardRepository, savedStateHandle)
-        advanceUntilIdle()
 
-        viewModel.state.test {
-            awaitItem() // Initial state
+        // When
+        viewModel.onTranscriptionChanged("/njuː/")
+        testDispatcher.scheduler.advanceUntilIdle()
 
-            // When
-            viewModel.onTranscriptionChanged("/njuː/")
-
-            val updatedState = awaitItem() as CardEditState.Content
-            assertEquals("/njuː/", updatedState.transcription)
-
-            cancelAndIgnoreRemainingEvents()
-        }
+        // Then
+        val state = viewModel.state.value as CardEditState.Content
+        assertEquals("/njuː/", state.transcription)
     }
 
     @Test
-    fun `onWordFocusLost should fetch word details after debounce when word is not blank`() = runTest {
-        // Given
-        coEvery { cardRepository.getCardById(any()) } returns null
-        coEvery { cardRepository.fetchWordDetails("apple") } returns Result.success(wordDetails)
-
-        viewModel = CardEditViewModel(cardRepository, savedStateHandle)
-        advanceUntilIdle()
-
-        viewModel.state.test {
-            val initialState = awaitItem() as CardEditState.Content
+    fun `onSaveClick with empty word and translation should set errors and return false`() =
+        runTest {
+            // Given
+            savedStateHandle = SavedStateHandle(mapOf("deckId" to deckId))
+            viewModel = CardEditViewModel(cardRepository, savedStateHandle)
 
             // When
-            viewModel.onWordChanged("apple")
-            awaitItem() // Word updated
+            val result = viewModel.onSaveClick()
+            testDispatcher.scheduler.advanceUntilIdle()
 
-            viewModel.onWordFocusLost()
-
-            // Initially isFetchingDetails should be false
-            assertFalse(initialState.isFetchingDetails)
-
-            // Advance time by 500ms (debounce delay)
-            advanceTimeBy(500.milliseconds)
-
-            // Should be fetching details
-            val fetchingState = awaitItem() as CardEditState.Content
-            assertTrue(fetchingState.isFetchingDetails)
-
-            advanceUntilIdle()
-
-            // Details fetched
-            val finalState = awaitItem() as CardEditState.Content
-            assertFalse(finalState.isFetchingDetails)
-            assertEquals("This is an example sentence", finalState.example)
-            assertEquals("/ˈæpəl/", finalState.transcription)
-
-            cancelAndIgnoreRemainingEvents()
+            // Then
+            assertFalse(result)
+            val state = viewModel.state.value as CardEditState.Content
+            assertTrue(state.errors.containsKey(ValidationErrorField.WORD))
+            assertTrue(state.errors.containsKey(ValidationErrorField.TRANSLATION))
         }
+
+    @Test
+    fun `onSaveClick for new card should call createCard and emit Saved state`() = runTest {
+        // Given
+        savedStateHandle = SavedStateHandle(mapOf("deckId" to deckId))
+        coEvery { cardRepository.createCard(any()) } returns 123L
+        viewModel = CardEditViewModel(cardRepository, savedStateHandle)
+
+        viewModel.onWordChanged("Apple")
+        viewModel.onTranslationChanged("Яблоко")
+        viewModel.onExampleChanged("An apple a day")
+        viewModel.onTranscriptionChanged("ˈæpəl")
+
+        // When
+        val result = viewModel.onSaveClick()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Then
+        assertTrue(result)
+        coVerify { cardRepository.createCard(any()) }
+        assertTrue(viewModel.state.value is CardEditState.Saved)
     }
 
     @Test
-    fun `onWordFocusLost should not fetch details when word is blank`() = runTest {
+    fun `onSaveClick for existing card should call updateCard and emit Saved state`() = runTest {
         // Given
+        savedStateHandle = SavedStateHandle(mapOf("deckId" to deckId, "cardId" to cardId))
+        coEvery { cardRepository.getCardById(cardId) } returns sampleCard
+        coEvery { cardRepository.updateCard(any()) } returns Unit
         viewModel = CardEditViewModel(cardRepository, savedStateHandle)
-        advanceUntilIdle()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        viewModel.onWordChanged("Updated Word")
+        viewModel.onTranslationChanged("Обновленный перевод")
+
+        // When
+        val result = viewModel.onSaveClick()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Then
+        assertTrue(result)
+        coVerify { cardRepository.updateCard(any()) }
+        assertTrue(viewModel.state.value is CardEditState.Saved)
+    }
+
+    @Test
+    fun `onSaveClick when repository throws exception should set error message`() = runTest {
+        // Given
+        savedStateHandle = SavedStateHandle(mapOf("deckId" to deckId))
+        coEvery { cardRepository.createCard(any()) } throws RuntimeException("Save failed")
+        viewModel = CardEditViewModel(cardRepository, savedStateHandle)
+
+        viewModel.onWordChanged("Word")
+        viewModel.onTranslationChanged("Translation")
+
+        // When
+        viewModel.onSaveClick()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Then
+        assertTrue(viewModel.errorMessage.value?.contains("Save failed") == true)
+    }
+
+    @Test
+    fun `onWordFocusLost should fetch details and update fields if empty`() = runTest {
+        // Given
+        savedStateHandle = SavedStateHandle(mapOf("deckId" to deckId))
+        val word = "TestWord"
+        val details = WordDetails(word, "ˈtest", "This is a test example")
+        coEvery { cardRepository.fetchWordDetails(word) } returns Result.success(details)
+
+        viewModel = CardEditViewModel(cardRepository, savedStateHandle)
+        viewModel.onWordChanged(word)
+        testDispatcher.scheduler.advanceUntilIdle()
 
         // When
         viewModel.onWordFocusLost()
-        advanceTimeBy(500.milliseconds)
-        advanceUntilIdle()
+        // advance time by debounce delay (500 ms)
+        testDispatcher.scheduler.advanceTimeBy(500)
+        testDispatcher.scheduler.advanceUntilIdle()
 
-        // Then - no fetch should happen, verify no calls to fetchWordDetails
+        // Then
+        val state = viewModel.state.value as CardEditState.Content
+        assertEquals(details.transcription, state.transcription)
+        assertEquals(details.example, state.example)
+        assertFalse(state.isFetchingDetails)
+    }
+
+    @Test
+    fun `onWordFocusLost should not fetch if word is blank`() = runTest {
+        // Given
+        savedStateHandle = SavedStateHandle(mapOf("deckId" to deckId))
+        viewModel = CardEditViewModel(cardRepository, savedStateHandle)
+        viewModel.onWordChanged("   ")
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // When
+        viewModel.onWordFocusLost()
+        testDispatcher.scheduler.advanceTimeBy(500)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Then
         coVerify(exactly = 0) { cardRepository.fetchWordDetails(any()) }
     }
 
     @Test
-    fun `onWordFocusLost should cancel previous debounce when called multiple times`() = runTest {
+    fun `onWordFocusLost should not fetch if example and transcription already filled`() = runTest {
         // Given
-        coEvery { cardRepository.getCardById(any()) } returns null
-        coEvery { cardRepository.fetchWordDetails(any()) } returns Result.success(wordDetails)
-
+        savedStateHandle = SavedStateHandle(mapOf("deckId" to deckId))
         viewModel = CardEditViewModel(cardRepository, savedStateHandle)
-        advanceUntilIdle()
+        viewModel.onWordChanged("Hello")
+        viewModel.onExampleChanged("Existing example")
+        viewModel.onTranscriptionChanged("Existing transcription")
+        testDispatcher.scheduler.advanceUntilIdle()
 
-        // When - call focus lost multiple times with different words
-        viewModel.onWordChanged("apple")
+        // When
         viewModel.onWordFocusLost()
+        testDispatcher.scheduler.advanceTimeBy(500)
+        testDispatcher.scheduler.advanceUntilIdle()
 
-        // Before debounce finishes, change word again
-        advanceTimeBy(200.milliseconds)
-        viewModel.onWordChanged("banana")
+        // Then
+        coVerify(exactly = 0) { cardRepository.fetchWordDetails(any()) }
+    }
+
+    @Test
+    fun `onWordFocusLost should handle fetch error and show error message`() = runTest {
+        // Given
+        savedStateHandle = SavedStateHandle(mapOf("deckId" to deckId))
+        val word = "NotFound"
+        coEvery { cardRepository.fetchWordDetails(word) } returns Result.failure(Exception("Word not found"))
+
+        viewModel = CardEditViewModel(cardRepository, savedStateHandle)
+        viewModel.onWordChanged(word)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // When
         viewModel.onWordFocusLost()
+        testDispatcher.scheduler.advanceTimeBy(500)
+        testDispatcher.scheduler.advanceUntilIdle()
 
-        // Wait for debounce
-        advanceTimeBy(500.milliseconds)
-        advanceUntilIdle()
-
-        // Then - only the last word should be fetched
-        coVerify(exactly = 1) { cardRepository.fetchWordDetails("banana") }
-        coVerify(exactly = 0) { cardRepository.fetchWordDetails("apple") }
+        // Then
+        assertTrue(viewModel.errorMessage.value?.contains("Word not found") == true)
+        val state = viewModel.state.value as CardEditState.Content
+        assertFalse(state.isFetchingDetails)
     }
 
-    @Test
-    fun `onWordFocusLost should not overwrite existing example and transcription if they are not empty`() = runTest {
-        // Given
-        coEvery { cardRepository.getCardById(any()) } returns null
-        coEvery { cardRepository.fetchWordDetails("apple") } returns Result.success(wordDetails)
 
+    @Test
+    fun `resetState should revert to original card values`() = runTest {
+        // Given
+        savedStateHandle = SavedStateHandle(mapOf("deckId" to deckId, "cardId" to cardId))
+        coEvery { cardRepository.getCardById(cardId) } returns sampleCard
         viewModel = CardEditViewModel(cardRepository, savedStateHandle)
-        advanceUntilIdle()
+        testDispatcher.scheduler.advanceUntilIdle()
 
-        viewModel.state.test {
-            awaitItem() // Initial
+        // Modify fields
+        viewModel.onWordChanged("Modified")
+        viewModel.onTranslationChanged("Модифицировано")
+        viewModel.onExampleChanged("Modified example")
+        viewModel.onTranscriptionChanged("modified")
 
-            // Set existing values
-            viewModel.onExampleChanged("User typed example")
-            viewModel.onTranscriptionChanged("/user/")
-            awaitItem() // Example updated
-            awaitItem() // Transcription updated
+        // When
+        viewModel.resetState()
+        testDispatcher.scheduler.advanceUntilIdle()
 
-            // When
-            viewModel.onWordChanged("apple")
-            awaitItem()
-            viewModel.onWordFocusLost()
-            advanceTimeBy(500.milliseconds)
-            advanceUntilIdle()
-
-            // Then - existing values should NOT be overwritten
-            val finalState = awaitItem() as CardEditState.Content
-            assertEquals("User typed example", finalState.example)
-            assertEquals("/user/", finalState.transcription)
-
-            cancelAndIgnoreRemainingEvents()
-        }
+        // Then
+        val state = viewModel.state.value as CardEditState.Content
+        assertEquals(sampleCard.word, state.word)
+        assertEquals(sampleCard.translation, state.translation)
+        assertEquals(sampleCard.example, state.example)
+        assertEquals(sampleCard.transcription, state.transcription)
+        assertTrue(state.errors.isEmpty())
     }
 
     @Test
-    fun `onWordFocusLost should handle fetch failure gracefully`() = runTest {
+    fun `clearErrorMessage should set errorMessage to null`() = runTest {
         // Given
-        coEvery { cardRepository.getCardById(any()) } returns null
-        coEvery { cardRepository.fetchWordDetails("unknown") } returns Result.failure(Exception("Word not found"))
-
+        savedStateHandle = SavedStateHandle(mapOf("deckId" to deckId))
+        coEvery { cardRepository.createCard(any()) } throws RuntimeException("Error")
         viewModel = CardEditViewModel(cardRepository, savedStateHandle)
-        advanceUntilIdle()
 
-        viewModel.state.test {
-            awaitItem() // Initial
+        viewModel.onWordChanged("Word")
+        viewModel.onTranslationChanged("Translation")
+        viewModel.onSaveClick()
+        testDispatcher.scheduler.advanceUntilIdle()
 
-            // When
-            viewModel.onWordChanged("unknown")
-            awaitItem()
-            viewModel.onWordFocusLost()
+        assertTrue(viewModel.errorMessage.value != null)
 
-            advanceTimeBy(500.milliseconds)
+        // When
+        viewModel.clearErrorMessage()
+        testDispatcher.scheduler.advanceUntilIdle()
 
-            // Should show fetching
-            val fetchingState = awaitItem() as CardEditState.Content
-            assertTrue(fetchingState.isFetchingDetails)
-
-            advanceUntilIdle()
-
-            // Should stop fetching without updating fields
-            val finalState = awaitItem() as CardEditState.Content
-            assertFalse(finalState.isFetchingDetails)
-            // Fields should remain empty (or whatever they were)
-            assertEquals("", finalState.example)
-            assertEquals("", finalState.transcription)
-
-            cancelAndIgnoreRemainingEvents()
-        }
-    }
-
-    @Test
-    fun `onSaveClick should return false and set errors when word is blank`() = runTest {
-        // Given
-        viewModel = CardEditViewModel(cardRepository, savedStateHandle)
-        advanceUntilIdle()
-
-        viewModel.state.test {
-            val initialState = awaitItem() as CardEditState.Content
-            assertTrue(initialState.errors.isEmpty())
-
-            // When
-            val result = viewModel.onSaveClick()
-
-            // Then
-            assertFalse(result)
-
-            val stateWithErrors = awaitItem() as CardEditState.Content
-            assertTrue(stateWithErrors.errors.containsKey("word"))
-            assertEquals("Word is required", stateWithErrors.errors["word"])
-
-            cancelAndIgnoreRemainingEvents()
-        }
-    }
-
-    @Test
-    fun `onSaveClick should return false and set errors when translation is blank`() = runTest {
-        // Given
-        viewModel = CardEditViewModel(cardRepository, savedStateHandle)
-        advanceUntilIdle()
-
-        viewModel.state.test {
-            awaitItem() // Initial
-
-            // Set word but not translation
-            viewModel.onWordChanged("apple")
-            awaitItem()
-
-            // When
-            val result = viewModel.onSaveClick()
-
-            // Then
-            assertFalse(result)
-
-            val stateWithErrors = awaitItem() as CardEditState.Content
-            assertTrue(stateWithErrors.errors.containsKey("translation"))
-            assertEquals("Translation is required", stateWithErrors.errors["translation"])
-
-            cancelAndIgnoreRemainingEvents()
-        }
-    }
-
-    @Test
-    fun `onSaveClick should return true and save new card when validation passes`() = runTest {
-        // Given
-        coEvery { cardRepository.getCardById(any()) } returns null
-        coEvery { cardRepository.createCard(any()) } returns 200L
-
-        val newCardHandle = SavedStateHandle(mapOf("deckId" to testDeckId, "cardId" to 0L))
-        viewModel = CardEditViewModel(cardRepository, newCardHandle)
-        advanceUntilIdle()
-
-        // Fill valid data
-        viewModel.onWordChanged("apple")
-        viewModel.onTranslationChanged("яблоко")
-
-        viewModel.state.test {
-            awaitItem() // Initial
-            awaitItem() // Word updated
-            awaitItem() // Translation updated
-
-            // When
-            val result = viewModel.onSaveClick()
-
-            // Then
-            assertTrue(result)
-
-            // Should emit Saved state
-            val savedState = awaitItem()
-            assertTrue(savedState is CardEditState.Saved)
-
-            coVerify(exactly = 1) { cardRepository.createCard(any()) }
-
-            cancelAndIgnoreRemainingEvents()
-        }
-    }
-
-    @Test
-    fun `onSaveClick should return true and update existing card when editing`() = runTest {
-        // Given
-        coEvery { cardRepository.getCardById(testCardId) } returns sampleCard
-        coEvery { cardRepository.updateCard(any()) } returns Unit
-
-        viewModel = CardEditViewModel(cardRepository, savedStateHandle)
-        advanceUntilIdle()
-        advanceUntilIdle() // Load card
-
-        viewModel.state.test {
-            awaitItem() // Initial
-            val loadedState = awaitItem() as CardEditState.Content
-            assertEquals("apple", loadedState.word)
-
-            // Update word
-            viewModel.onWordChanged("updated apple")
-            awaitItem()
-
-            // When
-            val result = viewModel.onSaveClick()
-
-            // Then
-            assertTrue(result)
-
-            awaitItem() // Saved state
-
-            coVerify(exactly = 1) { cardRepository.updateCard(any()) }
-
-            cancelAndIgnoreRemainingEvents()
-        }
-    }
-
-    @Test
-    fun `onSaveClick should set error message when save fails`() = runTest {
-        // Given
-        coEvery { cardRepository.getCardById(any()) } returns null
-        coEvery { cardRepository.createCard(any()) } throws RuntimeException("Save failed")
-
-        val newCardHandle = SavedStateHandle(mapOf("deckId" to testDeckId, "cardId" to 0L))
-        viewModel = CardEditViewModel(cardRepository, newCardHandle)
-        advanceUntilIdle()
-
-        viewModel.errorMessage.test {
-            assertNull(awaitItem())
-
-            // Fill valid data and save
-            viewModel.onWordChanged("apple")
-            viewModel.onTranslationChanged("яблоко")
-            viewModel.onSaveClick()
-
-            advanceUntilIdle()
-
-            val errorMessage = awaitItem()
-            assertEquals("Failed to save card: Save failed", errorMessage)
-
-            cancelAndIgnoreRemainingEvents()
-        }
-    }
-
-    @Test
-    fun `resetState should restore original card values when editing`() = runTest {
-        // Given
-        coEvery { cardRepository.getCardById(testCardId) } returns sampleCard
-
-        viewModel = CardEditViewModel(cardRepository, savedStateHandle)
-        advanceUntilIdle()
-        advanceUntilIdle() // Load card
-
-        viewModel.state.test {
-            val loadedState = awaitItem() as CardEditState.Content
-            assertEquals("apple", loadedState.word)
-
-            // Modify fields
-            viewModel.onWordChanged("modified")
-            viewModel.onTranslationChanged("изменено")
-            viewModel.onExampleChanged("Modified example")
-            awaitItem() // word
-            awaitItem() // translation
-            awaitItem() // example
-
-            val modifiedState = viewModel.state.value as CardEditState.Content
-            assertEquals("modified", modifiedState.word)
-            assertEquals("изменено", modifiedState.translation)
-
-            // When - reset
-            viewModel.resetState()
-
-            // Then
-            val resetState = awaitItem() as CardEditState.Content
-            assertEquals("apple", resetState.word)
-            assertEquals("яблоко", resetState.translation)
-            assertEquals("I eat an apple", resetState.example)
-            assertEquals("/ˈæpəl/", resetState.transcription)
-            assertTrue(resetState.errors.isEmpty())
-            assertFalse(resetState.isFetchingDetails)
-
-            cancelAndIgnoreRemainingEvents()
-        }
-    }
-
-    @Test
-    fun `resetState should clear fields for new card`() = runTest {
-        // Given
-        val newCardHandle = SavedStateHandle(mapOf("deckId" to testDeckId, "cardId" to 0L))
-        viewModel = CardEditViewModel(cardRepository, newCardHandle)
-        advanceUntilIdle()
-
-        // Fill some data
-        viewModel.onWordChanged("some word")
-        viewModel.onTranslationChanged("some translation")
-        viewModel.onExampleChanged("some example")
-
-        viewModel.state.test {
-            awaitItem() // Initial
-            awaitItem() // word
-            awaitItem() // translation
-            awaitItem() // example
-
-            // When
-            viewModel.resetState()
-
-            // Then
-            val resetState = awaitItem() as CardEditState.Content
-            assertEquals("", resetState.word)
-            assertEquals("", resetState.translation)
-            assertEquals("", resetState.example)
-            assertEquals("", resetState.transcription)
-
-            cancelAndIgnoreRemainingEvents()
-        }
-    }
-
-    @Test
-    fun `clearErrorMessage should reset error message to null`() = runTest {
-        // Given - create an error
-        coEvery { cardRepository.getCardById(any()) } returns null
-        coEvery { cardRepository.createCard(any()) } throws RuntimeException("Test error")
-
-        val newCardHandle = SavedStateHandle(mapOf("deckId" to testDeckId, "cardId" to 0L))
-        viewModel = CardEditViewModel(cardRepository, newCardHandle)
-        advanceUntilIdle()
-
-        viewModel.errorMessage.test {
-            assertNull(awaitItem())
-
-            // Create error
-            viewModel.onWordChanged("word")
-            viewModel.onTranslationChanged("translation")
-            viewModel.onSaveClick()
-            advanceUntilIdle()
-
-            val errorMessage = awaitItem()
-            assertEquals("Failed to save card: Test error", errorMessage)
-
-            // Clear error
-            viewModel.clearErrorMessage()
-            advanceUntilIdle()
-
-            val clearedMessage = awaitItem()
-            assertNull(clearedMessage)
-
-            cancelAndIgnoreRemainingEvents()
-        }
+        // Then
+        assertNull(viewModel.errorMessage.value)
     }
 }

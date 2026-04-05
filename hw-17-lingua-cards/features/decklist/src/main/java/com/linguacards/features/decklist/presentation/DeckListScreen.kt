@@ -466,7 +466,7 @@ fun CreateDeckDialog(
     var description by remember { mutableStateOf("") }
 
     AlertDialog(
-        modifier = modifier,
+        modifier = modifier.testTag("create_dialog"),
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.create_deck_dialog_title)) },
         text = {
@@ -478,14 +478,14 @@ fun CreateDeckDialog(
                     onValueChange = { name = it },
                     label = { Text(stringResource(R.string.deck_name_label)) },
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().testTag("deck_name")
                 )
 
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
                     label = { Text(stringResource(R.string.deck_description_label)) },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().testTag("deck_description")
                 )
             }
         },
@@ -499,7 +499,9 @@ fun CreateDeckDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            TextButton(
+                modifier = Modifier.testTag("cancel_button"),
+                onClick = onDismiss) {
                 Text(stringResource(R.string.cancel_button))
             }
         }
@@ -514,7 +516,7 @@ fun DeleteDeckDialog(
     modifier: Modifier = Modifier
 ) {
     AlertDialog(
-        modifier = modifier,
+        modifier = modifier.testTag("delete_dialog"),
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.delete_deck_dialog_title)) },
         text = {
@@ -527,6 +529,7 @@ fun DeleteDeckDialog(
         },
         confirmButton = {
             TextButton(
+                modifier = Modifier.testTag("delete_button"),
                 onClick = onConfirm,
                 colors = androidx.compose.material3.ButtonDefaults.textButtonColors(
                     contentColor = MaterialTheme.colorScheme.error
@@ -536,7 +539,9 @@ fun DeleteDeckDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            TextButton(
+                modifier = Modifier.testTag("cancel_button"),
+                onClick = onDismiss) {
                 Text(stringResource(R.string.cancel_button))
             }
         }

@@ -9,4 +9,6 @@
     <string name="grade_good">Good</string>
     <string name="grade_easy">Easy</string>
     <string name="example">Example:</string>
+    <string name="error_title">Error</string>
+    <string name="error_ok">OK</string>
 </resources>

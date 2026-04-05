@@ -1,9 +1,11 @@
 package com.linguacards.core.model
 
+import androidx.compose.runtime.Immutable
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
 @Serializable
+@Immutable
 data class Card (
     val id: Long = 0,
     val deckId: Long,

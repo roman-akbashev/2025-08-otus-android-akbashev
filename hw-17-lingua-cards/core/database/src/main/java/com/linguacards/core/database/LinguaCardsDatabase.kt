@@ -17,23 +17,4 @@ import com.linguacards.core.database.entity.DeckEntity
 abstract class LinguaCardsDatabase : RoomDatabase() {
     abstract fun deckDao(): DeckDao
     abstract fun cardDao(): CardDao
-
-    companion object {
-        @Volatile
-        private var INSTANCE: LinguaCardsDatabase? = null
-
-        fun getInstance(context: Context): LinguaCardsDatabase {
-            return INSTANCE ?: synchronized(this) {
-                val instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    LinguaCardsDatabase::class.java,
-                    "lingua_cards.db"
-                )
-                    .fallbackToDestructiveMigration(false)
-                    .build()
-                INSTANCE = instance
-                instance
-            }
-        }
-    }
 }

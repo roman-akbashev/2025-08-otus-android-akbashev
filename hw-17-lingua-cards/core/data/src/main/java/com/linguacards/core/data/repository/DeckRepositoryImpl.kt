@@ -7,7 +7,6 @@ import com.linguacards.core.domain.repository.DeckRepository
 import com.linguacards.core.model.Deck
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -34,7 +33,7 @@ class DeckRepositoryImpl @Inject constructor(
 
     override fun getDeckById(deckId: Long): Flow<Deck?> {
         return combine(
-            deckDao.getAllDecks().map { decks -> decks.find { it.id == deckId } },
+            deckDao.getDeckByIdFlow(deckId),
             cardDao.getCardCount(deckId).onStart { emit(0) }
         ) { deckEntity, cardCount ->
             deckEntity?.toDomain(cardCount)

@@ -9,4 +9,6 @@
     <string name="grade_good">Нормально</string>
     <string name="grade_easy">Легко</string>
     <string name="example">Пример:</string>
+    <string name="error_title">Ошибка</string>
+    <string name="error_ok">ОК</string>
 </resources>

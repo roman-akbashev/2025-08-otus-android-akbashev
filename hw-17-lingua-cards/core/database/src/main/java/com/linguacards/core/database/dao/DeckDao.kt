@@ -12,6 +12,9 @@ interface DeckDao {
     @Query("SELECT * FROM decks WHERE id = :deckId")
     suspend fun getDeckById(deckId: Long): DeckEntity?
 
+    @Query("SELECT * FROM decks WHERE id = :deckId")
+    fun getDeckByIdFlow(deckId: Long): Flow<DeckEntity?>
+
     @Insert
     suspend fun insertDeck(deck: DeckEntity): Long
 
