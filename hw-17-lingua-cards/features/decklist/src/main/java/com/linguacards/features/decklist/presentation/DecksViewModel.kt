@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.linguacards.core.domain.repository.DeckRepository
 import com.linguacards.core.model.Deck
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,6 +33,7 @@ class DecksViewModel @Inject constructor(
         loadDecks()
     }
 
+    @OptIn(FlowPreview::class)
     private fun loadDecks() {
         combine(
             deckRepository.getAllDecks(),

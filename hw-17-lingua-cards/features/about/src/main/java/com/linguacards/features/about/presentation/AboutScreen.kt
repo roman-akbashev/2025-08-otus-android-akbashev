@@ -2,7 +2,6 @@ package com.linguacards.features.about.presentation
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,8 +28,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.core.net.toUri
+import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -119,7 +118,7 @@ private fun getVersionName(context: Context): String {
     return try {
         val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
         "${context.getString(com.linguacards.features.about.R.string.about_version)} ${packageInfo.versionName}"
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         context.getString(com.linguacards.features.about.R.string.about_version) + " unknown"
     }
 }
