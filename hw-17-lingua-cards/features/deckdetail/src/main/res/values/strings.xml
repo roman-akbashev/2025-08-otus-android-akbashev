@@ -15,7 +15,7 @@
     <string name="tomorrow_label">Завтра</string>
     <string name="in_days_format">Через %d дней</string>
     <string name="no_cards_title">Пока нет карточек</string>
-    <string name="no_cards_message">Добавьте первую карточку, чтобы начать учить</string>
+    <string name="no_cards_message">Добавьте первую карточку, чтобы начать изучение</string>
     <string name="no_search_results_title">Нет результатов для "%s"</string>
     <string name="no_search_results_message">Попробуйте другой поисковый запрос</string>
     <string name="loading_deck">Загрузка колоды…</string>
