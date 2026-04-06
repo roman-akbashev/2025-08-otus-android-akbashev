@@ -16,7 +16,10 @@ interface CardDao {
     @Query("SELECT * FROM cards WHERE id = :cardId")
     suspend fun getCardById(cardId: Long): CardEntity?
 
-    @Query("SELECT * FROM cards WHERE deckId = :deckId AND (nextReviewDate IS NULL OR nextReviewDate <= :currentTime) LIMIT :limit")
+    @Query(
+        "SELECT * FROM cards WHERE deckId = :deckId " +
+                "AND (nextReviewDate IS NULL OR nextReviewDate <= :currentTime) LIMIT :limit"
+    )
     suspend fun getCardsForStudy(deckId: Long, currentTime: Long, limit: Int): List<CardEntity>
 
     @Insert

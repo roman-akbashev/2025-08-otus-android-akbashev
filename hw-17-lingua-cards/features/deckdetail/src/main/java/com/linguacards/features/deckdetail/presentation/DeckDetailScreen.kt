@@ -454,12 +454,17 @@ fun ReviewInfo(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            imageVector = if (card.repetitions == 0 && card.nextReviewDate == null) Icons.Default.FiberNew else Icons.Default.Update,
+            imageVector =
+                if (card.repetitions == 0 && card.nextReviewDate == null)
+                    Icons.Default.FiberNew
+                else
+                    Icons.Default.Update,
             contentDescription = null,
             modifier = Modifier.size(12.dp),
             tint = when {
                 card.repetitions == 0 && card.nextReviewDate == null -> MaterialTheme.colorScheme.tertiary
-                card.nextReviewDate != null && card.nextReviewDate!! <= kotlinx.datetime.Clock.System.now() -> MaterialTheme.colorScheme.error
+                card.nextReviewDate != null && card.nextReviewDate!! <= kotlinx.datetime.Clock.System.now()
+                    -> MaterialTheme.colorScheme.error
 
                 else -> MaterialTheme.colorScheme.primary
             }
@@ -470,7 +475,8 @@ fun ReviewInfo(
         Text(
             text = reviewDateText, style = MaterialTheme.typography.labelSmall, color = when {
                 card.repetitions == 0 && card.nextReviewDate == null -> MaterialTheme.colorScheme.tertiary
-                card.nextReviewDate != null && card.nextReviewDate!! <= kotlinx.datetime.Clock.System.now() -> MaterialTheme.colorScheme.error
+                card.nextReviewDate != null && card.nextReviewDate!! <= kotlinx.datetime.Clock.System.now()
+                    -> MaterialTheme.colorScheme.error
 
                 else -> MaterialTheme.colorScheme.primary
             }

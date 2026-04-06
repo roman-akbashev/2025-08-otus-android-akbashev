@@ -1,0 +1,5 @@
+OtusRuleSet:
+  ComposeModifierMissingRule:
+    active: true
+  NoMutableStateWithoutRememberRule:
+    active: true

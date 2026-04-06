@@ -9,8 +9,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
-import com.linguacards.app.ui.theme.LinguaCardsTheme
 import com.linguacards.app.navigation.LinguaCardsNavHost
+import com.linguacards.app.ui.theme.LinguaCardsTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -33,10 +33,11 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun LinguaCardsApp() {
+fun LinguaCardsApp(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
 
     LinguaCardsNavHost(
-        navController = navController
+        navController = navController,
+        modifier = modifier
     )
 }

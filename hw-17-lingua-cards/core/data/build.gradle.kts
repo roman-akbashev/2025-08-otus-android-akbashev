@@ -3,6 +3,13 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.detekt)
+}
+
+detekt {
+    toolVersion = libs.versions.detekt.get()
+    config.setFrom(file("$rootDir/config/detekt/detekt.yml"))
+    buildUponDefaultConfig = true
 }
 
 android {
@@ -26,6 +33,7 @@ kotlin {
 }
 
 dependencies {
+    detektPlugins(project(":detekt-rules"))
     implementation(project(":core:model"))
     implementation(project(":core:domain"))
     implementation(project(":core:database"))
