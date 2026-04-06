@@ -1,0 +1,26 @@
+config:
+  validation: true
+  warningsAsErrors: false
+
+build:
+  maxIssues: 0
+
+processors:
+  active: true
+
+console-reports:
+  active: true
+  exclude:
+    - 'ProjectStatistics'
+    - 'ComplexityReport'
+    - 'NotificationReport'
+
+potentially-stable:
+  active: false
+
+# Кастомные правила
+OtusRuleSet:
+  ComposeModifierMissingRule:
+    active: true
+  NoMutableStateWithoutRememberRule:
+    active: true

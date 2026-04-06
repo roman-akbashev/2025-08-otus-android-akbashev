@@ -5,6 +5,13 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.detekt)
+}
+
+detekt {
+    toolVersion = libs.versions.detekt.get()
+    config.setFrom(file("$rootDir/config/detekt/detekt.yml"))
+    buildUponDefaultConfig = true
 }
 
 android {
@@ -32,6 +39,7 @@ kotlin {
 }
 
 dependencies {
+    detektPlugins(project(":detekt-rules"))
     implementation(project(":core:model"))
     implementation(project(":core:domain"))
 
