@@ -15,7 +15,7 @@
     <string name="tomorrow_label">Tomorrow</string>
     <string name="in_days_format">In %d days</string>
     <string name="no_cards_title">No cards yet</string>
-    <string name="no_cards_message">Add your first card to start learning</string>
+    <string name="no_cards_message">Add your first card</string>
     <string name="no_search_results_title">No results for "%s"</string>
     <string name="no_search_results_message">Try a different search term</string>
     <string name="loading_deck">Loading deck…</string>

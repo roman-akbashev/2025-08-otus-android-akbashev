@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="deck_detail_title">Содержимое колоды</string>
+    <string name="deck_detail_title">Колода</string>
     <string name="search_cards_hint">Поиск карточек…</string>
     <string name="total_cards_label">Всего карточек</string>
     <string name="filtered_label">Отфильтровано</string>
@@ -15,7 +15,7 @@
     <string name="tomorrow_label">Завтра</string>
     <string name="in_days_format">Через %d дней</string>
     <string name="no_cards_title">Пока нет карточек</string>
-    <string name="no_cards_message">Добавьте первую карточку, чтобы начать изучение</string>
+    <string name="no_cards_message">Добавьте первую карточку</string>
     <string name="no_search_results_title">Нет результатов для "%s"</string>
     <string name="no_search_results_message">Попробуйте другой поисковый запрос</string>
     <string name="loading_deck">Загрузка колоды…</string>

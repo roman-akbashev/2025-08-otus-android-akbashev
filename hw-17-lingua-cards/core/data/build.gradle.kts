@@ -37,9 +37,11 @@ dependencies {
     implementation(libs.kotlin.coroutines.android)
     implementation(libs.kotlin.serialization.json)
 
+    implementation(libs.kotlinx.datetime)
+
     testImplementation(libs.junit)
     testImplementation(libs.kotlin.coroutines.test)
     testImplementation(libs.turbine)
-
-    implementation(libs.kotlinx.datetime)
+    testImplementation(libs.androidx.test.junit)
+    testImplementation(libs.mockk)
 }
