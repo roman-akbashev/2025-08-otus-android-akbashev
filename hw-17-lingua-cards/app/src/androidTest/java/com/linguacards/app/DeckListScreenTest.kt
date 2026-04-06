@@ -97,10 +97,12 @@ class DeckListScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.simple(
     @Test
     fun testSearchDeck() = run {
         step("Create test deck first") {
-            runTest {
-                deckRepository.createDeck("Search Test Deck", "This is a test deck for search")
-            }
-            composeRule.waitForIdle()
+            composeRule.onNodeWithTag("create_deck_fab").performClick()
+            composeRule.onNodeWithTag("deck_name").performTextInput("Search Test Deck")
+            composeRule.onNodeWithTag("deck_description")
+                .performTextInput("This is a test deck for search")
+            composeRule.onNodeWithTag("create_button").performClick()
+            composeRule.onNodeWithText("Search Test Deck").assertIsDisplayed()
         }
 
         step("Click search button") {
@@ -126,10 +128,10 @@ class DeckListScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.simple(
     @Test
     fun testDeleteDeck() = run {
         step("Create test deck") {
-            runTest {
-                deckRepository.createDeck("Deck To Delete", "Will be deleted")
-            }
-            composeRule.waitForIdle()
+            composeRule.onNodeWithTag("create_deck_fab").performClick()
+            composeRule.onNodeWithTag("deck_name").performTextInput("Deck To Delete")
+            composeRule.onNodeWithTag("deck_description").performTextInput("Will be deleted")
+            composeRule.onNodeWithTag("create_button").performClick()
             composeRule.onNodeWithText("Deck To Delete").assertIsDisplayed()
         }
 
@@ -160,17 +162,17 @@ class DeckListScreenTest : TestCase(kaspressoBuilder = Kaspresso.Builder.simple(
     @Test
     fun testMultipleDecksCreation() = run {
         step("Create first deck") {
-            runTest {
-                deckRepository.createDeck("First Deck", "First description")
-            }
-            composeRule.waitForIdle()
+            composeRule.onNodeWithTag("create_deck_fab").performClick()
+            composeRule.onNodeWithTag("deck_name").performTextInput("First Deck")
+            composeRule.onNodeWithTag("deck_description").performTextInput("First description")
+            composeRule.onNodeWithTag("create_button").performClick()
         }
 
         step("Create second deck") {
-            runTest {
-                deckRepository.createDeck("Second Deck", "Second description")
-            }
-            composeRule.waitForIdle()
+            composeRule.onNodeWithTag("create_deck_fab").performClick()
+            composeRule.onNodeWithTag("deck_name").performTextInput("Second Deck")
+            composeRule.onNodeWithTag("deck_description").performTextInput("Second description")
+            composeRule.onNodeWithTag("create_button").performClick()
         }
 
         step("Verify both decks are displayed") {
