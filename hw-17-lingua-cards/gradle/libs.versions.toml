@@ -11,6 +11,7 @@ coroutines = "1.8.1"
 navigation = "2.7.7"
 material3 = "1.2.1"
 junit = "4.13.2"
+junit-launcher = "1.11.4"
 turbine = "1.1.0"
 detekt = "1.23.8"
 jreleaser = "1.16.0"
@@ -23,6 +24,8 @@ hiltCompiler = "1.2.0"
 mockk = "1.13.8"
 runtimeAnnotation = "1.10.6"
 javaxInject = "1"
+kotest = "5.9.1"
+jupiter = "5.11.4"
 
 [libraries]
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "core-ktx" }
@@ -71,7 +74,10 @@ kaspresso = { module = "com.kaspersky.android-components:kaspresso", version.ref
 kaspresso-compose-support = { module = "com.kaspersky.android-components:kaspresso-compose-support", version.ref = "kaspresso" }
 hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "hilt" }
 detekt-test = { module = "io.gitlab.arturbosch.detekt:detekt-test", version.ref = "detekt" }
+kotest = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "jupiter" }
 androidx-runtime-annotation = { group = "androidx.compose.runtime", name = "runtime-annotation", version.ref = "runtimeAnnotation" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-launcher" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

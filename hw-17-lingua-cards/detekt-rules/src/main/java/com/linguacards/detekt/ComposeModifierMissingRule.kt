@@ -1,4 +1,4 @@
-package ru.otus.detekt
+package com.linguacards.detekt
 
 import io.gitlab.arturbosch.detekt.api.CodeSmell
 import io.gitlab.arturbosch.detekt.api.Config
@@ -14,8 +14,7 @@ import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.resolve.BindingContext
 
-class ComposeModifierMissingRule : Rule {
-    constructor(config: Config) : super(config)
+class ComposeModifierMissingRule(config: Config) : Rule(config) {
 
     override val issue: Issue = Issue(
         id = javaClass.simpleName,

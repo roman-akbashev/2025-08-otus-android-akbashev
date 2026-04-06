@@ -19,4 +19,15 @@ kotlin {
 
 dependencies {
     compileOnly(libs.detekt.api)
+    testImplementation(libs.detekt.test)
+    testImplementation(libs.kotest)
+    testImplementation(libs.jupiter)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
+
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
+    systemProperty("junit.jupiter.testinstance.lifecycle.default", "per_class")
+    systemProperty("compile-snippet-tests", project.hasProperty("compile-test-snippets"))
+}
+

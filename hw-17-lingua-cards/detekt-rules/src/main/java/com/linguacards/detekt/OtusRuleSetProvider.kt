@@ -1,4 +1,4 @@
-package ru.otus.detekt
+package com.linguacards.detekt
 
 import io.gitlab.arturbosch.detekt.api.Config
 import io.gitlab.arturbosch.detekt.api.RuleSet
@@ -12,7 +12,7 @@ class OtusRuleSetProvider : RuleSetProvider {
             ruleSetId,
             listOf(
                 ComposeModifierMissingRule(config),
-                FlowExceptionHandlingRule(config),
+                NoMutableStateWithoutRememberRule(config),
             ),
         )
     }
