@@ -168,7 +168,29 @@ LinguaCards/
 - ./gradlew detekt
 - ./gradlew build
 
-Конфигурация находится в config/detekt/detekt.yml.
+  Конфигурация находится в config/detekt/detekt.yml.
+
+###  CI/CD
+**Сборка агента Jenkins (все необходимое окружение для сборки и тестирования):**
+- git clone https://github.com/roman-akbashev/2025-08-otus-android-akbashev.git
+- cd 2025-08-otus-android-akbashev/hw-17-lingua-cards/ci/android-agent
+- docker build -t android-agent .
+- для тестирования окружения, в корне проекта вызвать:
+- docker run -it --rm -v $(pwd):/workspace -v gradle-cache:/root/.gradle -v android-sdk-cache:/opt/android-sdk android-agent /bin/bash
+
+в консоли контейнера попытаться собрать и протестировать проект, чтобы убедиться, что все работает
+
+**Сборка и запуск сервера Jenkins:**
+- git clone https://github.com/roman-akbashev/2025-08-otus-android-akbashev.git
+- cd 2025-08-otus-android-akbashev/hw-17-lingua-cards/ci/jenkins-master
+- docker build -t jenkins-master .
+- docker run -d -p 8080:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock -u root --name jenkins-master jenkins-master
+- открыть http://localhost:8080, получить пароль из логов контейнера: docker exec CONTAINER_ID cat /var/jenkins_home/secrets/initialAdminPassword
+- установить предложенные умолчанию плагины.
+- в Jenkins создайте новую задачу типа "Pipeline".
+- в разделе "Pipeline" выберите "Pipeline script from SCM", укажите git-репозиторий и путь к Jenkinsfile.
+- запустите сборку
+
 
 ###  Лицензия
 MIT License. Подробнее в файле LICENSE 

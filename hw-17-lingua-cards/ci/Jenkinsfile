@@ -1,0 +1,81 @@
+pipeline {
+    agent { docker { image 'android-agent:latest' } }
+
+    triggers {
+        cron('0 3 * * *')
+    }
+
+    environment {
+        ANDROID_HOME = '/opt/android-sdk'
+        JAVA_HOME = '/usr/lib/jvm/java-21-openjdk-amd64'
+        PROJECT_DIR = 'hw-17-lingua-cards'
+        GRADLE_USER_HOME = "${workspace}/.gradle"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'hw-17-lingua-cards',
+                url: 'https://github.com/roman-akbashev/2025-08-otus-android-akbashev.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                dir(env.PROJECT_DIR) {
+                    sh 'gradle assembleDebug --stacktrace'
+                }
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                dir(env.PROJECT_DIR) {
+                    sh 'gradle testDebugUnitTest --stacktrace'
+                }
+            }
+            post {
+                always {
+                    junit "${env.PROJECT_DIR}/**/test-results/**/*.xml"
+                }
+            }
+        }
+
+        stage('Static Analysis') {
+            steps {
+                dir(env.PROJECT_DIR) {
+                    sh 'gradle detekt --stacktrace'
+                }
+            }
+        }
+
+        stage('Performance Profile') {
+            when { branch 'hw-17-lingua-cards' }
+            steps {
+                dir(env.PROJECT_DIR) {
+                    sh '''
+                        mkdir -p profile-results
+                        gradle-profiler --benchmark --project-dir . --output-dir profile-results \
+                            --warmups 1 --iterations 3 --measure-configuration-time assembleDebug
+                    '''
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts "${env.PROJECT_DIR}/profile-results/**"
+                    publishHTML(target: [
+                        reportDir: "${env.PROJECT_DIR}/profile-results",
+                        reportFiles: 'index.html',
+                        reportName: 'Gradle Profiler'
+                    ])
+                }
+            }
+        }
+    }
+
+    post {
+        failure {
+            echo 'Pipeline failed!!!'
+        }
+    }
+}
