@@ -192,6 +192,8 @@ LinguaCards/
 
 <img src="img/jenkins.png" width="800" />
 
+###  Публикация
+./gradlew :app:publishToPlayStore -PplayTrack=beta -PplayReleaseNotes="Fixed bugs"
 
 ###  Лицензия
 MIT License. Подробнее в файле LICENSE 

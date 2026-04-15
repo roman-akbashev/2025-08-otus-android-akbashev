@@ -7,6 +7,16 @@ plugins {
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.detekt)
+    id("play-publisher")
+}
+
+playPublisher {
+    serviceAccountJson = file("../secrets/play-publisher-key.json")
+    packageName = "com.linguacards.app"
+    defaultTrack = "internal"
+    defaultUserFraction = 0.1
+    defaultReleaseStatus = "completed"
+    artifactPath = "build/outputs/bundle/release/app-release.aab"
 }
 
 detekt {
