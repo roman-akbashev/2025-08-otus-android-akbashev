@@ -187,9 +187,10 @@ LinguaCards/
 - docker run -d -p 8080:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock -u root --name jenkins-master jenkins-master
 - открыть http://localhost:8080, получить пароль из логов контейнера: docker exec CONTAINER_ID cat /var/jenkins_home/secrets/initialAdminPassword
 - установить предложенные умолчанию плагины.
-- в Jenkins создайте новую задачу типа "Pipeline".
-- в разделе "Pipeline" выберите "Pipeline script from SCM", укажите git-репозиторий и путь к Jenkinsfile.
+- в Jenkins создайте и настройте новую задачу типа "Multibranch Pipline"
 - запустите сборку
+
+<img src="img/jenkins.png" width="800" />
 
 
 ###  Лицензия

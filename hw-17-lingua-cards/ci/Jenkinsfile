@@ -1,81 +1,104 @@
 pipeline {
-    agent { docker { image 'android-agent:latest' } }
+	agent {
+		docker {
+			image 'android-agent:latest'
+		}
+	}
 
-    triggers {
-        cron('0 3 * * *')
-    }
+	triggers {
+		cron('0 3 * * *')
+	}
 
-    environment {
-        ANDROID_HOME = '/opt/android-sdk'
-        JAVA_HOME = '/usr/lib/jvm/java-21-openjdk-amd64'
-        PROJECT_DIR = 'hw-17-lingua-cards'
-        GRADLE_USER_HOME = "${workspace}/.gradle"
-    }
+	environment {
+		ANDROID_HOME = '/opt/android-sdk'
+		JAVA_HOME = '/usr/lib/jvm/java-21-openjdk-amd64'
+		PROJECT_DIR = 'hw-17-lingua-cards'
+		GRADLE_USER_HOME = "${workspace}/.gradle"
+	}
 
-    stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'hw-17-lingua-cards',
-                url: 'https://github.com/roman-akbashev/2025-08-otus-android-akbashev.git'
-            }
-        }
+	stages {
+		// в Jenkins настроен Multibranch Pipline
 
-        stage('Build') {
-            steps {
-                dir(env.PROJECT_DIR) {
-                    sh 'gradle assembleDebug --stacktrace'
-                }
-            }
-        }
+		stage('Build Debug') {
+			when {
+				not {
+					branch 'main'
+				}
+			}
+			steps {
+				dir(env.PROJECT_DIR) {
+					sh 'gradle assembleDebug'
+				}
+			}
+		}
 
-        stage('Unit Tests') {
-            steps {
-                dir(env.PROJECT_DIR) {
-                    sh 'gradle testDebugUnitTest --stacktrace'
-                }
-            }
-            post {
-                always {
-                    junit "${env.PROJECT_DIR}/**/test-results/**/*.xml"
-                }
-            }
-        }
+		stage('Build Release') {
+			when {
+				branch 'main'
+			}
+			steps {
+				dir(env.PROJECT_DIR) {
+					sh 'gradle assembleRelease'
+				}
+			}
+		}
 
-        stage('Static Analysis') {
-            steps {
-                dir(env.PROJECT_DIR) {
-                    sh 'gradle detekt --stacktrace'
-                }
-            }
-        }
+		stage('Unit Tests') {
+			steps {
+				dir(env.PROJECT_DIR) {
+					sh 'gradle testDebugUnitTest'
+				}
+			}
+			post {
+				always {
+					junit "${env.PROJECT_DIR}/**/test-results/**/*.xml"
+				}
+			}
+		}
 
-        stage('Performance Profile') {
-            when { branch 'hw-17-lingua-cards' }
-            steps {
-                dir(env.PROJECT_DIR) {
-                    sh '''
+		stage('Static Analysis') {
+			steps {
+				dir(env.PROJECT_DIR) {
+					sh 'gradle detekt'
+				}
+			}
+		}
+
+		stage('Performance Profile') {
+			when {
+				branch 'main'
+			}
+			steps {
+				dir(env.PROJECT_DIR) {
+					sh '''
                         mkdir -p profile-results
                         gradle-profiler --benchmark --project-dir . --output-dir profile-results \
-                            --warmups 1 --iterations 3 --measure-configuration-time assembleDebug
+                            --warmups 1 --iterations 3 --measure-config-time assembleDebug
                     '''
-                }
-            }
-            post {
-                always {
-                    archiveArtifacts "${env.PROJECT_DIR}/profile-results/**"
-                    publishHTML(target: [
-                        reportDir: "${env.PROJECT_DIR}/profile-results",
-                        reportFiles: 'index.html',
-                        reportName: 'Gradle Profiler'
-                    ])
-                }
-            }
-        }
-    }
+				}
+			}
+			post {
+				always {
+					script {
+						if (fileExists("${env.PROJECT_DIR}/profile-results/index.html")) {
+							archiveArtifacts "${env.PROJECT_DIR}/profile-results/**"
+							publishHTML(target: [
+								reportDir: "${env.PROJECT_DIR}/profile-results",
+								reportFiles: 'index.html',
+								reportName: 'Gradle Profiler'
+							])
+						} else {
+							echo "No profile results to publish"
+						}
+					}
+				}
+			}
+		}
+	}
 
-    post {
-        failure {
-            echo 'Pipeline failed!!!'
-        }
-    }
+	post {
+		failure {
+			echo 'Pipeline failed!!!'
+		}
+	}
 }

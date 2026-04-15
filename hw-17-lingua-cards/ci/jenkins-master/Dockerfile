@@ -1,6 +1,5 @@
 FROM jenkins/jenkins:lts-jdk21
 
-# Переключение на root для установки дополнительных пакетов
 USER root
 
 RUN apt-get update && \
@@ -8,7 +7,6 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Установка плагинов (можно через jenkins-plugin-cli)
 RUN jenkins-plugin-cli --plugins \
     docker-workflow \
     pipeline-stage-view \
@@ -17,5 +15,4 @@ RUN jenkins-plugin-cli --plugins \
     htmlpublisher \
     workflow-aggregator
 
-# Возвращаемся к пользователю jenkins
 USER jenkins
