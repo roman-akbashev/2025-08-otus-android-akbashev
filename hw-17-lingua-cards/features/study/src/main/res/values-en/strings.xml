@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="study_title">Study</string>
+    <string name="great_job_title">Great job!</string>
+    <string name="completed_message">You\'ve completed all cards for today</string>
+    <string name="close_button">Close</string>
+    <string name="grade_again">Again</string>
+    <string name="grade_hard">Hard</string>
+    <string name="grade_good">Good</string>
+    <string name="grade_easy">Easy</string>
+    <string name="example">Example:</string>
+    <string name="error_title">Error</string>
+    <string name="error_ok">OK</string>
+</resources>

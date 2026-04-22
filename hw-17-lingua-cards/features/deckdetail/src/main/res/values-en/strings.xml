@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="deck_detail_title">Deck Details</string>
+    <string name="search_cards_hint">Search cards…</string>
+    <string name="total_cards_label">Total Cards</string>
+    <string name="filtered_label">Filtered</string>
+    <string name="example_prefix">example: %s</string>
+    <string name="new_card_label">New card</string>
+    <string name="overdue_1_day">Overdue by 1 day</string>
+    <string name="overdue_2_4_days">Overdue by %d days</string>
+    <string name="overdue_days_format">Overdue by %d days</string>
+    <string name="today_at_time">Today at %s</string>
+    <string name="today_label">Today</string>
+    <string name="tomorrow_at_time">Tomorrow at %s</string>
+    <string name="tomorrow_label">Tomorrow</string>
+    <string name="in_days_format">In %d days</string>
+    <string name="no_cards_title">No cards yet</string>
+    <string name="no_cards_message">Add your first card</string>
+    <string name="no_search_results_title">No results for "%s"</string>
+    <string name="no_search_results_message">Try a different search term</string>
+    <string name="loading_deck">Loading deck…</string>
+    <string name="delete_card_dialog_title">Delete Card</string>
+    <string name="delete_card_dialog_message">Are you sure you want to delete "%s"?</string>
+    <string name="delete_card_button">Delete</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="error_title">Error</string>
+    <string name="error_ok">OK</string>
+</resources>

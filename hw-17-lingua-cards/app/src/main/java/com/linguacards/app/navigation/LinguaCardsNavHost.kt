@@ -1,0 +1,84 @@
+package com.linguacards.app.navigation
+
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import com.linguacards.features.about.presentation.AboutScreen
+import com.linguacards.features.cardedit.presentation.CardEditScreen
+import com.linguacards.features.deckdetail.presentation.DeckDetailScreen
+import com.linguacards.features.decklist.presentation.DeckListScreen
+import com.linguacards.features.study.presentation.StudyScreen
+
+@Composable
+fun LinguaCardsNavHost(
+    navController: NavHostController,
+    modifier: Modifier = Modifier
+) {
+    NavHost(
+        navController = navController,
+        startDestination = "deck_list",
+        modifier = modifier
+    ) {
+
+        composable("deck_list") {
+            DeckListScreen(
+                onDeckClick = { deckId ->
+                    navController.navigate("deck_detail/$deckId")
+                },
+                onAboutClick = { navController.navigate("about") }
+            )
+        }
+
+        composable(
+            "deck_detail/{deckId}",
+            arguments = listOf(navArgument("deckId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val deckId = backStackEntry.arguments?.getLong("deckId") ?: 0L
+            DeckDetailScreen(
+                deckId = deckId,
+                onCardClick = { cardId ->
+                    navController.navigate("card_edit/$deckId/$cardId")
+                },
+                onAddCard = {
+                    navController.navigate("card_edit/$deckId/0")
+                },
+                onStartStudy = {
+                    navController.navigate("study/$deckId")
+                },
+                onBackClick = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(
+            "card_edit/{deckId}/{cardId}",
+            arguments = listOf(
+                navArgument("deckId") { type = NavType.LongType },
+                navArgument("cardId") { type = NavType.LongType }
+            )
+        ) { backStackEntry ->
+            CardEditScreen(
+                onSave = { navController.popBackStack() },
+                onCancel = { navController.popBackStack() }
+            )
+        }
+
+        composable(
+            "study/{deckId}",
+            arguments = listOf(navArgument("deckId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            StudyScreen(
+                onFinish = { navController.popBackStack() }
+            )
+        }
+
+        composable("about") {
+            AboutScreen(navController = navController)
+        }
+    }
+}

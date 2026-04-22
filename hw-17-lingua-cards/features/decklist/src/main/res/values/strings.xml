@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="deck_list_title">LinguaCards</string>
+    <string name="deck_stats_total_decks">Всего колод</string>
+    <string name="deck_stats_filtered">Отфильтровано</string>
+    <string name="deck_updated">Обновлено "%s"</string>
+    <string name="empty_decks_title">Пока нет колод</string>
+    <string name="empty_decks_message">Создайте свою первую колоду, чтобы начать изучение</string>
+    <string name="search_no_results_title">Нет результатов для "%s"</string>
+    <string name="search_no_results_message">Попробуйте другой поисковый запрос</string>
+    <string name="loading_decks">Загрузка колод…</string>
+    <string name="create_deck_dialog_title">Создать новую колоду</string>
+    <string name="deck_name_label">Название колоды</string>
+    <string name="deck_description_label">Описание (необязательно)</string>
+    <string name="create_button">Создать</string>
+    <string name="cancel_button">Отмена</string>
+    <string name="delete_deck_dialog_title">Удалить колоду</string>
+    <string name="delete_deck_dialog_message">Вы уверены, что хотите удалить "%s"? Все карточки в этой колоде также будут удалены.</string>
+    <string name="delete_button">Удалить</string>
+    <string name="error_title">Ошибка</string>
+    <string name="error_ok">OK</string>
+    <string name="search_decks_hint">Поиск колод…</string>
+    <string name="deck_card_count_format">%d карточек • Обновлено %s</string>
+</resources>

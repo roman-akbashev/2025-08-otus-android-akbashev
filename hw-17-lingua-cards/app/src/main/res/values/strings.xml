@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">LinguaCards</string>
+    <string name="deck_list_title">My Decks</string>
+    <string name="create_deck">Create Deck</string>
+    <string name="study">Study</string>
+    <string name="settings">Settings</string>
+    <string name="add_card">Add Card</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="error">Error</string>
+    <string name="retry">Retry</string>
+</resources>

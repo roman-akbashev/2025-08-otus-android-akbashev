@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="deck_detail_title">Колода</string>
+    <string name="search_cards_hint">Поиск карточек…</string>
+    <string name="total_cards_label">Всего карточек</string>
+    <string name="filtered_label">Отфильтровано</string>
+    <string name="example_prefix">пример: %s</string>
+    <string name="new_card_label">Новая карточка</string>
+    <string name="overdue_1_day">Просрочено на 1 день</string>
+    <string name="overdue_2_4_days">Просрочено на %d дня</string>
+    <string name="overdue_days_format">Просрочено на %d дней</string>
+    <string name="today_at_time">Сегодня в %s</string>
+    <string name="today_label">Сегодня</string>
+    <string name="tomorrow_at_time">Завтра в %s</string>
+    <string name="tomorrow_label">Завтра</string>
+    <string name="in_days_format">Через %d дней</string>
+    <string name="no_cards_title">Пока нет карточек</string>
+    <string name="no_cards_message">Добавьте первую карточку</string>
+    <string name="no_search_results_title">Нет результатов для "%s"</string>
+    <string name="no_search_results_message">Попробуйте другой поисковый запрос</string>
+    <string name="loading_deck">Загрузка колоды…</string>
+    <string name="delete_card_dialog_title">Удалить карточку</string>
+    <string name="delete_card_dialog_message">Вы уверены, что хотите удалить "%s"?</string>
+    <string name="delete_card_button">Удалить</string>
+    <string name="cancel_button">Отмена</string>
+    <string name="error_title">Ошибка</string>
+    <string name="error_ok">OK</string>
+</resources>
