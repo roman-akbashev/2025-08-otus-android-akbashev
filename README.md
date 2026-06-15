@@ -10,6 +10,9 @@
 
 группа: OTUS Android-prof-2025-08
 
+[Сертификат](https://otus.ru/certificate/825e60eda580424081acbe483afe878c/)
+
+
 # Содержание
 
 | HW                       | DESCRIPTION                                              |
